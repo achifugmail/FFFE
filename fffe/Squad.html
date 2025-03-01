@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Squad Details</title>
+    <link rel="stylesheet" href="src/App.css">
+    <style>
+        .section {
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+            .section h3 {
+                margin-bottom: 10px;
+            }
+
+        .player-grid {
+            display: grid;
+            grid-template-columns: 50px auto 30px;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 5px;
+            border: 1px solid #ddd;
+            padding: 5px;
+            border-radius: 3px;
+        }
+
+            .player-grid img {
+                border-radius: 50%;
+                width: 40px;
+                height: 40px;
+            }
+
+        .add-button {
+            margin-top: 10px;
+            display: none; /* Hide by default */
+        }
+
+        .player-list {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .player-row {
+            border: 1px solid #ddd;
+            padding: 5px;
+            border-radius: 3px;
+            margin-bottom: 5px;
+            min-height: 30px; /* Ensure the row is visible */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #aaa; /* Placeholder text color */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Squad Details</h1>
+        <div id="squadInfo"></div>
+
+        <!-- Link to Team Details page -->
+        <a id="teamLink" href="#">View Team Details</a>
+
+        <!-- Grid for player positions -->
+        <div id="playerGrid"></div>
+    </div>
+
+    <script src="js/squad.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const squadId = urlParams.get('id');
+            const teamLink = document.getElementById('teamLink');
+            teamLink.href = `Team.html?SquadId=${squadId}`;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>League Details</title>
+    <link rel="stylesheet" href="src/App.css">
+    <style>
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .iframe-container {
+            height: 800px; /* Set a specific height for the iframe container */
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .collapsible {
+            cursor: pointer;
+            padding: 10px;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 18px;
+            background-color: #f1f1f1;
+        }
+
+            .collapsible:after {
+                content: '\002B'; /* Unicode character for "plus" sign (+) */
+                font-size: 13px;
+                color: #777;
+                float: right;
+                margin-left: 5px;
+            }
+
+            .collapsible.active:after {
+                content: "\2212"; /* Unicode character for "minus" sign (−) */
+            }
+
+        .content {
+            padding: 0 18px;
+            display: none;
+            overflow: hidden;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>League Details</h1>
+        <div id="leagueInfo"></div>
+
+        <!-- New UI for creating a squad -->
+        <button type="button" class="collapsible">Create Squad</button>
+        <div class="content">
+            <h3>Create Squad</h3>
+            <label for="userDropdown">User:</label>
+            <select id="userDropdown"></select>
+
+            <label for="draftPeriodDropdown">Draft Period:</label>
+            <select id="draftPeriodDropdown"></select>
+
+            <label for="squadName">Squad Name:</label>
+            <input type="text" id="squadName" />
+
+            <button id="createSquadButton">Create Squad</button>
+        </div>
+
+        <!-- Section to display existing squads -->
+        <h3>Existing Squads</h3>
+        <label for="filterDraftPeriodDropdown">Filter by Draft Period:</label>
+        <select id="filterDraftPeriodDropdown"></select>
+        <table id="squadTable">
+            <thead>
+                <tr id="squadTableHeader"></tr>
+            </thead>
+            <tbody id="squadTableBody">
+                <tr id="squadTableRow"></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script src="js/league.js"></script>
+</body>
+</html>

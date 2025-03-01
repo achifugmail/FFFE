@@ -1,0 +1,162 @@
+/* styles.css */
+
+/* General styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #444;
+    margin: 20px 0;
+}
+
+a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+/* Layout */
+.container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Buttons */
+button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+/* Forms */
+label {
+    display: block;
+    margin: 10px 0 5px;
+}
+
+input[type="text"], select {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+th {
+    background-color: #f4f4f4;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* Utility classes */
+.text-center {
+    text-align: center;
+}
+
+.mt-20 {
+    margin-top: 20px;
+}
+
+/* Add styles for the player grid */
+.section {
+    margin-bottom: 20px;
+}
+
+.players {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.player-grid {
+    display: flex;
+    align-items: center;
+    margin: 10px;
+    padding: 10px;
+    padding-right: 40px; /* Add padding to the right to make space for the captain button */
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.player-photo {
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+    border-radius: 50%;
+}
+
+.selected {
+    background-color: #d1e7dd;
+}
+
+.captain {
+    border: 2px solid gold;
+    background-color: #fff3cd;
+    position: relative;
+}
+
+    .captain::after {
+        content: 'C';
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        background-color: gold;
+        color: #fff;
+        border-radius: 50%;
+        padding: 5px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+.captain-button {
+    position: absolute;
+    right: 10px; /* Adjust the position to the right */
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 5px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+    .captain-button:hover {
+        background-color: #0056b3;
+    }
