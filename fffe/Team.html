@@ -5,26 +5,137 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Team</title>
     <link rel="stylesheet" href="src/App.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        #content {
+            padding: 2rem;
+        }
+
+        a {
+            display: inline-block;
+            color: #4CAF50;
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+            a:hover {
+                text-decoration: underline;
+            }
+
+        h3 {
+            margin-top: 2rem;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+            li a {
+                color: #4CAF50;
+                text-decoration: none;
+            }
+
+                li a:hover {
+                    text-decoration: underline;
+                }
+
+        .section {
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+            .section h3 {
+                margin-bottom: 10px;
+            }
+
+        .player-grid {
+            display: grid;
+            grid-template-columns: 75px 2fr 75px; /* Adjusted column widths */
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 5px;
+            border: 1px solid #ddd;
+            padding: 5px;
+            border-radius: 3px;
+        }
+
+            .player-grid img {
+                border-radius: 50%;
+                width: 40px;
+                height: 40px;
+            }
+
+        .add-button {
+            margin-top: 10px;
+            display: none; /* Hide by default */
+        }
+
+        .player-list {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .player-row {
+            border: 1px solid #ddd;
+            padding: 5px;
+            border-radius: 3px;
+            margin-bottom: 5px;
+            min-height: 30px; /* Ensure the row is visible */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #aaa; /* Placeholder text color */
+        }
+    </style>
 </head>
 <body>
-    <div id="squadInfo" class="container">
-        <!-- Squad info will be populated by JavaScript -->
-    </div>
-    <div>
-        <label for="filterDraftPeriodDropdown">Select Draft Period:</label>
-        <select id="filterDraftPeriodDropdown">
-            <!-- Options will be populated by JavaScript -->
-        </select>
-    </div>
-    <div>
-        <label for="gameweekDropdown">Select Gameweek:</label>
-        <select id="gameweekDropdown">
-            <!-- Options will be populated by JavaScript -->
-        </select>
-    </div>
-    <div id="playerGrid" class="container">
-        <!-- Player grid will be populated by JavaScript -->
+    <header>
+        <h1>Team</h1>
+    </header>
+    <div id="content" class="container">
+        <div id="squadInfo" class="container">
+            <!-- Squad info will be populated by JavaScript -->
+        </div>
+        <div>
+            <label for="filterDraftPeriodDropdown">Select Draft Period:</label>
+            <select id="filterDraftPeriodDropdown">
+                <!-- Options will be populated by JavaScript -->
+            </select>
+        </div>
+        <div>
+            <label for="gameweekDropdown">Select Gameweek:</label>
+            <select id="gameweekDropdown">
+                <!-- Options will be populated by JavaScript -->
+            </select>
+        </div>
+        <div id="playerGrid" class="container">
+            <!-- Player grid will be populated by JavaScript -->
+        </div>
     </div>
     <script src="js/team.js"></script>
 </body>
 </html>
+
+

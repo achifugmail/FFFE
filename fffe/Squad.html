@@ -5,6 +5,59 @@
     <title>Squad Details</title>
     <link rel="stylesheet" href="src/App.css">
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        #content {
+            padding: 2rem;
+        }
+
+        a {
+            display: inline-block;
+            color: #4CAF50;
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+            a:hover {
+                text-decoration: underline;
+            }
+
+        h3 {
+            margin-top: 2rem;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+            li a {
+                color: #4CAF50;
+                text-decoration: none;
+            }
+
+                li a:hover {
+                    text-decoration: underline;
+                }
+
         .section {
             margin-bottom: 20px;
             border: 1px solid #ccc;
@@ -57,8 +110,10 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <header id="header">
         <h1>Squad Details</h1>
+    </header>
+    <div id="content" class="container">
         <div id="squadInfo"></div>
 
         <!-- Link to Team Details page -->
@@ -69,13 +124,6 @@
     </div>
 
     <script src="js/squad.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const urlParams = new URLSearchParams(window.location.search);
-            const squadId = urlParams.get('id');
-            const teamLink = document.getElementById('teamLink');
-            teamLink.href = `Team.html?SquadId=${squadId}`;
-        });
-    </script>
 </body>
 </html>
+

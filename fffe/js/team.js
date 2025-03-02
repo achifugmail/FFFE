@@ -51,14 +51,24 @@ document.addEventListener('DOMContentLoaded', async function () {
             option.text = `Gameweek ${gameweek.number}`;
             gameweekDropdown.appendChild(option);
         });
+
+        // Set default value for gameweekDropdown
+        if (gameweeks.length > 0) {
+            gameweekDropdown.value = gameweeks[0].id;
+        }
     }
 
     // Initial population of gameweeks
-    fetchAndPopulateGameweeks(filterDraftPeriodDropdown.value);
+    await fetchAndPopulateGameweeks(filterDraftPeriodDropdown.value);
 
     // Update gameweeks when draft period changes
-    filterDraftPeriodDropdown.addEventListener('change', function () {
-        fetchAndPopulateGameweeks(this.value);
+    filterDraftPeriodDropdown.addEventListener('change', async function () {
+        await fetchAndPopulateGameweeks(this.value);
+        fetchAndDisplaySquadPlayers(squadId);
+    });
+
+    gameweekDropdown.addEventListener('change', function () {
+        fetchAndDisplaySquadPlayers(squadId);
     });
 
     // Fetch and display squad info
@@ -75,9 +85,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             const username = localStorage.getItem('username');
             const squadInfoDiv = document.getElementById('squadInfo');
             squadInfoDiv.innerHTML = `
-            <h2>User: ${username}</h2>
-            <p>Squad: ${squad.squadName}</p>
-                
+                <h2>Squad: ${squad.squadName}</h2>
+                <p>User: ${username}</p>
                 <p>Draft Period: ${squad.draftPeriodId}</p>
             `;
         } catch (error) {
@@ -88,6 +97,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Fetch and display players in the current squad
     async function fetchAndDisplaySquadPlayers(squadId) {
         try {
+            const gameweekId = document.getElementById('gameweekDropdown').value;
             const response = await fetch(`https://localhost:44390/api/PlayerPositions/user-squad-players/${squadId}`, {
                 credentials: 'include'
             });
@@ -132,11 +142,36 @@ document.addEventListener('DOMContentLoaded', async function () {
                 playerGrid.appendChild(section);
             });
 
+            // Fetch and select players for the current gameweek
+            try {
+                const gameweekPlayersResponse = await fetch(`https://localhost:44390/api/UserTeamPlayers/byUserSquadAndGameweek?userSquadId=${squadId}&gameweekId=${gameweekId}`, {
+                    credentials: 'include'
+                });
+                if (gameweekPlayersResponse.ok) {
+                    const gameweekPlayers = await gameweekPlayersResponse.json();
+                    gameweekPlayers.forEach(player => {
+                        selectPlayer(player.playerId, false); // Pass false to indicate initial loading
+                        if (player.isCaptain) {
+                            markAsCaptain(player.playerId);
+                        }
+                    });
+                } else {
+                    console.error('Failed to fetch gameweek players:', gameweekPlayersResponse.status, gameweekPlayersResponse.statusText);
+                }
+            } catch (error) {
+                console.error('Error fetching gameweek players:', error);
+            }
+
             // Add event listeners for player selection
             const checkboxes = document.querySelectorAll('.player-checkbox');
             checkboxes.forEach(checkbox => {
                 checkbox.addEventListener('change', function () {
-                    updatePlayerSelection();
+                    const playerId = checkbox.getAttribute('data-player-id');
+                    if (checkbox.checked) {
+                        selectPlayer(playerId, true); // Pass true to indicate user interaction
+                    } else {
+                        deselectPlayer(playerId);
+                    }
                 });
             });
 
@@ -146,7 +181,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 button.addEventListener('click', function () {
                     const playerId = button.getAttribute('data-player-id');
                     markAsCaptain(playerId);
-                    selectPlayer(playerId);
+                    selectPlayer(playerId, true); // Pass true to indicate user interaction
                 });
             });
         } catch (error) {
@@ -168,36 +203,97 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     // Mark a player as captain
-    function markAsCaptain(playerId) {
-        const captainButtons = document.querySelectorAll('.captain-button');
-        captainButtons.forEach(button => {
+    async function markAsCaptain(playerId) {
+        const button = document.querySelector(`.captain-button[data-player-id="${playerId}"]`);
+        if (button) {
             const playerDiv = button.closest('.player-grid');
-            if (button.getAttribute('data-player-id') === playerId) {
-                playerDiv.classList.add('captain');
-            } else {
-                playerDiv.classList.remove('captain');
+            playerDiv.classList.add('captain');
+        }
+
+        // Call the API to update the captain
+        const squadId = new URLSearchParams(window.location.search).get('SquadId');
+        const gameweekId = document.getElementById('gameweekDropdown').value;
+        try {
+            const response = await fetch('https://localhost:44390/api/UserTeamPlayers/updateCaptainByGameweekAndSquad', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify({ gameweekId: gameweekId, userSquadId: squadId, playerId: playerId })
+            });
+            if (!response.ok) {
+                console.error('Failed to update captain:', response.status, response.statusText);
             }
-        });
+        } catch (error) {
+            console.error('Error updating captain:', error);
+        }
     }
 
     // Select a player
-    function selectPlayer(playerId) {
-        const checkboxes = document.querySelectorAll('.player-checkbox');
-        checkboxes.forEach(checkbox => {
-            if (checkbox.getAttribute('data-player-id') === playerId) {
-                checkbox.checked = true;
+    async function selectPlayer(playerId, isUserInteraction) {
+        const checkbox = document.querySelector(`.player-checkbox[data-player-id="${playerId}"]`);
+        if (checkbox) {
+            checkbox.checked = true;
+            const playerDiv = checkbox.closest('.player-grid');
+            playerDiv.classList.add('selected');
+        }
+
+        // Call the API to add the player to the team only if it's a user interaction
+        if (isUserInteraction) {
+            const squadId = new URLSearchParams(window.location.search).get('SquadId');
+            const gameweekId = document.getElementById('gameweekDropdown').value;
+            try {
+                const response = await fetch('https://localhost:44390/api/UserTeamPlayers/AddByGameweekAndSquad', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ gameweekId: gameweekId, userSquadId: squadId, playerId: playerId })
+                });
+                if (!response.ok) {
+                    console.error('Failed to add player to team:', response.status, response.statusText);
+                }
+            } catch (error) {
+                console.error('Error adding player to team:', error);
             }
-        });
-        updatePlayerSelection();
+        }
+    }
+
+    // Deselect a player
+    async function deselectPlayer(playerId) {
+        const checkbox = document.querySelector(`.player-checkbox[data-player-id="${playerId}"]`);
+        if (checkbox) {
+            checkbox.checked = false;
+            const playerDiv = checkbox.closest('.player-grid');
+            playerDiv.classList.remove('selected');
+        }
+
+        // Call the API to remove the player from the team
+        const squadId = new URLSearchParams(window.location.search).get('SquadId');
+        const gameweekId = document.getElementById('gameweekDropdown').value;
+        try {
+            const response = await fetch('https://localhost:44390/api/UserTeamPlayers/DeleteByGameweekAndSquad', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify({ gameweekId: gameweekId, userSquadId: squadId, playerId: playerId })
+            });
+            if (!response.ok) {
+                console.error('Failed to remove player from team:', response.status, response.statusText);
+            }
+        } catch (error) {
+            console.error('Error removing player from team:', error);
+        }
     }
 
     // Fetch and display squad info and players in the current squad on page load
     const urlParams = new URLSearchParams(window.location.search);
     const squadId = urlParams.get('SquadId');
 
-    fetchAndDisplaySquadInfo(squadId);
-    fetchAndDisplaySquadPlayers(squadId);
+    await fetchAndDisplaySquadInfo(squadId);
+    await fetchAndDisplaySquadPlayers(squadId);
 });
-
-
-

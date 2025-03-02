@@ -8,6 +8,15 @@ document.addEventListener('DOMContentLoaded', async function () {
     let draftPeriodId;
     let squadPlayers = [];
 
+    // Hide header if the page is loaded inside an iframe
+    if (window.self !== window.top) {
+        document.getElementById('header').style.display = 'none';
+    }
+
+    // Set the team link href
+    const teamLink = document.getElementById('teamLink');
+    teamLink.href = `Team.html?SquadId=${squadId}`;
+
     // Fetch positions and create sections dynamically
     async function fetchAndCreateSections() {
         try {
@@ -61,8 +70,6 @@ document.addEventListener('DOMContentLoaded', async function () {
             console.error('Error fetching positions:', error);
         }
     }
-
-
 
     // Fetch squad details
     async function fetchSquadDetails() {
@@ -185,7 +192,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-
     // Function to add player to squad
     async function addPlayerToSquad(playerId, squadId, position) {
         const payload = {
@@ -260,8 +266,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-
-
     // Add event listeners to "Add" buttons
     document.addEventListener('click', function (event) {
         if (event.target.classList.contains('add-button')) {
@@ -292,3 +296,4 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Fetch and display players in the current squad on page load
     fetchAndDisplaySquadPlayers(squadId);
 });
+
