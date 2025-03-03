@@ -2,10 +2,13 @@ document.addEventListener('DOMContentLoaded', async function () {
     const saveButton = document.getElementById('saveButton');
     const playerTableBody = document.querySelector('#playerTable tbody');
     const tableHeaders = document.querySelectorAll('#playerTable th');
+    const paginationControls = document.getElementById('paginationControls');
     let positions = [];
     let players = [];
     let initialPlayerPositions = {};
     let sortOrder = 1; // 1 for ascending, -1 for descending
+    let currentPage = 1;
+    const playersPerPage = 10;
 
     // Fetch positions
     async function fetchPositions() {
@@ -44,7 +47,11 @@ document.addEventListener('DOMContentLoaded', async function () {
     function populateTable() {
         playerTableBody.innerHTML = ''; // Clear existing rows
 
-        players.forEach(player => {
+        const start = (currentPage - 1) * playersPerPage;
+        const end = start + playersPerPage;
+        const playersToDisplay = players.slice(start, end);
+
+        playersToDisplay.forEach(player => {
             const row = document.createElement('tr');
 
             row.innerHTML = `
@@ -53,6 +60,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 <td>${player.secondName}</td>
                 <td>
                     <select class="position-select" data-player-id="${player.id}">
+                        <option value="" ${!player.positionName ? 'selected' : ''}></option>
                         ${positions.map(position => `<option value="${position.name}" ${position.name === player.positionName ? 'selected' : ''}>${position.name}</option>`).join('')}
                     </select>
                 </td>
@@ -64,6 +72,32 @@ document.addEventListener('DOMContentLoaded', async function () {
             `;
 
             playerTableBody.appendChild(row);
+        });
+
+        updatePaginationControls();
+    }
+
+    // Update pagination controls
+    function updatePaginationControls() {
+        const totalPages = Math.ceil(players.length / playersPerPage);
+        paginationControls.innerHTML = `
+            <button ${currentPage === 1 ? 'disabled' : ''} id="prevPage">Previous</button>
+            <span>Page ${currentPage} of ${totalPages}</span>
+            <button ${currentPage === totalPages ? 'disabled' : ''} id="nextPage">Next</button>
+        `;
+
+        document.getElementById('prevPage').addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                populateTable();
+            }
+        });
+
+        document.getElementById('nextPage').addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                populateTable();
+            }
         });
     }
 
@@ -136,8 +170,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     // Save modified rows
-    // Save modified rows
-    // Save modified rows
     async function saveAllChanges() {
         console.log('Save button clicked'); // Add this line to check if the function is called
         const modifiedRows = document.querySelectorAll('.position-select');
@@ -204,3 +236,4 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     init();
 });
+

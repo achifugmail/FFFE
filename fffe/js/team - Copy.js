@@ -65,12 +65,10 @@ document.addEventListener('DOMContentLoaded', async function () {
     filterDraftPeriodDropdown.addEventListener('change', async function () {
         await fetchAndPopulateGameweeks(this.value);
         fetchAndDisplaySquadPlayers(squadId);
-        updateTeamScoreLink();
     });
 
     gameweekDropdown.addEventListener('change', function () {
         fetchAndDisplaySquadPlayers(squadId);
-        updateTeamScoreLink();
     });
 
     // Fetch and display squad info
@@ -292,22 +290,10 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-    // Update the team score link
-    function updateTeamScoreLink() {
-        const draftPeriodId = filterDraftPeriodDropdown.value;
-        const gameweekId = gameweekDropdown.value;
-        const squadId = new URLSearchParams(window.location.search).get('SquadId');
-        const teamScoreLink = document.getElementById('teamScoreLink');
-        teamScoreLink.href = `TeamScore.html?draftPeriodId=${draftPeriodId}&gameweekId=${gameweekId}&squadId=${squadId}`;
-    }
-
     // Fetch and display squad info and players in the current squad on page load
     const urlParams = new URLSearchParams(window.location.search);
     const squadId = urlParams.get('SquadId');
 
     await fetchAndDisplaySquadInfo(squadId);
     await fetchAndDisplaySquadPlayers(squadId);
-
-    // Initial link update
-    updateTeamScoreLink();
 });

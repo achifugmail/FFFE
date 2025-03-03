@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>League Score</title>
+    <link rel="stylesheet" href="src/App.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        #content {
+            padding: 2rem;
+        }
+
+        a {
+            display: inline-block;
+            color: #4CAF50;
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+            a:hover {
+                text-decoration: underline;
+            }
+
+        h3 {
+            margin-top: 2rem;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+            li a {
+                color: #4CAF50;
+                text-decoration: none;
+            }
+
+                li a:hover {
+                    text-decoration: underline;
+                }
+
+        iframe {
+            width: 100%;
+            height: 1000px; /* Set the height of the iframe to 1000px */
+            border: none;
+        }
+
+        .iframe-container {
+            height: 1000px; /* Set the height of the iframe container to 1000px */
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .dropdown-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .collapsible {
+            cursor: pointer;
+            padding: 10px;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 18px;
+            background-color: #f1f1f1;
+        }
+
+            .collapsible:after {
+                content: '\002B'; /* Unicode character for "plus" sign (+) */
+                font-size: 13px;
+                color: #777;
+                float: right;
+                margin-left: 5px;
+            }
+
+            .collapsible.active:after {
+                content: "\2212"; /* Unicode character for "minus" sign (−) */
+            }
+
+        .content {
+            padding: 0 18px;
+            display: none;
+            overflow: hidden;
+            background-color: #f9f9f9;
+        }
+    </style>
+    <script src="js/LeagueScore.js"></script>
+</head>
+<body>
+    <header>
+        <h1 id="leagueName">League Name</h1>
+    </header>
+    <div id="content" class="container">
+        <div id="leagueInfo"></div>
+        <div class="dropdown-container">
+            <label for="draftPeriodDropdown">Draft Period:</label>
+            <select id="draftPeriodDropdown"></select>
+            <label for="gameweekDropdown">Select Gameweek:</label>
+            <select id="gameweekDropdown"></select>
+        </div>
+        <table id="squadTable">
+            <tbody id="squadTableBody">
+                <tr id="squadTableRow"></tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

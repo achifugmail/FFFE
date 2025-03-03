@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Team</title>
-    <link rel="stylesheet" href="src/App.css">
+    <title>Team Score</title>
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -70,75 +70,80 @@
                 margin-bottom: 10px;
             }
 
-        .player-grid {
-            display: grid;
-            grid-template-columns: 75px 2fr 75px; /* Adjusted column widths */
-            gap: 10px;
-            align-items: center;
-            margin-bottom: 5px;
+        table {
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+            table-layout: auto; /* Allow columns to autosize based on content */
+            width: auto; /* Ensure table width is auto */
+        }
+
+        th, td {
             border: 1px solid #ddd;
-            padding: 5px;
-            border-radius: 3px;
+            padding: 8px;
+            text-align: left;
         }
 
-            .player-grid img {
-                border-radius: 50%;
-                width: 40px;
-                height: 40px;
-            }
-
-        .add-button {
-            margin-top: 10px;
-            display: none; /* Hide by default */
+        th {
+            background-color: #f2f2f2;
         }
 
-        .player-list {
+        .player-photo {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+        }
+
+        .web-name {
+            text-align: left;
+        }
+
+        .player-grid-header {
+            background-color: #4CAF50;
+            color: black;
+            font-weight: bold;
+        }
+
+        .player-grid-totals {
+            background-color: #e0e0e0;
+            font-weight: bold;
+        }
+
+        .highlight-captain {
+            background-color: #d2dec1; /* Highlight color */
+            font-weight: bold;
+        }
+
+        .hidden {
             display: none;
-            margin-top: 10px;
         }
 
-        .player-row {
-            border: 1px solid #ddd;
-            padding: 5px;
-            border-radius: 3px;
-            margin-bottom: 5px;
-            min-height: 30px; /* Ensure the row is visible */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #aaa; /* Placeholder text color */
+        .score-column {
+            background-color: lightgrey;
+        }
+
+        #playerStatsTable {
+            overflow-x: auto;
+        }
+
+        .hide-header header {
+            display: none;
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>Team</h1>
+        <h1>Team Score</h1>
     </header>
     <div id="content" class="container">
         <div id="squadInfo" class="container">
             <!-- Squad info will be populated by JavaScript -->
         </div>
-        <div>
-            <label for="filterDraftPeriodDropdown">Select Draft Period:</label>
-            <select id="filterDraftPeriodDropdown">
-                <!-- Options will be populated by JavaScript -->
-            </select>
-        </div>
-        <div>
-            <label for="gameweekDropdown">Select Gameweek:</label>
-            <select id="gameweekDropdown">
-                <!-- Options will be populated by JavaScript -->
-            </select>
-        </div>
-        <div>
-            <a id="teamScoreLink" href="#">View Team Score</a>
-        </div>
-        <div id="playerGrid" class="container">
-            <!-- Player grid will be populated by JavaScript -->
-        </div>
+        <button id="toggleColumnsButton">Toggle Details</button>
+        <table id="playerStatsTable" class="container">
+            <!-- Player stats table will be populated by JavaScript -->
+        </table>
     </div>
-    <script src="js/team.js"></script>
+    <script src="js/TeamScore.js"></script>
 </body>
 </html>
-
 

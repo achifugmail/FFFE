@@ -85,6 +85,20 @@
                     li.appendChild(link);
                     leagueList.appendChild(li);
                 });
+
+                // Fetch and display league scores
+                const leagueScoreList = document.getElementById('leagueScoreList');
+                leagues.forEach(league => {
+                    const li = document.createElement('li');
+                    const link = document.createElement('a');
+
+                    // Pass league ID as a query parameter
+                    link.href = `LeagueScore.html?id=${league.id}`;
+                    link.innerText = league.name;
+
+                    li.appendChild(link);
+                    leagueScoreList.appendChild(li);
+                });
             } catch (error) {
                 console.error('Error fetching leagues:', error);
             }
@@ -100,7 +114,9 @@
 
         <h3>Leagues</h3>
         <ul id="leagueList" style="margin-left: 20px;"></ul>
+
+        <h3>League Scores</h3>
+        <ul id="leagueScoreList" style="margin-left: 20px;"></ul>
     </div>
 </body>
 </html>
-

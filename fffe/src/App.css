@@ -78,10 +78,6 @@ th {
     background-color: #f4f4f4;
 }
 
-tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
 /* Utility classes */
 .text-center {
     text-align: center;
