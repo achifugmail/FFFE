@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Refresh Premier League Data</title>
+    <link rel="stylesheet" href="src/App.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        #content {
+            padding: 2rem;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+
+            button:hover {
+                background-color: #45a049;
+            }
+
+        #progressIndicator {
+            margin-top: 1rem;
+            display: none;
+            color: #4CAF50;
+        }
+
+        #gameweekDropdown {
+            margin-top: 1rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            width: 200px; /* Set the width to 200px */
+        }
+    </style>
+    <script src="js/PLDataRefresh.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Refresh Premier League Data</h1>
+    </header>
+    <div id="content">
+        <button onclick="refreshData()">Update all player stats</button>
+        <label for="gameweekDropdown"></label>
+        <button onclick="refreshGameweekData()">Refresh player stats for gameweek</button>
+        <select id="gameweekDropdown"></select>
+        <div id="progressIndicator">Refreshing data...</div>
+    </div>
+</body>
+</html>

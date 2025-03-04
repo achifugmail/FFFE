@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     const urlParams = new URLSearchParams(window.location.search);
     const gameweekId = urlParams.get('gameweekId');
     const squadId = urlParams.get('squadId');
+    const score = urlParams.get('score');
 
     // Check if the page is loaded within an iframe
     if (window.self !== window.top) {
@@ -55,10 +56,15 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     // Fetch and display player gameweek stats
-    async function fetchAndDisplayPlayerStats(gameweekId, squadId) {
+    async function fetchAndDisplayPlayerStats(gameweekId, squadId, score) {
         try {
+            // Determine the correct endpoint based on the score parameter
+            const endpoint = score === 'live'
+                ? 'https://localhost:44390/api/UserTeamPlayers/playerGameweekStatsLiveByGameweekAndSquad'
+                : 'https://localhost:44390/api/UserTeamPlayers/playerGameweekStatsByGameweekAndSquad';
+
             // Fetch player stats
-            const response = await fetch(`https://localhost:44390/api/UserTeamPlayers/playerGameweekStatsByGameweekAndSquad?gameweekId=${gameweekId}&squadId=${squadId}`, {
+            const response = await fetch(`${endpoint}?gameweekId=${gameweekId}&squadId=${squadId}`, {
                 credentials: 'include'
             });
             if (!response.ok) {
@@ -179,10 +185,10 @@ document.addEventListener('DOMContentLoaded', async function () {
             console.error('Error fetching player stats:', error);
         }
     }
-    
+
 
     await fetchAndDisplaySquadInfo(squadId);
-    await fetchAndDisplayPlayerStats(gameweekId, squadId);
+    await fetchAndDisplayPlayerStats(gameweekId, squadId, score);
     document.getElementById('toggleColumnsButton').addEventListener('click', toggleColumnVisibility);
     //adjustTableWidth(); // Adjust table width on initial load
 });

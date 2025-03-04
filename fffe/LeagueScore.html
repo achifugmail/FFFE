@@ -58,19 +58,21 @@
                     text-decoration: underline;
                 }
 
-        iframe {
-            width: 100%;
-            height: 1000px; /* Set the height of the iframe to 1000px */
-            border: none;
+        .iframe-container {
+            flex: 1 1 350px; /* Flex-grow, flex-shrink, and flex-basis */
+            height: 1000px; /* Set the height of the iframe container */
+            margin: 10px; /* Add some margin between iframes */
         }
 
-        .iframe-container {
-            height: 1000px; /* Set the height of the iframe container to 1000px */
-        }
+            .iframe-container iframe {
+                width: 100%;
+                height: 100%;
+                border: none;
+            }
 
         .container {
-            display: grid;
-            grid-template-columns: 1fr;
+            display: flex;
+            flex-wrap: wrap;
             gap: 20px;
         }
 
@@ -108,6 +110,65 @@
             overflow: hidden;
             background-color: #f9f9f9;
         }
+
+        #squadTableRow {
+            width: 100%; /* Make squadTableRow occupy the entire width of the page */
+        }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 80px; /* Increased width */
+            height: 40px; /* Increased height */
+        }
+
+            .switch input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 40px; /* Adjusted border-radius */
+        }
+
+            .slider:before {
+                position: absolute;
+                content: "";
+                height: 32px; /* Adjusted height */
+                width: 32px; /* Adjusted width */
+                left: 4px;
+                bottom: 4px;
+                background-color: white;
+                transition: .4s;
+                border-radius: 50%;
+            }
+
+        input:checked + .slider {
+            background-color: #4CAF50;
+        }
+
+            input:checked + .slider:before {
+                transform: translateX(40px); /* Adjusted translateX */
+            }
+
+        .switch-label {
+            margin-left: 10px;
+        }
     </style>
     <script src="js/LeagueScore.js"></script>
 </head>
@@ -122,12 +183,17 @@
             <select id="draftPeriodDropdown"></select>
             <label for="gameweekDropdown">Select Gameweek:</label>
             <select id="gameweekDropdown"></select>
+            <div class="toggle-container">
+                <label class="switch">
+                    <input type="checkbox" id="scoreToggle">
+                    <span class="slider"></span>
+                </label>
+                <span id="scoreLabel" class="switch-label">Live scores</span>
+            </div>
         </div>
-        <table id="squadTable">
-            <tbody id="squadTableBody">
-                <tr id="squadTableRow"></tr>
-            </tbody>
-        </table>
+        <div id="squadTableRow" class="container">
+            <!-- Iframes will be populated by JavaScript -->
+        </div>
     </div>
 </body>
 </html>

@@ -35,15 +35,22 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Populate draft period dropdown
     const draftPeriodDropdown = document.getElementById('draftPeriodDropdown');
-    draftPeriods.forEach(draft => {
+    draftPeriods.sort((a, b) => a.name.localeCompare(b.name)).forEach(draft => {
         const option = document.createElement('option');
         option.value = draft.id;
         option.text = draft.name || `Draft ${draft.id}`;
         draftPeriodDropdown.appendChild(option);
     });
 
+    // Set default value to the last draft period alphabetically
+    if (draftPeriods.length > 0) {
+        draftPeriodDropdown.value = draftPeriods[draftPeriods.length - 1].id;
+    }
+
     // Fetch and populate gameweeks based on selected draft period
     const gameweekDropdown = document.getElementById('gameweekDropdown');
+    const scoreToggle = document.getElementById('scoreToggle');
+    const scoreLabel = document.getElementById('scoreLabel');
     async function fetchAndPopulateGameweeks(draftPeriodId) {
         let gameweeks = [];
         try {
@@ -70,9 +77,21 @@ document.addEventListener('DOMContentLoaded', async function () {
             gameweekDropdown.appendChild(option);
         });
 
-        // Set default value for gameweekDropdown
-        if (gameweeks.length > 0) {
-            gameweekDropdown.value = gameweeks[0].id;
+        // Set default value to the last gameweek by start date that has a start date before the current date and time
+        const now = new Date();
+        const pastGameweeks = gameweeks.filter(gameweek => new Date(gameweek.startDate) < now);
+        if (pastGameweeks.length > 0) {
+            gameweekDropdown.value = pastGameweeks[pastGameweeks.length - 1].id;
+        }
+
+        // Set default value for score toggle
+        const selectedGameweek = gameweeks.find(gameweek => gameweek.id == gameweekDropdown.value);
+        if (selectedGameweek && new Date(selectedGameweek.endDate) > now) {
+            scoreToggle.checked = true;
+            scoreLabel.innerText = 'Live scores';
+        } else {
+            scoreToggle.checked = false;
+            scoreLabel.innerText = 'Final scores';
         }
     }
 
@@ -86,6 +105,10 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
 
     gameweekDropdown.addEventListener('change', fetchAndDisplaySquads);
+    scoreToggle.addEventListener('change', function () {
+        scoreLabel.innerText = scoreToggle.checked ? 'Live scores' : 'Final scores';
+        fetchAndDisplaySquads();
+    });
 
     // Function to fetch and display existing squads
     async function fetchAndDisplaySquads() {
@@ -103,19 +126,17 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             const selectedDraftPeriodId = draftPeriodDropdown.value;
             const selectedGameweekId = gameweekDropdown.value;
+            const score = scoreToggle.checked ? 'live' : 'final';
             const filteredSquads = squads.filter(squad => squad.draftPeriodId == selectedDraftPeriodId);
 
             // Create iframe for each squad
             filteredSquads.forEach(squad => {
-                const td = document.createElement('td');
                 const iframeContainer = document.createElement('div');
                 iframeContainer.className = 'iframe-container';
                 const iframe = document.createElement('iframe');
-                iframe.src = `TeamScore.html?squadId=${squad.id}&draftPeriodId=${selectedDraftPeriodId}&gameweekId=${selectedGameweekId}`;
-                iframe.style.height = '1000px'; // Set the height of the iframe to 1000px
+                iframe.src = `TeamScore.html?squadId=${squad.id}&draftPeriodId=${selectedDraftPeriodId}&gameweekId=${selectedGameweekId}&score=${score}`;
                 iframeContainer.appendChild(iframe);
-                td.appendChild(iframeContainer);
-                squadTableRow.appendChild(td);
+                squadTableRow.appendChild(iframeContainer);
             });
         } catch (error) {
             console.error('Error fetching squads:', error);
