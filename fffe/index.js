@@ -1,8 +1,12 @@
-import config from './config.js';
+const config = {
+    //backendUrl: 'https://localhost:44390/api',
+    backendUrl: 'https://ffbe-akdrgxb2fjd6fddh.eastus2-01.azurewebsites.net/api',
+   
+};
 
 document.getElementById('loginForm').addEventListener('submit', async function (event) {
     event.preventDefault();
-
+    
     const username = document.getElementById('loginUsername').value;
     const password = document.getElementById('loginPassword').value;
 
