@@ -58,69 +58,23 @@
                     text-decoration: underline;
                 }
     </style>
-    <script>
-        document.addEventListener('DOMContentLoaded', async function () {
-            const username = localStorage.getItem('username');
-            if (username) {
-                document.getElementById('header').innerText = `Hello, ${username}`;
-            }
-
-            // Fetch and display leagues
-            try {
-                const response = await fetch('https://localhost:44390/api/Leagues', { credentials: 'include' });
-                if (!response.ok) {
-                    console.error('Failed to fetch leagues:', response.status, response.statusText);
-                    return;
-                }
-                const leagues = await response.json();
-                const leagueList = document.getElementById('leagueList');
-                leagues.forEach(league => {
-                    const li = document.createElement('li');
-                    const link = document.createElement('a');
-
-                    // Pass league ID as a query parameter
-                    link.href = `League.html?id=${league.id}`;
-                    link.innerText = league.name;
-
-                    li.appendChild(link);
-                    leagueList.appendChild(li);
-                });
-
-                // Fetch and display league scores
-                const leagueScoreList = document.getElementById('leagueScoreList');
-                leagues.forEach(league => {
-                    const li = document.createElement('li');
-                    const link = document.createElement('a');
-
-                    // Pass league ID as a query parameter
-                    link.href = `LeagueScore.html?id=${league.id}`;
-                    link.innerText = league.name;
-
-                    li.appendChild(link);
-                    leagueScoreList.appendChild(li);
-                });
-            } catch (error) {
-                console.error('Error fetching leagues:', error);
-            }
-        });
-    </script>
+    <script type="module" src="js/main.js"></script>
 </head>
 <body>
     <header>
         <h1 id="header">Fantasy Football</h1>
     </header>
     <div id="content">
-        <h3>Game Settings</h3>
+        <h3></h3>
         <ul>
+            <li><a href="league.html">League</a></li>
+            <li><a href="LeagueScore.html">Scores</a></li>
+            <li><a href="Squad.html">My squad</a></li>
+            <p></p>
             <li><a href="PlayerPositions.html">Manage Player Positions</a></li>
             <li><a href="PLDataRefresh.html">Refresh Premier League Data</a></li>
+            <li><a href="newUser.html">Register New User</a></li>
         </ul>
-
-        <h3>Leagues</h3>
-        <ul id="leagueList"></ul>
-
-        <h3>League Scores</h3>
-        <ul id="leagueScoreList"></ul>
     </div>
 </body>
 </html>

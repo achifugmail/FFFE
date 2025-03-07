@@ -1,12 +1,70 @@
-﻿document.addEventListener('DOMContentLoaded', async function () {
-    // Extract the league ID from the URL parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    const leagueId = urlParams.get('id');
+﻿import config from './config.js';
+
+document.addEventListener('DOMContentLoaded', async function () {
+    const currentUserId = localStorage.getItem('userId'); // Retrieve the current user ID from local storage
+
+    // Function to fetch and display leagues for the current user
+    async function fetchAndDisplayLeagues() {
+        try {
+            const response = await fetch(`${config.backendUrl}/Leagues/byUser/${currentUserId}`, {
+                credentials: 'include'
+            });
+            if (!response.ok) {
+                console.error('Failed to fetch leagues:', response.status, response.statusText);
+                return;
+            }
+            const leagues = await response.json();
+            const leagueDropdown = document.getElementById('leagueDropdown');
+            leagueDropdown.innerHTML = ''; // Clear existing options
+            leagues.forEach(league => {
+                const option = document.createElement('option');
+                option.value = league.id;
+                option.text = league.name;
+                leagueDropdown.appendChild(option);
+            });
+
+            // Set default value to the first league
+            if (leagues.length > 0) {
+                leagueDropdown.value = leagues[0].id;
+                updateLeagueDetails(leagues[0].id);
+            }
+
+            // Update league details when the selected league changes
+            leagueDropdown.addEventListener('change', function () {
+                updateLeagueDetails(this.value);
+            });
+        } catch (error) {
+            console.error('Error fetching leagues:', error);
+        }
+    }
+
+    // Function to update league details based on the selected league
+    async function updateLeagueDetails(leagueId) {
+        // Fetch league details
+        try {
+            const response = await fetch(`${config.backendUrl}/Leagues/${leagueId}`, {
+                credentials: 'include'
+            });
+            if (!response.ok) {
+                console.error('Failed to fetch league details:', response.status, response.statusText);
+                return;
+            }
+            const league = await response.json();
+            document.getElementById('leagueName').innerText = `${league.name}`;
+
+            
+        } catch (error) {
+            console.error('Error fetching league details:', error);
+        }
+
+        // Fetch and display existing squads
+        fetchAndDisplaySquads(leagueId);
+    }
 
     // Function to fetch and display existing squads
-    async function fetchAndDisplaySquads(users) {
+    async function fetchAndDisplaySquads(leagueId) {
         try {
-            const respSquads = await fetch(`https://localhost:44390/api/UserSquads/ByLeague/${leagueId}`, {
+            const respSquads = await fetch(`${config.backendUrl}/UserSquads/ByLeague/${leagueId}`, {
                 credentials: 'include'
             });
             if (!respSquads.ok) {
@@ -47,26 +105,10 @@
         }
     }
 
-    // Fetch league details
-    try {
-        const response = await fetch(`https://localhost:44390/api/Leagues/${leagueId}`, {
-            credentials: 'include'
-        });
-        if (!response.ok) {
-            console.error('Failed to fetch league details:', response.status, response.statusText);
-            return;
-        }
-        const league = await response.json();
-        document.getElementById('leagueInfo').innerText =
-            `ID: ${league.id}, Name: ${league.name}, Code: ${league.code}`;
-    } catch (error) {
-        console.error('Error fetching league details:', error);
-    }
-
     // Fetch users for dropdown
     let users = [];
     try {
-        const respUsers = await fetch('https://localhost:44390/api/User/all', {
+        const respUsers = await fetch(`${config.backendUrl}/User/all`, {
             credentials: 'include'
         });
         if (!respUsers.ok) {
@@ -79,6 +121,7 @@
     }
 
     // Populate user dropdown using 'username' property
+    /*
     const userDropdown = document.getElementById('userDropdown');
     users.forEach(user => {
         const option = document.createElement('option');
@@ -86,11 +129,11 @@
         option.text = user.username || `User ${user.id}`;
         userDropdown.appendChild(option);
     });
-
+    */
     // Fetch draft periods for dropdown
     let draftPeriods = [];
     try {
-        const respDrafts = await fetch('https://localhost:44390/api/DraftPeriods', {
+        const respDrafts = await fetch(`${config.backendUrl}/DraftPeriods`, {
             credentials: 'include'
         });
         if (!respDrafts.ok) {
@@ -103,6 +146,7 @@
     }
 
     // Populate draft period dropdown
+    /*
     const draftPeriodDropdown = document.getElementById('draftPeriodDropdown');
     draftPeriods.forEach(draft => {
         const option = document.createElement('option');
@@ -110,6 +154,8 @@
         option.text = draft.name || `Draft ${draft.id}`;
         draftPeriodDropdown.appendChild(option);
     });
+    */
+
 
     // Populate filter draft period dropdown and set default value
     const filterDraftPeriodDropdown = document.getElementById('filterDraftPeriodDropdown');
@@ -121,24 +167,29 @@
     });
     filterDraftPeriodDropdown.value = draftPeriods[draftPeriods.length - 1].id;
 
+    // Add event listener for draft period filter changes
+    filterDraftPeriodDropdown.addEventListener('change', function () {
+        const currentLeagueId = document.getElementById('leagueDropdown').value;
+        fetchAndDisplaySquads(currentLeagueId);
+    });
+
     // Fetch and display existing squads on page load
-    fetchAndDisplaySquads(users);
+    fetchAndDisplayLeagues();
 
-    // Update squads when filter draft period changes
-    filterDraftPeriodDropdown.addEventListener('change', () => fetchAndDisplaySquads(users));
-
+    /*
     // Handle Create Squad button click
     document.getElementById('createSquadButton').addEventListener('click', async function () {
         const userId = userDropdown.value;
         const draftPeriodId = draftPeriodDropdown.value;
         const squadName = document.getElementById('squadName').value.trim();
+        const leagueId = document.getElementById('leagueDropdown').value;
 
         if (!userId || !leagueId || !draftPeriodId || !squadName) {
             alert('Please fill in all fields');
             return;
         }
 
-        const createUrl = 'https://localhost:44390/api/UserSquads/Create';
+        const createUrl = `${config.backendUrl}/UserSquads/Create`;
 
         const payload = {
             userId: parseInt(userId),
@@ -162,7 +213,7 @@
                 alert('Failed to create squad');
             } else {
                 alert('Squad created successfully!');
-                fetchAndDisplaySquads(users); // Update the list of existing squads
+                fetchAndDisplaySquads(leagueId); // Update the list of existing squads
             }
         } catch (error) {
             console.error('Error creating squad:', error);
@@ -181,4 +232,7 @@
             content.style.display = 'block';
         }
     });
+
+    */
 });
+

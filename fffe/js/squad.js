@@ -1,26 +1,167 @@
-// fffe/js/squad.js
+import config from './config.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
-    // Extract the squad ID and league ID from the URL parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    const squadId = urlParams.get('id');
-    const leagueId = urlParams.get('leagueId');
+    let leagueId;
     let draftPeriodId;
+    let squadId;  // Remove the URL parameter assignment
     let squadPlayers = [];
+    const currentUserId = localStorage.getItem('userId');
 
-    // Hide header if the page is loaded inside an iframe
+    // Add this near the top of your DOMContentLoaded function, after the variable declarations
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlLeagueId = urlParams.get('leagueId');
+    if (urlLeagueId) {
+        leagueId = urlLeagueId;
+    }
+
+    // Modify the checkAndHandleUrlSquadId function to also handle leagueId:
+    function checkAndHandleUrlSquadId() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlSquadId = urlParams.get('id');
+        const urlLeagueId = urlParams.get('leagueId');
+
+        if (urlSquadId) {
+            // Hide both dropdowns if URL has squadId
+            const leagueDropdown = document.getElementById('leagueDropdown');
+            const draftPeriodDropdown = document.getElementById('draftPeriodDropdown');
+            if (leagueDropdown) leagueDropdown.style.display = 'none';
+            if (draftPeriodDropdown) draftPeriodDropdown.style.display = 'none';
+
+            // Set both squadId and leagueId
+            squadId = urlSquadId;
+            if (urlLeagueId) {
+                leagueId = urlLeagueId;
+            }
+
+            fetchAndCreateSections();
+            fetchSquadDetails();
+            fetchAndDisplaySquadPlayers(squadId, leagueId);
+            return true;
+        }
+        return false;
+    }
+
     if (window.self !== window.top) {
         document.getElementById('header').style.display = 'none';
     }
 
-    // Set the team link href
     const teamLink = document.getElementById('teamLink');
-    teamLink.href = `Team.html?SquadId=${squadId}`;
 
-    // Fetch positions and create sections dynamically
+    async function updateSquadId() {
+        // Check URL parameters first
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlSquadId = urlParams.get('id');
+
+        if (urlSquadId) {
+            squadId = urlSquadId;
+        } else {
+            // If no URL parameter, fetch from API
+            squadId = await fetchSquadId();
+        }
+
+        if (squadId) {
+            teamLink.href = `Team.html?SquadId=${squadId}`;
+            await fetchAndCreateSections();
+            await fetchSquadDetails();
+            await fetchAndDisplaySquadPlayers(squadId, leagueId);
+        }
+    }
+
+
+    async function fetchDraftPeriods() {
+    try {
+        const response = await fetch(`${config.backendUrl}/DraftPeriods`, {
+            credentials: 'include'
+        });
+        if (!response.ok) {
+            console.error('Failed to fetch draft periods:', response.status, response.statusText);
+            return;
+        }
+        const draftPeriods = await response.json();
+        const draftPeriodDropdown = document.getElementById('draftPeriodDropdown');
+        draftPeriodDropdown.innerHTML = '';
+
+        draftPeriods.forEach(period => {
+            const option = document.createElement('option');
+            option.value = period.id;
+            option.text = period.name || `Draft ${period.id}`;
+            draftPeriodDropdown.appendChild(option);
+        });
+
+        if (draftPeriods.length > 0) {
+            // Select the last draft period by default
+            const lastDraftPeriod = draftPeriods[draftPeriods.length - 1];
+            draftPeriodDropdown.value = lastDraftPeriod.id;
+            draftPeriodId = lastDraftPeriod.id;
+            await updateSquadId();
+        }
+
+        draftPeriodDropdown.addEventListener('change', async function () {
+            draftPeriodId = this.value;
+            await updateSquadId();
+        });
+    } catch (error) {
+        console.error('Error fetching draft periods:', error);
+    }
+}
+
+
+
+    async function fetchLeagues() {
+        try {
+            const response = await fetch(`${config.backendUrl}/Leagues/byUser/${currentUserId}`, {
+                credentials: 'include'
+            });
+            if (!response.ok) {
+                console.error('Failed to fetch leagues:', response.status, response.statusText);
+                return;
+            }
+            const leagues = await response.json();
+            const leagueDropdown = document.getElementById('leagueDropdown');
+            leagueDropdown.innerHTML = '';
+            leagues.forEach(league => {
+                const option = document.createElement('option');
+                option.value = league.id;
+                option.text = league.name;
+                leagueDropdown.appendChild(option);
+            });
+
+            if (leagues.length > 0) {
+                leagueDropdown.value = leagues[0].id;
+                leagueId = leagues[0].id;
+                await fetchDraftPeriods();
+            }
+
+            leagueDropdown.addEventListener('change', async function () {
+                leagueId = this.value;
+                await updateSquadId();
+            });
+        } catch (error) {
+            console.error('Error fetching leagues:', error);
+        }
+    }
+
+    async function fetchSquadId() {
+        try {
+            const response = await fetch(`${config.backendUrl}/UserSquads/ByLeagueDraftPeriodAndUser/${leagueId}/${draftPeriodId}/${currentUserId}`, {
+                credentials: 'include'
+            });
+            if (!response.ok) {
+                console.error('Failed to fetch squad ID:', response.status, response.statusText);
+                return null;
+            }
+            const squad = await response.json();
+            return squad.id;
+        } catch (error) {
+            console.error('Error fetching squad ID:', error);
+            return null;
+        }
+    }
+
+
     async function fetchAndCreateSections() {
         try {
-            const response = await fetch('https://localhost:44390/api/PlayerPositions/positions', {
+            const response = await fetch(`${config.backendUrl}/PlayerPositions/positions`, {
                 credentials: 'include'
             });
             if (!response.ok) {
@@ -29,7 +170,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
             const positions = await response.json();
             const playerGrid = document.getElementById('playerGrid');
-            playerGrid.innerHTML = ''; // Clear existing sections
+            playerGrid.innerHTML = '';
 
             positions.forEach(position => {
                 const section = document.createElement('div');
@@ -40,23 +181,19 @@ document.addEventListener('DOMContentLoaded', async function () {
                 header.innerText = position.name;
                 section.appendChild(header);
 
-                // Grid for players in the squad
                 const squadPlayersDiv = document.createElement('div');
                 squadPlayersDiv.className = 'players';
                 section.appendChild(squadPlayersDiv);
 
-                // Add button
                 const addButton = document.createElement('button');
                 addButton.className = 'add-button';
                 addButton.dataset.position = position.name;
                 addButton.innerText = 'Add';
                 section.appendChild(addButton);
 
-                // Grid for available players
                 const availablePlayersDiv = document.createElement('div');
                 availablePlayersDiv.className = 'player-list';
 
-                // Add the text box at the top of the available players list
                 const textBox = document.createElement('input');
                 textBox.type = 'text';
                 textBox.placeholder = 'Search players...';
@@ -71,10 +208,9 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-    // Fetch squad details
     async function fetchSquadDetails() {
         try {
-            const response = await fetch(`https://localhost:44390/api/UserSquads/${squadId}`, {
+            const response = await fetch(`${config.backendUrl}/UserSquads/${squadId}`, {
                 credentials: 'include'
             });
             if (!response.ok) {
@@ -82,12 +218,11 @@ document.addEventListener('DOMContentLoaded', async function () {
                 return;
             }
             const squad = await response.json();
-            draftPeriodId = squad.draftPeriodId; // Store the draftPeriodId
+            draftPeriodId = squad.draftPeriodId;
 
-            // Fetch draft period details
             let draftPeriodName = '';
             try {
-                const respDraft = await fetch(`https://localhost:44390/api/DraftPeriods/${draftPeriodId}`, {
+                const respDraft = await fetch(`${config.backendUrl}/DraftPeriods/${draftPeriodId}`, {
                     credentials: 'include'
                 });
                 if (!respDraft.ok) {
@@ -102,15 +237,24 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             document.getElementById('squadInfo').innerText =
                 `ID: ${squad.id}, Name: ${squad.squadName}, User: ${squad.userId}, Draft Period: ${draftPeriodName}`;
+
+            if (currentUserId !== squad.userId.toString()) {
+                document.body.classList.add('hide-buttons');
+            }
+
+            // Update draft period dropdown if it exists
+            const draftPeriodDropdown = document.getElementById('draftPeriodDropdown');
+            if (draftPeriodDropdown) {
+                draftPeriodDropdown.value = draftPeriodId;
+            }
         } catch (error) {
             console.error('Error fetching squad details:', error);
         }
     }
 
-    // Function to fetch and display players in the current squad
-    async function fetchAndDisplaySquadPlayers(squadId) {
+    async function fetchAndDisplaySquadPlayers(squadId, leagueId) {
         try {
-            const response = await fetch(`https://localhost:44390/api/PlayerPositions/user-squad-players/${squadId}`, {
+            const response = await fetch(`${config.backendUrl}/PlayerPositions/user-squad-players/${squadId}`, {
                 credentials: 'include'
             });
             if (!response.ok) {
@@ -118,14 +262,14 @@ document.addEventListener('DOMContentLoaded', async function () {
                 return;
             }
             squadPlayers = await response.json();
-            const positions = await fetch('https://localhost:44390/api/PlayerPositions/positions', {
+            const positions = await fetch(`${config.backendUrl}/PlayerPositions/positions`, {
                 credentials: 'include'
             }).then(res => res.json());
 
             positions.forEach(position => {
                 const section = document.getElementById(position.name);
                 const playersDiv = section.querySelector('.players');
-                playersDiv.innerHTML = ''; // Clear existing players
+                playersDiv.innerHTML = '';
                 const filteredPlayers = squadPlayers.filter(player => player.positionName === position.name);
                 filteredPlayers.forEach(player => {
                     const playerDiv = document.createElement('div');
@@ -138,16 +282,14 @@ document.addEventListener('DOMContentLoaded', async function () {
                     playersDiv.appendChild(playerDiv);
                 });
 
-                // Add empty rows if needed
                 const currentRows = filteredPlayers.length;
                 for (let i = currentRows; i < position.maxInSquad; i++) {
                     const row = document.createElement('div');
                     row.className = 'player-row';
-                    row.innerText = 'Empty'; // Placeholder text
+                    row.innerText = 'Empty';
                     playersDiv.appendChild(row);
                 }
 
-                // Show the add button if there are empty rows
                 const addButton = section.querySelector('.add-button');
                 if (currentRows < position.maxInSquad) {
                     addButton.style.display = 'block';
@@ -160,10 +302,9 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-    // Function to fetch and display available players for a position
     async function fetchAndDisplayAvailablePlayers(position, leagueId, draftPeriodId) {
         try {
-            const response = await fetch(`https://localhost:44390/api/PlayerPositions/available-players-with-positions/${leagueId}/${draftPeriodId}`, {
+            const response = await fetch(`${config.backendUrl}/PlayerPositions/available-players-with-positions/${leagueId}/${draftPeriodId}`, {
                 credentials: 'include'
             });
             if (!response.ok) {
@@ -174,7 +315,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             const filteredPlayers = players.filter(player => player.positionName === position);
             const section = document.getElementById(position);
             const playerList = section.querySelector('.player-list');
-            playerList.innerHTML = ''; // Clear existing list
+            playerList.innerHTML = '';
             filteredPlayers.forEach(player => {
                 const playerDiv = document.createElement('div');
                 playerDiv.className = 'player-grid';
@@ -186,13 +327,12 @@ document.addEventListener('DOMContentLoaded', async function () {
                 `;
                 playerList.appendChild(playerDiv);
             });
-            playerList.style.display = 'block'; // Show the list
+            playerList.style.display = 'block';
         } catch (error) {
             console.error('Error fetching available players:', error);
         }
     }
 
-    // Function to add player to squad
     async function addPlayerToSquad(playerId, squadId, position) {
         const payload = {
             userSquadId: parseInt(squadId),
@@ -200,7 +340,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         };
 
         try {
-            const response = await fetch('https://localhost:44390/api/PlayerPositions/add-user-squad-player', {
+            const response = await fetch(`${config.backendUrl}/PlayerPositions/add-user-squad-player`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
@@ -214,13 +354,9 @@ document.addEventListener('DOMContentLoaded', async function () {
                 return;
             }
 
-            // Update the current grid after adding the player
-            await fetchAndDisplaySquadPlayers(squadId);
-
-            // Update the list of available players
+            await fetchAndDisplaySquadPlayers(squadId, leagueId);
             await fetchAndDisplayAvailablePlayers(position, leagueId, draftPeriodId);
 
-            // Hide the player list if there are no empty rows left
             const section = document.getElementById(position);
             const addButton = section.querySelector('.add-button');
             const playerList = section.querySelector('.player-list');
@@ -234,7 +370,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-    // Function to remove player from squad
     async function removePlayerFromSquad(playerId, squadId, position) {
         const payload = {
             userSquadId: parseInt(squadId),
@@ -242,7 +377,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         };
 
         try {
-            const response = await fetch('https://localhost:44390/api/PlayerPositions/delete-user-squad-player', {
+            const response = await fetch(`${config.backendUrl}/PlayerPositions/delete-user-squad-player`, {
                 method: 'DELETE',
                 credentials: 'include',
                 headers: {
@@ -256,17 +391,13 @@ document.addEventListener('DOMContentLoaded', async function () {
                 return;
             }
 
-            // Update the current grid after removing the player
-            await fetchAndDisplaySquadPlayers(squadId);
-
-            // Update the list of available players
+            await fetchAndDisplaySquadPlayers(squadId, leagueId);
             await fetchAndDisplayAvailablePlayers(position, leagueId, draftPeriodId);
         } catch (error) {
             console.error('Error removing player from squad:', error);
         }
     }
 
-    // Add event listeners to "Add" buttons
     document.addEventListener('click', function (event) {
         if (event.target.classList.contains('add-button')) {
             const position = event.target.getAttribute('data-position');
@@ -274,7 +405,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     });
 
-    // Add event listeners to "+" and "-" buttons
     document.addEventListener('click', function (event) {
         if (event.target.classList.contains('add-player-button')) {
             const playerId = event.target.getAttribute('data-player-id');
@@ -287,13 +417,18 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     });
 
-    // Fetch and create sections on page load
-    await fetchAndCreateSections();
+    if (!checkAndHandleUrlSquadId()) {
+        await fetchLeagues();
+    }
 
-    // Fetch and display squad details on page load
-    await fetchSquadDetails();
-
-    // Fetch and display players in the current squad on page load
-    fetchAndDisplaySquadPlayers(squadId);
+    document.addEventListener('click', function (event) {
+        if (event.target.classList.contains('add-button')) {
+            const position = event.target.getAttribute('data-position');
+            if (!leagueId) {
+                console.error('League ID is not set');
+                return;
+            }
+            fetchAndDisplayAvailablePlayers(position, leagueId, draftPeriodId);
+        }
+    });
 });
-

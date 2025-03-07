@@ -1,3 +1,5 @@
+import config from './config.js';
+
 document.addEventListener('DOMContentLoaded', async function () {
     const saveButton = document.getElementById('saveButton');
     const playerTableBody = document.querySelector('#playerTable tbody');
@@ -10,7 +12,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Fetch positions
     async function fetchPositions() {
         try {
-            const response = await fetch('https://localhost:44390/api/PlayerPositions/positions', {
+            const response = await fetch(`${config.backendUrl}/PlayerPositions/positions`, {
                 credentials: 'include', // Include cookies in the request
             });
             if (!response.ok) {
@@ -27,7 +29,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Fetch players with positions
     async function fetchPlayers() {
         try {
-            const response = await fetch('https://localhost:44390/api/PlayerPositions/players-with-positions', {
+            const response = await fetch(`${config.backendUrl}/PlayerPositions/players-with-positions`, {
                 credentials: 'include', // Include cookies in the request
             });
             if (!response.ok) {
@@ -160,7 +162,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             if (newPositionId !== initialPositionId) {
                 console.log('Saving changes for player ID:', playerId, 'with position ID:', newPositionId); // Log the data being sent
                 try {
-                    const response = await fetch('https://localhost:44390/api/PlayerPositions/upsert', {
+                    const response = await fetch(`${config.backendUrl}/PlayerPositions/upsert`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

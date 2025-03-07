@@ -156,3 +156,7 @@ th {
     .captain-button:hover {
         background-color: #0056b3;
     }
+
+.hide-buttons button {
+    display: none !important;
+}

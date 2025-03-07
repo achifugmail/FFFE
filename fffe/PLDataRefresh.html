@@ -50,19 +50,102 @@
             border: 1px solid #ccc;
             width: 200px; /* Set the width to 200px */
         }
+
+        .draft-period-container, .create-league-container, .create-squad-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+            .draft-period-container input, .draft-period-container button, .create-league-container input, .create-league-container button, .create-squad-container input, .create-squad-container button {
+                padding: 0.5rem;
+                border-radius: 4px;
+                border: 1px solid #ccc;
+            }
+
+        .collapsible {
+            cursor: pointer;
+            padding: 10px;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 18px;
+            background-color: #f1f1f1;
+        }
+
+            .collapsible:after {
+                content: '\002B'; /* Unicode character for "plus" sign (+) */
+                font-size: 13px;
+                color: #777;
+                float: right;
+                margin-left: 5px;
+            }
+
+            .collapsible.active:after {
+                content: "\2212"; /* Unicode character for "minus" sign (−) */
+            }
+
+        .content {
+            padding: 0 18px;
+            display: none;
+            overflow: hidden;
+            background-color: #f9f9f9;
+        }
     </style>
-    <script src="js/PLDataRefresh.js"></script>
+    <script type="module" src="js/plDataRefresh.js"></script>
 </head>
 <body>
     <header>
         <h1>Refresh Premier League Data</h1>
     </header>
     <div id="content">
+        <div class="create-league-container">
+            <input type="text" id="leagueName" placeholder="League Name">
+            <input type="text" id="leagueCode" placeholder="League Code">
+            <button onclick="createLeague()">Create League</button>
+        </div>
+        <div class="draft-period-container">
+            <input type="text" id="draftPeriodName" placeholder="Draft Period Name">
+            <input type="date" id="draftPeriodStartDate">
+            <input type="date" id="draftPeriodEndDate">
+            <button onclick="createDraftPeriod()">Create Draft Period</button>
+        </div>
+        <button onclick="populateGameweeks()">Populate Gameweeks</button>
+        <div>
+            <button onclick="populateFixtures()">Populate Fixtures</button>
+        </div>
+        <div>
+            <button onclick="populateAllPlayers()">Populate All Players</button>
+        </div>
+        <p></p>
         <button onclick="refreshData()">Update all player stats</button>
         <label for="gameweekDropdown"></label>
         <button onclick="refreshGameweekData()">Refresh player stats for gameweek</button>
         <select id="gameweekDropdown"></select>
+
         <div id="progressIndicator">Refreshing data...</div>
+
+        <!-- New UI for creating a squad -->
+        <div>
+            <button type="button" class="collapsible">Create Squad</button>
+            <div class="content">
+                <h3>Create Squad</h3>
+                <label for="leagueDropdown">League:</label>
+                <select id="leagueDropdown"></select>
+
+                <label for="userDropdown">User:</label>
+                <select id="userDropdown"></select>
+
+                <label for="draftPeriodDropdown">Draft Period:</label>
+                <select id="draftPeriodDropdown"></select>
+
+                <label for="squadName">Squad Name:</label>
+                <input type="text" id="squadName" />
+
+                <button id="createSquadButton">Create Squad</button>
+            </div>
+        </div>
     </div>
 </body>
 </html>

@@ -1,8 +1,11 @@
+import config from './config.js';
+
+
 document.addEventListener('DOMContentLoaded', async function () {
     // Fetch draft periods for dropdown
     let draftPeriods = [];
     try {
-        const respDrafts = await fetch('https://localhost:44390/api/DraftPeriods', {
+        const respDrafts = await fetch(`${config.backendUrl}/DraftPeriods`, {
             credentials: 'include'
         });
         if (!respDrafts.ok) {
@@ -29,7 +32,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     async function fetchAndPopulateGameweeks(draftPeriodId) {
         let gameweeks = [];
         try {
-            const respGameweeks = await fetch(`https://localhost:44390/api/Gameweeks/by-draft-period/${draftPeriodId}`, {
+            const respGameweeks = await fetch(`${config.backendUrl}/Gameweeks/by-draft-period/${draftPeriodId}`, {
                 credentials: 'include'
             });
             if (!respGameweeks.ok) {
@@ -80,7 +83,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Fetch and display squad info
     async function fetchAndDisplaySquadInfo(squadId) {
         try {
-            const response = await fetch(`https://localhost:44390/api/UserSquads/${squadId}`, {
+            const response = await fetch(`${config.backendUrl}/UserSquads/${squadId}`, {
                 credentials: 'include'
             });
             if (!response.ok) {
@@ -91,9 +94,11 @@ document.addEventListener('DOMContentLoaded', async function () {
             const username = localStorage.getItem('username');
             const squadInfoDiv = document.getElementById('squadInfo');
             squadInfoDiv.innerHTML = `
-                <h2>Squad: ${squad.squadName}</h2>
-                <p>User: ${username}</p>
-                <p>Draft Period: ${squad.draftPeriodId}</p>
+                <div style="display: flex; gap: 20px; align-items: center;">
+                    <h2 style="margin: 0;">Squad: ${squad.squadName}</h2>
+                    <span>User: ${username}</span>
+                    <span>Draft Period: ${squad.draftPeriodId}</span>
+                </div>
             `;
         } catch (error) {
             console.error('Error fetching squad info:', error);
@@ -104,7 +109,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     async function fetchAndDisplaySquadPlayers(squadId) {
         try {
             const gameweekId = document.getElementById('gameweekDropdown').value;
-            const response = await fetch(`https://localhost:44390/api/PlayerPositions/user-squad-players/${squadId}`, {
+            const response = await fetch(`${config.backendUrl}/PlayerPositions/user-squad-players/${squadId}`, {
                 credentials: 'include'
             });
             if (!response.ok) {
@@ -112,7 +117,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 return;
             }
             const squadPlayers = await response.json();
-            const positions = await fetch('https://localhost:44390/api/PlayerPositions/positions', {
+            const positions = await fetch(`${config.backendUrl}/PlayerPositions/positions`, {
                 credentials: 'include'
             }).then(res => res.json());
 
@@ -150,7 +155,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             // Fetch and select players for the current gameweek
             try {
-                const gameweekPlayersResponse = await fetch(`https://localhost:44390/api/UserTeamPlayers/byUserSquadAndGameweek?userSquadId=${squadId}&gameweekId=${gameweekId}`, {
+                const gameweekPlayersResponse = await fetch(`${config.backendUrl}/UserTeamPlayers/byUserSquadAndGameweek?userSquadId=${squadId}&gameweekId=${gameweekId}`, {
                     credentials: 'include'
                 });
                 if (gameweekPlayersResponse.ok) {
@@ -220,7 +225,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         const squadId = new URLSearchParams(window.location.search).get('SquadId');
         const gameweekId = document.getElementById('gameweekDropdown').value;
         try {
-            const response = await fetch('https://localhost:44390/api/UserTeamPlayers/updateCaptainByGameweekAndSquad', {
+            const response = await fetch(`${config.backendUrl}/UserTeamPlayers/updateCaptainByGameweekAndSquad`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -250,7 +255,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             const squadId = new URLSearchParams(window.location.search).get('SquadId');
             const gameweekId = document.getElementById('gameweekDropdown').value;
             try {
-                const response = await fetch('https://localhost:44390/api/UserTeamPlayers/AddByGameweekAndSquad', {
+                const response = await fetch(`${config.backendUrl}/UserTeamPlayers/AddByGameweekAndSquad`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -280,7 +285,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         const squadId = new URLSearchParams(window.location.search).get('SquadId');
         const gameweekId = document.getElementById('gameweekDropdown').value;
         try {
-            const response = await fetch('https://localhost:44390/api/UserTeamPlayers/DeleteByGameweekAndSquad', {
+            const response = await fetch(`${config.backendUrl}/UserTeamPlayers/DeleteByGameweekAndSquad`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'

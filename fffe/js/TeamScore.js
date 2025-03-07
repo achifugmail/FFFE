@@ -1,3 +1,5 @@
+import config from './config.js';
+
 document.addEventListener('DOMContentLoaded', async function () {
     const urlParams = new URLSearchParams(window.location.search);
     const gameweekId = urlParams.get('gameweekId');
@@ -21,7 +23,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     async function fetchAndDisplaySquadInfo(squadId) {
         try {
             // Fetch squad info
-            const squadResponse = await fetch(`https://localhost:44390/api/UserSquads/${squadId}`, {
+            const squadResponse = await fetch(`${config.backendUrl}/UserSquads/${squadId}`, {
                 credentials: 'include'
             });
             if (!squadResponse.ok) {
@@ -31,7 +33,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             const squad = await squadResponse.json();
 
             // Fetch all users
-            const usersResponse = await fetch('https://localhost:44390/api/User/all', {
+            const usersResponse = await fetch(`${config.backendUrl}/User/all`, {
                 credentials: 'include'
             });
             if (!usersResponse.ok) {
@@ -60,8 +62,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         try {
             // Determine the correct endpoint based on the score parameter
             const endpoint = score === 'live'
-                ? 'https://localhost:44390/api/UserTeamPlayers/playerGameweekStatsLiveByGameweekAndSquad'
-                : 'https://localhost:44390/api/UserTeamPlayers/playerGameweekStatsByGameweekAndSquad';
+                ? `${config.backendUrl}/UserTeamPlayers/playerGameweekStatsLiveByGameweekAndSquad`
+                : `${config.backendUrl}/UserTeamPlayers/playerGameweekStatsByGameweekAndSquad`;
 
             // Fetch player stats
             const response = await fetch(`${endpoint}?gameweekId=${gameweekId}&squadId=${squadId}`, {
@@ -74,7 +76,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             const playerStats = await response.json();
 
             // Fetch position data
-            const positionsResponse = await fetch('https://localhost:44390/api/PlayerPositions/positions', {
+            const positionsResponse = await fetch(`${config.backendUrl}/PlayerPositions/positions`, {
                 credentials: 'include'
             });
             if (!positionsResponse.ok) {

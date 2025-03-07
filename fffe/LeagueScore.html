@@ -170,7 +170,6 @@
             margin-left: 10px;
         }
     </style>
-    <script src="js/LeagueScore.js"></script>
 </head>
 <body>
     <header>
@@ -179,6 +178,8 @@
     <div id="content" class="container">
         <div id="leagueInfo"></div>
         <div class="dropdown-container">
+            <label for="leagueDropdown">League:</label>
+            <select id="leagueDropdown"></select>
             <label for="draftPeriodDropdown">Draft Period:</label>
             <select id="draftPeriodDropdown"></select>
             <label for="gameweekDropdown">Select Gameweek:</label>
@@ -195,5 +196,6 @@
             <!-- Iframes will be populated by JavaScript -->
         </div>
     </div>
+    <script type="module" src="js/LeagueScore.js"></script>
 </body>
 </html>
