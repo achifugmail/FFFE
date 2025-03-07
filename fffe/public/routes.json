@@ -1,16 +1,65 @@
 {
   "routes": [
     {
-      "route": "/*.html",
-      "serve": "/*.html"
+      "route": "/",
+      "serve": "/index.html"
     },
     {
-      "route": "/*",
-      "rewrite": "/index.html"
+      "route": "/main.html",
+      "serve": "/main.html"
+    },
+    {
+      "route": "/league.html",
+      "serve": "/league.html"
+    },
+    {
+      "route": "/LeagueScore.html",
+      "serve": "/LeagueScore.html"
+    },
+    {
+      "route": "/Squad.html",
+      "serve": "/Squad.html"
+    },
+    {
+      "route": "/PlayerPositions.html",
+      "serve": "/PlayerPositions.html"
+    },
+    {
+      "route": "/PLDataRefresh.html",
+      "serve": "/PLDataRefresh.html"
+    },
+    {
+      "route": "/newUser.html",
+      "serve": "/newUser.html"
+    },
+    {
+      "route": "/TeamScore.html",
+      "serve": "/TeamScore.html"
+    },
+    {
+      "route": "/Team.html",
+      "serve": "/Team.html"
+    },
+    {
+      "route": "/nav.html",
+      "serve": "/nav.html"
+    },
+    {
+      "route": "/js/*",
+      "serve": "/js/*"
+    },
+    {
+      "route": "/src/*",
+      "serve": "/src/*"
     }
   ],
   "navigationFallback": {
-    "rewrite": "/index.html",
-    "exclude": [ "/images/*", "/css/*" ]
+    "rewrite": "/index.html"
+  },
+  "mimeTypes": {
+    ".json": "text/json",
+    ".js": "text/javascript",
+    ".css": "text/css",
+    ".html": "text/html"
   }
 }
