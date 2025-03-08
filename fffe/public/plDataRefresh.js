@@ -83,7 +83,10 @@ export async function refreshData() {
     try {
         const response = await fetch(`${config.backendUrl}/PlayerGameweekStats/PopulateAllPlayers`, {
             method: 'POST',
-            credentials: 'include'
+            credentials: 'include',
+            headers: {
+                'Connection': 'keep-alive'
+            }
         });
         const result = await response.text();
         if (!response.ok) {
