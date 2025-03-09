@@ -193,5 +193,10 @@ document.addEventListener('DOMContentLoaded', async function () {
     await fetchAndDisplayPlayerStats(gameweekId, squadId, score);
     document.getElementById('toggleColumnsButton').addEventListener('click', toggleColumnVisibility);
     //adjustTableWidth(); // Adjust table width on initial load
+
+
+    setInterval(() => {
+        fetchAndDisplayPlayerStats(gameweekId, squadId, score);
+    }, 60000); // 60000 milliseconds = 1 minute
 });
 
