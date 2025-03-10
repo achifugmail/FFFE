@@ -1,4 +1,5 @@
 import config from './config.js';
+import { addAuthHeader } from './config.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
     const saveButton = document.getElementById('saveButton');
@@ -12,9 +13,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Fetch positions
     async function fetchPositions() {
         try {
-            const response = await fetch(`${config.backendUrl}/PlayerPositions/positions`, {
-                credentials: 'include', // Include cookies in the request
-            });
+            const response = await fetch(`${config.backendUrl}/PlayerPositions/positions`, addAuthHeader());
+
             if (!response.ok) {
                 const errorResponse = await response.json();
                 console.error('Failed to fetch positions:', response.status, response.statusText, errorResponse);
@@ -29,9 +29,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Fetch players with positions
     async function fetchPlayers() {
         try {
-            const response = await fetch(`${config.backendUrl}/PlayerPositions/players-with-positions`, {
-                credentials: 'include', // Include cookies in the request
-            });
+            const response = await fetch(`${config.backendUrl}/PlayerPositions/players-with-positions`, addAuthHeader());
+
             if (!response.ok) {
                 console.error('Failed to fetch players:', response.status, response.statusText);
                 return;
@@ -162,14 +161,13 @@ document.addEventListener('DOMContentLoaded', async function () {
             if (newPositionId !== initialPositionId) {
                 console.log('Saving changes for player ID:', playerId, 'with position ID:', newPositionId); // Log the data being sent
                 try {
-                    const response = await fetch(`${config.backendUrl}/PlayerPositions/upsert`, {
+                    const response = await fetch(`${config.backendUrl}/PlayerPositions/upsert`, addAuthHeader({
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                        },
-                        credentials: 'include', // Include cookies in the request
+                        },                        
                         body: JSON.stringify({ plPlayerCode: plPlayerCode, positionId: newPositionId })
-                    });
+                    }));
                     if (!response.ok) {
                         console.error('Failed to save changes for player ID:', playerId, response.status, response.statusText);
                         alert('Failed to save changes for player ID: ' + playerId);

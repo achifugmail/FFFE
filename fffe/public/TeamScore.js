@@ -1,4 +1,5 @@
 import config from './config.js';
+import { addAuthHeader } from './config.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
     const urlParams = new URLSearchParams(window.location.search);
@@ -23,9 +24,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     async function fetchAndDisplaySquadInfo(squadId) {
         try {
             // Fetch squad info
-            const squadResponse = await fetch(`${config.backendUrl}/UserSquads/${squadId}`, {
-                credentials: 'include'
-            });
+            const squadResponse = await fetch(`${config.backendUrl}/UserSquads/${squadId}`, addAuthHeader());
+
             if (!squadResponse.ok) {
                 console.error('Failed to fetch squad info:', squadResponse.status, squadResponse.statusText);
                 return;
@@ -33,9 +33,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             const squad = await squadResponse.json();
 
             // Fetch all users
-            const usersResponse = await fetch(`${config.backendUrl}/User/all`, {
-                credentials: 'include'
-            });
+            const usersResponse = await fetch(`${config.backendUrl}/User/all`, addAuthHeader());
+
             if (!usersResponse.ok) {
                 console.error('Failed to fetch users:', usersResponse.status, usersResponse.statusText);
                 return;
@@ -66,9 +65,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                 : `${config.backendUrl}/UserTeamPlayers/playerGameweekStatsByGameweekAndSquad`;
 
             // Fetch player stats
-            const response = await fetch(`${endpoint}?gameweekId=${gameweekId}&squadId=${squadId}`, {
-                credentials: 'include'
-            });
+            const response = await fetch(`${endpoint}?gameweekId=${gameweekId}&squadId=${squadId}`, addAuthHeader());
+
             if (!response.ok) {
                 console.error('Failed to fetch player stats:', response.status, response.statusText);
                 return;
@@ -76,9 +74,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             const playerStats = await response.json();
 
             // Fetch position data
-            const positionsResponse = await fetch(`${config.backendUrl}/PlayerPositions/positions`, {
-                credentials: 'include'
-            });
+            const positionsResponse = await fetch(`${config.backendUrl}/PlayerPositions/positions`, addAuthHeader());
+
             if (!positionsResponse.ok) {
                 console.error('Failed to fetch positions:', positionsResponse.status, positionsResponse.statusText);
                 return;

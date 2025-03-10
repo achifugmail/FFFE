@@ -1,13 +1,12 @@
 import config from './config.js';
+import { addAuthHeader } from './config.js';
 
 console.log('PLDataRefresh.js module loaded'); // Add logging to verify module loading
 
 // Export all functions so they're available to the HTML
 export async function fetchGameweeks() {
     try {
-        const response = await fetch(`${config.backendUrl}/Gameweeks`, {
-            credentials: 'include'
-        });
+        const response = await fetch(`${config.backendUrl}/Gameweeks`, addAuthHeader());
         if (!response.ok) {
             console.error('Failed to fetch gameweeks:', response.status, response.statusText);
             return;
@@ -52,10 +51,9 @@ export async function populateGameweeks() {
     progressIndicator.innerText = 'Populating gameweeks...';
 
     try {
-        const response = await fetch(`${config.backendUrl}/Gameweeks/populate`, {
-            method: 'POST',
-            credentials: 'include'
-        });
+        const response = await fetch(`${config.backendUrl}/Gameweeks/populate`, addAuthHeader({
+            method: 'POST'
+        }));
         const result = await response.text();
         if (!response.ok) {
             console.error('Failed to populate gameweeks:', response.status, response.statusText);
@@ -81,13 +79,12 @@ export async function refreshData() {
     progressIndicator.innerText = 'Refreshing data...';
 
     try {
-        const response = await fetch(`${config.backendUrl}/PlayerGameweekStats/PopulateAllPlayers`, {
+        const response = await fetch(`${config.backendUrl}/PlayerGameweekStats/PopulateAllPlayers`, addAuthHeader({
             method: 'POST',
-            credentials: 'include',
             headers: {
                 'Connection': 'keep-alive'
             }
-        });
+        }));
         const result = await response.text();
         if (!response.ok) {
             console.error('Failed to refresh data:', response.status, response.statusText);
@@ -119,11 +116,10 @@ export async function refreshGameweekData() {
     const selectedGameweekId = gameweekDropdown.value;
 
     try {
-        const response = await fetch(`${config.backendUrl}/PlayerGameweekStatsLive/populate/${selectedGameweekId}`, {
+        const response = await fetch(`${config.backendUrl}/PlayerGameweekStatsLive/populate/${selectedGameweekId}`, addAuthHeader({
             method: 'POST',
-            mode: 'no-cors',
-            credentials: 'include'
-        });
+            mode: 'no-cors'
+        }));
         const result = await response.text();
         if (!response.ok) {
             console.error('Failed to refresh data:', response.status, response.statusText);
@@ -150,14 +146,13 @@ export async function createDraftPeriod() {
     };
 
     try {
-        const response = await fetch(`${config.backendUrl}/DraftPeriods`, {
+        const response = await fetch(`${config.backendUrl}/DraftPeriods`, addAuthHeader({
             method: 'POST',
-            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(draftPeriod)
-        });
+        }));
 
         if (response.ok) {
             alert('Draft period created successfully!');
@@ -180,10 +175,9 @@ export async function populateFixtures() {
     progressIndicator.innerText = 'Populating fixtures...';
 
     try {
-        const response = await fetch(`${config.backendUrl}/Fixtures/populate`, {
-            method: 'POST',
-            credentials: 'include'
-        });
+        const response = await fetch(`${config.backendUrl}/Fixtures/populate`, addAuthHeader({
+            method: 'POST'
+        }));
         const result = await response.text();
         if (!response.ok) {
             console.error('Failed to populate fixtures:', response.status, response.statusText);
@@ -207,10 +201,9 @@ export async function populateAllPlayers() {
     progressIndicator.innerText = 'Populating all players...';
 
     try {
-        const response = await fetch(`${config.backendUrl}/Players/populateOrUpdate`, {
-            method: 'POST',
-            credentials: 'include'
-        });
+        const response = await fetch(`${config.backendUrl}/Players/populateOrUpdate`, addAuthHeader({
+            method: 'POST'
+        }));
         const result = await response.text();
         if (!response.ok) {
             console.error('Failed to populate all players:', response.status, response.statusText);
@@ -243,14 +236,13 @@ export async function createLeague() {
     };
 
     try {
-        const respCreate = await fetch(createUrl, {
+        const respCreate = await fetch(createUrl, addAuthHeader({
             method: 'POST',
-            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(payload)
-        });
+        }));
 
         if (!respCreate.ok) {
             console.error('Failed to create league:', respCreate.status, respCreate.statusText);
@@ -266,9 +258,7 @@ export async function createLeague() {
 
 export async function fetchLeagues() {
     try {
-        const response = await fetch(`${config.backendUrl}/Leagues`, {
-            credentials: 'include'
-        });
+        const response = await fetch(`${config.backendUrl}/Leagues`, addAuthHeader());
         if (!response.ok) {
             console.error('Failed to fetch leagues:', response.status, response.statusText);
             return;
@@ -293,9 +283,7 @@ export async function fetchLeagues() {
 
 export async function fetchUsers() {
     try {
-        const response = await fetch(`${config.backendUrl}/User/all`, {
-            credentials: 'include'
-        });
+        const response = await fetch(`${config.backendUrl}/User/all`, addAuthHeader());
         if (!response.ok) {
             console.error('Failed to fetch users:', response.status, response.statusText);
             return;
@@ -320,9 +308,7 @@ export async function fetchUsers() {
 
 export async function fetchDraftPeriods() {
     try {
-        const response = await fetch(`${config.backendUrl}/DraftPeriods`, {
-            credentials: 'include'
-        });
+        const response = await fetch(`${config.backendUrl}/DraftPeriods`, addAuthHeader());
         if (!response.ok) {
             console.error('Failed to fetch draft periods:', response.status, response.statusText);
             return;
@@ -389,14 +375,13 @@ try {
             };
 
             try {
-                const respCreate = await fetch(createUrl, {
+                const respCreate = await fetch(createUrl, addAuthHeader({
                     method: 'POST',
-                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(payload)
-                });
+                }));
 
                 if (!respCreate.ok) {
                     console.error('Failed to create squad:', respCreate.status, respCreate.statusText);
@@ -425,4 +410,3 @@ window.createLeague = createLeague;
 window.fetchLeagues = fetchLeagues;
 window.fetchUsers = fetchUsers;
 window.fetchDraftPeriods = fetchDraftPeriods;
-

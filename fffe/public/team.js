@@ -1,13 +1,12 @@
 import config from './config.js';
-
+import { addAuthHeader } from './config.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
     // Fetch draft periods for dropdown
     let draftPeriods = [];
     try {
-        const respDrafts = await fetch(`${config.backendUrl}/DraftPeriods`, {
-            credentials: 'include'
-        });
+        const respDrafts = await fetch(`${config.backendUrl}/DraftPeriods`, addAuthHeader());
+
         if (!respDrafts.ok) {
             console.error('Failed to fetch draft periods:', respDrafts.status, respDrafts.statusText);
         } else {
@@ -32,9 +31,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     async function fetchAndPopulateGameweeks(draftPeriodId) {
         let gameweeks = [];
         try {
-            const respGameweeks = await fetch(`${config.backendUrl}/Gameweeks/by-draft-period/${draftPeriodId}`, {
-                credentials: 'include'
-            });
+            const respGameweeks = await fetch(`${config.backendUrl}/Gameweeks/by-draft-period/${draftPeriodId}`, addAuthHeader());
+
             if (!respGameweeks.ok) {
                 console.error('Failed to fetch gameweeks:', respGameweeks.status, respGameweeks.statusText);
             } else {
@@ -83,9 +81,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Fetch and display squad info
     async function fetchAndDisplaySquadInfo(squadId) {
         try {
-            const response = await fetch(`${config.backendUrl}/UserSquads/${squadId}`, {
-                credentials: 'include'
-            });
+            const response = await fetch(`${config.backendUrl}/UserSquads/${squadId}`, addAuthHeader());
+
             if (!response.ok) {
                 console.error('Failed to fetch squad info:', response.status, response.statusText);
                 return;
@@ -109,17 +106,14 @@ document.addEventListener('DOMContentLoaded', async function () {
     async function fetchAndDisplaySquadPlayers(squadId) {
         try {
             const gameweekId = document.getElementById('gameweekDropdown').value;
-            const response = await fetch(`${config.backendUrl}/PlayerPositions/user-squad-players/${squadId}`, {
-                credentials: 'include'
-            });
+            const response = await fetch(`${config.backendUrl}/PlayerPositions/user-squad-players/${squadId}`, addAuthHeader());
+
             if (!response.ok) {
                 console.error('Failed to fetch squad players:', response.status, response.statusText);
                 return;
             }
             const squadPlayers = await response.json();
-            const positions = await fetch(`${config.backendUrl}/PlayerPositions/positions`, {
-                credentials: 'include'
-            }).then(res => res.json());
+            const positions = await fetch(`${config.backendUrl}/PlayerPositions/positions`, addAuthHeader()).then(res => res.json());
 
             const playerGrid = document.getElementById('playerGrid');
             playerGrid.innerHTML = ''; // Clear existing sections
@@ -141,12 +135,13 @@ document.addEventListener('DOMContentLoaded', async function () {
                 filteredPlayers.forEach(player => {
                     const playerDiv = document.createElement('div');
                     playerDiv.className = 'player-grid';
+                    // Replace this part in the fetchAndDisplaySquadPlayers function where the playerDiv is created
                     playerDiv.innerHTML = `
-                        <input type="checkbox" class="player-checkbox" data-player-id="${player.id}">
-                        <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
-                        <span>${player.firstName} ${player.secondName}</span>
-                        <button class="captain-button" data-player-id="${player.id}">c</button>
-                    `;
+    <input type="checkbox" class="player-checkbox" data-player-id="${player.id}">
+    <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
+    <span>${player.firstName} ${player.secondName}</span>
+    <button class="captain-button" data-player-id="${player.id}"><i class="fas fa-crown"></i></button>
+`;
                     playersDiv.appendChild(playerDiv);
                 });
 
@@ -155,9 +150,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             // Fetch and select players for the current gameweek
             try {
-                const gameweekPlayersResponse = await fetch(`${config.backendUrl}/UserTeamPlayers/byUserSquadAndGameweek?userSquadId=${squadId}&gameweekId=${gameweekId}`, {
-                    credentials: 'include'
-                });
+                const gameweekPlayersResponse = await fetch(`${config.backendUrl}/UserTeamPlayers/byUserSquadAndGameweek?userSquadId=${squadId}&gameweekId=${gameweekId}`, addAuthHeader());
+
                 if (gameweekPlayersResponse.ok) {
                     const gameweekPlayers = await gameweekPlayersResponse.json();
                     gameweekPlayers.forEach(player => {
@@ -213,8 +207,15 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     }
 
-    // Mark a player as captain
+    // // Mark a player as captain
     async function markAsCaptain(playerId) {
+        // First, remove captain status from any existing captain
+        const existingCaptain = document.querySelector('.player-grid.captain');
+        if (existingCaptain) {
+            existingCaptain.classList.remove('captain');
+        }
+
+        // Then mark the new captain
         const button = document.querySelector(`.captain-button[data-player-id="${playerId}"]`);
         if (button) {
             const playerDiv = button.closest('.player-grid');
@@ -225,14 +226,13 @@ document.addEventListener('DOMContentLoaded', async function () {
         const squadId = new URLSearchParams(window.location.search).get('SquadId');
         const gameweekId = document.getElementById('gameweekDropdown').value;
         try {
-            const response = await fetch(`${config.backendUrl}/UserTeamPlayers/updateCaptainByGameweekAndSquad`, {
+            const response = await fetch(`${config.backendUrl}/UserTeamPlayers/updateCaptainByGameweekAndSquad`, addAuthHeader({
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                credentials: 'include',
                 body: JSON.stringify({ gameweekId: gameweekId, userSquadId: squadId, playerId: playerId })
-            });
+            }));
             if (!response.ok) {
                 console.error('Failed to update captain:', response.status, response.statusText);
             }
@@ -255,14 +255,13 @@ document.addEventListener('DOMContentLoaded', async function () {
             const squadId = new URLSearchParams(window.location.search).get('SquadId');
             const gameweekId = document.getElementById('gameweekDropdown').value;
             try {
-                const response = await fetch(`${config.backendUrl}/UserTeamPlayers/AddByGameweekAndSquad`, {
+                const response = await fetch(`${config.backendUrl}/UserTeamPlayers/AddByGameweekAndSquad`, addAuthHeader({
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    credentials: 'include',
                     body: JSON.stringify({ gameweekId: gameweekId, userSquadId: squadId, playerId: playerId })
-                });
+                }));
                 if (!response.ok) {
                     console.error('Failed to add player to team:', response.status, response.statusText);
                 }
@@ -285,14 +284,13 @@ document.addEventListener('DOMContentLoaded', async function () {
         const squadId = new URLSearchParams(window.location.search).get('SquadId');
         const gameweekId = document.getElementById('gameweekDropdown').value;
         try {
-            const response = await fetch(`${config.backendUrl}/UserTeamPlayers/DeleteByGameweekAndSquad`, {
+            const response = await fetch(`${config.backendUrl}/UserTeamPlayers/DeleteByGameweekAndSquad`, addAuthHeader({
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                credentials: 'include',
                 body: JSON.stringify({ gameweekId: gameweekId, userSquadId: squadId, playerId: playerId })
-            });
+            }));
             if (!response.ok) {
                 console.error('Failed to remove player from team:', response.status, response.statusText);
             }

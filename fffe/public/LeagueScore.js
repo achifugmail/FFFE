@@ -1,12 +1,12 @@
 import config from './config.js';
+import { addAuthHeader } from './config.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
     // Fetch leagues for dropdown
     let leagues = [];
     try {
-        const respLeagues = await fetch(`${config.backendUrl}/Leagues`, {
-            credentials: 'include'
-        });
+        const respLeagues = await fetch(`${config.backendUrl}/Leagues`, addAuthHeader());
+
         if (!respLeagues.ok) {
             console.error('Failed to fetch leagues:', respLeagues.status, respLeagues.statusText);
         } else {
@@ -28,9 +28,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Fetch and display league details based on selected league
     async function fetchAndDisplayLeagueDetails(leagueId) {
         try {
-            const response = await fetch(`${config.backendUrl}/Leagues/${leagueId}`, {
-                credentials: 'include'
-            });
+            const response = await fetch(`${config.backendUrl}/Leagues/${leagueId}`, addAuthHeader());
+
             if (!response.ok) {
                 console.error('Failed to fetch league details:', response.status, response.statusText);
                 return;
@@ -45,9 +44,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Fetch draft periods for dropdown
     let draftPeriods = [];
     try {
-        const respDrafts = await fetch(`${config.backendUrl}/DraftPeriods`, {
-            credentials: 'include'
-        });
+        const respDrafts = await fetch(`${config.backendUrl}/DraftPeriods`, addAuthHeader());
+
         if (!respDrafts.ok) {
             console.error('Failed to fetch draft periods:', respDrafts.status, respDrafts.statusText);
         } else {
@@ -78,9 +76,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     async function fetchAndPopulateGameweeks(draftPeriodId) {
         let gameweeks = [];
         try {
-            const respGameweeks = await fetch(`${config.backendUrl}/Gameweeks/by-draft-period/${draftPeriodId}`, {
-                credentials: 'include'
-            });
+            const respGameweeks = await fetch(`${config.backendUrl}/Gameweeks/by-draft-period/${draftPeriodId}`, addAuthHeader());
+
             if (!respGameweeks.ok) {
                 console.error('Failed to fetch gameweeks:', respGameweeks.status, respGameweeks.statusText);
             } else {
@@ -138,9 +135,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     async function fetchAndDisplaySquads() {
         const leagueId = leagueDropdown.value;
         try {
-            const respSquads = await fetch(`${config.backendUrl}/UserSquads/ByLeague/${leagueId}`, {
-                credentials: 'include'
-            });
+            const respSquads = await fetch(`${config.backendUrl}/UserSquads/ByLeague/${leagueId}`, addAuthHeader());
+
             if (!respSquads.ok) {
                 console.error('Failed to fetch squads:', respSquads.status, respSquads.statusText);
                 return;

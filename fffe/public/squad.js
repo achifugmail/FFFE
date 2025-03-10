@@ -1,4 +1,5 @@
 import config from './config.js';
+import { addAuthHeader } from './config.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
     let leagueId;
@@ -70,9 +71,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     async function fetchDraftPeriods() {
     try {
-        const response = await fetch(`${config.backendUrl}/DraftPeriods`, {
-            credentials: 'include'
-        });
+        const response = await fetch(`${config.backendUrl}/DraftPeriods`, addAuthHeader());
+
         if (!response.ok) {
             console.error('Failed to fetch draft periods:', response.status, response.statusText);
             return;
@@ -109,9 +109,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     async function fetchLeagues() {
         try {
-            const response = await fetch(`${config.backendUrl}/Leagues/byUser/${currentUserId}`, {
-                credentials: 'include'
-            });
+            const response = await fetch(`${config.backendUrl}/Leagues/byUser/${currentUserId}`, addAuthHeader());
+
             if (!response.ok) {
                 console.error('Failed to fetch leagues:', response.status, response.statusText);
                 return;
@@ -143,9 +142,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     async function fetchSquadId() {
         try {
-            const response = await fetch(`${config.backendUrl}/UserSquads/ByLeagueDraftPeriodAndUser/${leagueId}/${draftPeriodId}/${currentUserId}`, {
-                credentials: 'include'
-            });
+            const response = await fetch(`${config.backendUrl}/UserSquads/ByLeagueDraftPeriodAndUser/${leagueId}/${draftPeriodId}/${currentUserId}`, addAuthHeader());
+
             if (!response.ok) {
                 console.error('Failed to fetch squad ID:', response.status, response.statusText);
                 return null;
@@ -161,9 +159,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     async function fetchAndCreateSections() {
         try {
-            const response = await fetch(`${config.backendUrl}/PlayerPositions/positions`, {
-                credentials: 'include'
-            });
+            const response = await fetch(`${config.backendUrl}/PlayerPositions/positions`, addAuthHeader());
+
             if (!response.ok) {
                 console.error('Failed to fetch positions:', response.status, response.statusText);
                 return;
@@ -210,9 +207,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     async function fetchSquadDetails() {
         try {
-            const response = await fetch(`${config.backendUrl}/UserSquads/${squadId}`, {
-                credentials: 'include'
-            });
+            const response = await fetch(`${config.backendUrl}/UserSquads/${squadId}`, addAuthHeader());
+
             if (!response.ok) {
                 console.error('Failed to fetch squad details:', response.status, response.statusText);
                 return;
@@ -222,9 +218,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             let draftPeriodName = '';
             try {
-                const respDraft = await fetch(`${config.backendUrl}/DraftPeriods/${draftPeriodId}`, {
-                    credentials: 'include'
-                });
+                const respDraft = await fetch(`${config.backendUrl}/DraftPeriods/${draftPeriodId}`, addAuthHeader());
+
                 if (!respDraft.ok) {
                     console.error('Failed to fetch draft period details:', respDraft.status, respDraft.statusText);
                 } else {
@@ -254,17 +249,14 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     async function fetchAndDisplaySquadPlayers(squadId, leagueId) {
         try {
-            const response = await fetch(`${config.backendUrl}/PlayerPositions/user-squad-players/${squadId}`, {
-                credentials: 'include'
-            });
+            const response = await fetch(`${config.backendUrl}/PlayerPositions/user-squad-players/${squadId}`, addAuthHeader());
+
             if (!response.ok) {
                 console.error('Failed to fetch squad players:', response.status, response.statusText);
                 return;
             }
             squadPlayers = await response.json();
-            const positions = await fetch(`${config.backendUrl}/PlayerPositions/positions`, {
-                credentials: 'include'
-            }).then(res => res.json());
+            const positions = await fetch(`${config.backendUrl}/PlayerPositions/positions`, addAuthHeader()).then(res => res.json());
 
             positions.forEach(position => {
                 const section = document.getElementById(position.name);
@@ -304,9 +296,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     async function fetchAndDisplayAvailablePlayers(position, leagueId, draftPeriodId) {
         try {
-            const response = await fetch(`${config.backendUrl}/PlayerPositions/available-players-with-positions/${leagueId}/${draftPeriodId}`, {
-                credentials: 'include'
-            });
+            const response = await fetch(`${config.backendUrl}/PlayerPositions/available-players-with-positions/${leagueId}/${draftPeriodId}`, addAuthHeader());
+
             if (!response.ok) {
                 console.error('Failed to fetch available players:', response.status, response.statusText);
                 return;
@@ -340,14 +331,13 @@ document.addEventListener('DOMContentLoaded', async function () {
         };
 
         try {
-            const response = await fetch(`${config.backendUrl}/PlayerPositions/add-user-squad-player`, {
-                method: 'POST',
-                credentials: 'include',
+            const response = await fetch(`${config.backendUrl}/PlayerPositions/add-user-squad-player`, addAuthHeader({
+                method: 'POST',               
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(payload)
-            });
+            }));
 
             if (!response.ok) {
                 console.error('Failed to add player to squad:', response.status, response.statusText);
@@ -377,14 +367,13 @@ document.addEventListener('DOMContentLoaded', async function () {
         };
 
         try {
-            const response = await fetch(`${config.backendUrl}/PlayerPositions/delete-user-squad-player`, {
-                method: 'DELETE',
-                credentials: 'include',
+            const response = await fetch(`${config.backendUrl}/PlayerPositions/delete-user-squad-player`, addAuthHeader({
+                method: 'DELETE',                
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(payload)
-            });
+            }));
 
             if (!response.ok) {
                 console.error('Failed to remove player from squad:', response.status, response.statusText);

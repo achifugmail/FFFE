@@ -1,4 +1,5 @@
 ﻿import config from './config.js';
+import { addAuthHeader } from './config.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
     const currentUserId = localStorage.getItem('userId'); // Retrieve the current user ID from local storage
@@ -6,9 +7,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Function to fetch and display leagues for the current user
     async function fetchAndDisplayLeagues() {
         try {
-            const response = await fetch(`${config.backendUrl}/Leagues/byUser/${currentUserId}`, {
-                credentials: 'include'
-            });
+            const response = await fetch(`${config.backendUrl}/Leagues/byUser/${currentUserId}`, addAuthHeader());
+
             if (!response.ok) {
                 console.error('Failed to fetch leagues:', response.status, response.statusText);
                 return;
@@ -42,9 +42,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     async function updateLeagueDetails(leagueId) {
         // Fetch league details
         try {
-            const response = await fetch(`${config.backendUrl}/Leagues/${leagueId}`, {
-                credentials: 'include'
-            });
+            const response = await fetch(`${config.backendUrl}/Leagues/${leagueId}`, addAuthHeader());
+
             if (!response.ok) {
                 console.error('Failed to fetch league details:', response.status, response.statusText);
                 return;
@@ -64,9 +63,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Function to fetch and display existing squads
     async function fetchAndDisplaySquads(leagueId) {
         try {
-            const respSquads = await fetch(`${config.backendUrl}/UserSquads/ByLeague/${leagueId}`, {
-                credentials: 'include'
-            });
+            const respSquads = await fetch(`${config.backendUrl}/UserSquads/ByLeague/${leagueId}`, addAuthHeader());
+
             if (!respSquads.ok) {
                 console.error('Failed to fetch squads:', respSquads.status, respSquads.statusText);
                 return;
@@ -108,9 +106,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Fetch users for dropdown
     let users = [];
     try {
-        const respUsers = await fetch(`${config.backendUrl}/User/all`, {
-            credentials: 'include'
-        });
+        const respUsers = await fetch(`${config.backendUrl}/User/all`, addAuthHeader());
+
         if (!respUsers.ok) {
             console.error('Failed to fetch users:', respUsers.status, respUsers.statusText);
         } else {
@@ -133,9 +130,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Fetch draft periods for dropdown
     let draftPeriods = [];
     try {
-        const respDrafts = await fetch(`${config.backendUrl}/DraftPeriods`, {
-            credentials: 'include'
-        });
+        const respDrafts = await fetch(`${config.backendUrl}/DraftPeriods`, addAuthHeader());
+
         if (!respDrafts.ok) {
             console.error('Failed to fetch draft periods:', respDrafts.status, respDrafts.statusText);
         } else {
@@ -175,64 +171,6 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Fetch and display existing squads on page load
     fetchAndDisplayLeagues();
-
-    /*
-    // Handle Create Squad button click
-    document.getElementById('createSquadButton').addEventListener('click', async function () {
-        const userId = userDropdown.value;
-        const draftPeriodId = draftPeriodDropdown.value;
-        const squadName = document.getElementById('squadName').value.trim();
-        const leagueId = document.getElementById('leagueDropdown').value;
-
-        if (!userId || !leagueId || !draftPeriodId || !squadName) {
-            alert('Please fill in all fields');
-            return;
-        }
-
-        const createUrl = `${config.backendUrl}/UserSquads/Create`;
-
-        const payload = {
-            userId: parseInt(userId),
-            leagueId: parseInt(leagueId),
-            draftPeriodId: parseInt(draftPeriodId),
-            squadName: squadName
-        };
-
-        try {
-            const respCreate = await fetch(createUrl, {
-                method: 'POST',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            });
-
-            if (!respCreate.ok) {
-                console.error('Failed to create squad:', respCreate.status, respCreate.statusText);
-                alert('Failed to create squad');
-            } else {
-                alert('Squad created successfully!');
-                fetchAndDisplaySquads(leagueId); // Update the list of existing squads
-            }
-        } catch (error) {
-            console.error('Error creating squad:', error);
-        }
-    });
-
-    // Collapsible section logic
-    const collapsible = document.querySelector('.collapsible');
-    const content = document.querySelector('.content');
-
-    collapsible.addEventListener('click', function () {
-        this.classList.toggle('active');
-        if (content.style.display === 'block') {
-            content.style.display = 'none';
-        } else {
-            content.style.display = 'block';
-        }
-    });
-
-    */
+       
 });
 

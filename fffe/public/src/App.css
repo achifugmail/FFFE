@@ -145,7 +145,7 @@ th {
     right: 10px; /* Adjust the position to the right */
     top: 50%;
     transform: translateY(-50%);
-    background-color: #007bff;
+    background-color: #007bff00;
     color: #fff;
     border: none;
     padding: 5px;
