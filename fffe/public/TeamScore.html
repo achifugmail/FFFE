@@ -11,6 +11,7 @@
             background-color: #f4f4f9;
             margin: 0;
             padding: 0;
+            font-size: 16px; /* Base font size */
         }
 
         header {
@@ -128,6 +129,50 @@
         .hide-header header {
             display: none;
         }
+
+        /* Media Queries for Mobile Responsiveness */
+        @media (max-width: 768px) {
+            body {
+                font-size: 18px; /* Adjust base font size for smaller screens */
+            }
+
+            #content {
+                padding: 1rem;
+            }
+
+            .dropdown-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            #playerStatsTable {
+                width: 100%;
+                grid-template-columns: 1fr; /* One player per row */
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                font-size: 20px; /* Adjust base font size for smaller screens */
+            }
+
+            #playerStatsTable {
+                width: 100%;
+                grid-template-columns: 1fr; /* One player per row */
+            }
+        }
+
+        /* Media Query for High-Resolution Mobile Devices */
+        @media (min-resolution: 2dppx) and (max-width: 1200px) {
+            body {
+                font-size: 22px; /* Increase base font size for high-resolution screens */
+            }
+
+            #playerStatsTable {
+                width: 100%;
+                grid-template-columns: 1fr; /* One player per row */
+            }
+        }
     </style>
 </head>
 <body>
@@ -146,4 +191,3 @@
     <script type="module" src="TeamScore.js"></script>
 </body>
 </html>
-
