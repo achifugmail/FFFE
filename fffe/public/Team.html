@@ -14,6 +14,7 @@
             padding: 0;
             display: flex;
             flex-direction: column;
+            font-size: 16px; /* Base font size */
         }
 
         header {
@@ -47,7 +48,46 @@
             margin: 0;
         }
 
-        /* Rest of your existing styles... */
+        /* Media Queries for Mobile Responsiveness */
+        @media (max-width: 768px) {
+            body {
+                font-size: 18px; /* Adjust base font size for smaller screens */
+            }
+
+            #content {
+                padding: 1rem;
+            }
+
+            .dropdown-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            #playerGrid {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                font-size: 20px; /* Adjust base font size for smaller screens */
+            }
+
+            #playerGrid {
+                width: 100%;
+            }
+        }
+
+        /* Media Query for High-Resolution Mobile Devices */
+        @media (min-resolution: 2dppx) and (max-width: 1200px) {
+            body {
+                font-size: 24px; /* Increase base font size for high-resolution screens */
+            }
+
+            #playerGrid {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -83,4 +123,3 @@
     <script type="module" src="team.js"></script>
 </body>
 </html>
-
