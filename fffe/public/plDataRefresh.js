@@ -117,8 +117,7 @@ export async function refreshGameweekData() {
 
     try {
         const response = await fetch(`${config.backendUrl}/PlayerGameweekStatsLive/populate/${selectedGameweekId}`, addAuthHeader({
-            method: 'POST',
-            mode: 'no-cors'
+            method: 'POST'
         }));
         const result = await response.text();
         if (!response.ok) {
