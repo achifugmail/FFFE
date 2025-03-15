@@ -1,5 +1,7 @@
-import config from './config.js';
+﻿import config from './config.js';
 import { addAuthHeader } from './config.js';
+let draftPeriodStartDate = null;
+let outPlayerId = null;
 
 document.addEventListener('DOMContentLoaded', async function () {
     let leagueId;
@@ -37,6 +39,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             fetchAndCreateSections();
             fetchSquadDetails();
             fetchAndDisplaySquadPlayers(squadId, leagueId);
+            fetchAndDisplayTransfers(squadId);
             return true;
         }
         return false;
@@ -65,47 +68,51 @@ document.addEventListener('DOMContentLoaded', async function () {
             await fetchAndCreateSections();
             await fetchSquadDetails();
             await fetchAndDisplaySquadPlayers(squadId, leagueId);
+            await fetchAndDisplayTransfers(squadId);
         }
     }
 
 
     async function fetchDraftPeriods() {
-    try {
-        const response = await fetch(`${config.backendUrl}/DraftPeriods`, addAuthHeader());
+        try {
+            const response = await fetch(`${config.backendUrl}/DraftPeriods`, addAuthHeader());
 
-        if (!response.ok) {
-            console.error('Failed to fetch draft periods:', response.status, response.statusText);
-            return;
+            if (!response.ok) {
+                console.error('Failed to fetch draft periods:', response.status, response.statusText);
+                return;
+            }
+            const draftPeriods = await response.json();
+            const draftPeriodDropdown = document.getElementById('draftPeriodDropdown');
+            draftPeriodDropdown.innerHTML = '';
+
+            draftPeriods.forEach(period => {
+                const option = document.createElement('option');
+                option.value = period.id;
+                option.text = period.name || `Draft ${period.id}`;
+                option.setAttribute('data-start-date', period.startDate);
+                draftPeriodDropdown.appendChild(option);
+            });
+
+            if (draftPeriods.length > 0) {
+                const lastDraftPeriod = draftPeriods[draftPeriods.length - 1];
+                draftPeriodDropdown.value = lastDraftPeriod.id;
+                draftPeriodId = lastDraftPeriod.id;
+                // Convert local time to GMT
+                draftPeriodStartDate = new Date(lastDraftPeriod.startDate).toUTCString();
+                await updateSquadId();
+            }
+
+            draftPeriodDropdown.addEventListener('change', async function () {
+                draftPeriodId = this.value;
+                const selectedOption = this.options[this.selectedIndex];
+                draftPeriodStartDate = new Date(selectedOption.getAttribute('data-start-date')).toUTCString();
+                outPlayerId = null; // Reset outPlayerId when changing draft period
+                await updateSquadId();
+            });
+        } catch (error) {
+            console.error('Error fetching draft periods:', error);
         }
-        const draftPeriods = await response.json();
-        const draftPeriodDropdown = document.getElementById('draftPeriodDropdown');
-        draftPeriodDropdown.innerHTML = '';
-
-        draftPeriods.forEach(period => {
-            const option = document.createElement('option');
-            option.value = period.id;
-            option.text = period.name || `Draft ${period.id}`;
-            draftPeriodDropdown.appendChild(option);
-        });
-
-        if (draftPeriods.length > 0) {
-            // Select the last draft period by default
-            const lastDraftPeriod = draftPeriods[draftPeriods.length - 1];
-            draftPeriodDropdown.value = lastDraftPeriod.id;
-            draftPeriodId = lastDraftPeriod.id;
-            await updateSquadId();
-        }
-
-        draftPeriodDropdown.addEventListener('change', async function () {
-            draftPeriodId = this.value;
-            await updateSquadId();
-        });
-    } catch (error) {
-        console.error('Error fetching draft periods:', error);
     }
-}
-
-
 
     async function fetchLeagues() {
         try {
@@ -261,16 +268,17 @@ document.addEventListener('DOMContentLoaded', async function () {
             positions.forEach(position => {
                 const section = document.getElementById(position.name);
                 const playersDiv = section.querySelector('.players');
+                const playerList = section.querySelector('.player-list'); // Add this line
                 playersDiv.innerHTML = '';
                 const filteredPlayers = squadPlayers.filter(player => player.positionName === position.name);
                 filteredPlayers.forEach(player => {
                     const playerDiv = document.createElement('div');
                     playerDiv.className = 'player-grid';
                     playerDiv.innerHTML = `
-                            <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
-                            <span>${player.firstName} ${player.secondName}</span>
-                            <button class="remove-player-button" data-player-id="${player.id}" data-position="${position.name}">-</button>
-                        `;
+                        <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
+                        <span>${player.firstName} ${player.secondName}</span>
+                        <button class="remove-player-button" data-player-id="${player.id}" data-position="${position.name}">-</button>
+                    `;
                     playersDiv.appendChild(playerDiv);
                 });
 
@@ -285,8 +293,10 @@ document.addEventListener('DOMContentLoaded', async function () {
                 const addButton = section.querySelector('.add-button');
                 if (currentRows < position.maxInSquad) {
                     addButton.style.display = 'block';
+                    playerList.style.display = 'none'; // Hide initially, will show when Add is clicked
                 } else {
                     addButton.style.display = 'none';
+                    playerList.style.display = 'none'; // Hide available players when position is filled
                 }
             });
         } catch (error) {
@@ -325,42 +335,107 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     async function addPlayerToSquad(playerId, squadId, position) {
-        const payload = {
-            userSquadId: parseInt(squadId),
-            playerId: parseInt(playerId)
-        };
+        const now = new Date();
+        const draftStart = new Date(draftPeriodStartDate);
 
-        try {
-            const response = await fetch(`${config.backendUrl}/PlayerPositions/add-user-squad-player`, addAuthHeader({
-                method: 'POST',               
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            }));
+        if (now > draftStart && outPlayerId) {
+            // After draft has started and we have an outPlayerId, use the swap endpoint
+            const payload = {
+                squadId: parseInt(squadId),
+                outPlayerId: parseInt(outPlayerId),
+                inPlayerId: parseInt(playerId)
+            };
 
-            if (!response.ok) {
-                console.error('Failed to add player to squad:', response.status, response.statusText);
+            try {
+                const response = await fetch(`${config.backendUrl}/UserSquads/Transfer`, addAuthHeader({
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                }));
+
+                if (!response.ok) {
+                    console.error('Failed to swap player in squad:', response.status, response.statusText);
+                    return;
+                }
+
+                // Reset outPlayerId after successful swap
+                outPlayerId = null;
+                // Remove pending-swap class from all sections
+                document.querySelectorAll('.section').forEach(section => {
+                    section.classList.remove('pending-swap');
+                });
+
+            } catch (error) {
+                console.error('Error swapping player in squad:', error);
                 return;
             }
+        } else {
+            // Before draft start date or no outPlayerId, proceed with normal addition
+            const payload = {
+                userSquadId: parseInt(squadId),
+                playerId: parseInt(playerId)
+            };
 
-            await fetchAndDisplaySquadPlayers(squadId, leagueId);
-            await fetchAndDisplayAvailablePlayers(position, leagueId, draftPeriodId);
+            try {
+                const response = await fetch(`${config.backendUrl}/PlayerPositions/add-user-squad-player`, addAuthHeader({
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                }));
 
+                if (!response.ok) {
+                    console.error('Failed to add player to squad:', response.status, response.statusText);
+                    return;
+                }
+            } catch (error) {
+                console.error('Error adding player to squad:', error);
+                return;
+            }
+        }
+
+        // Refresh the display after either operation
+        await fetchAndDisplaySquadPlayers(squadId, leagueId);
+        await fetchAndDisplayAvailablePlayers(position, leagueId, draftPeriodId);
+    }
+
+
+    async function removePlayerFromSquad(playerId, squadId, position) {
+        // Check if a swap is already pending
+        if (outPlayerId) {
+            alert('A player swap is pending. Please complete the swap before removing another player.');
+            return;
+        }
+
+        const now = new Date();
+        const draftStart = new Date(draftPeriodStartDate);
+
+        if (now > draftStart) {
+            // After draft has started, store the removed player's ID
+            outPlayerId = playerId;
+
+            // Get section elements
             const section = document.getElementById(position);
             const addButton = section.querySelector('.add-button');
             const playerList = section.querySelector('.player-list');
-            const emptyRows = section.querySelectorAll('.player-row');
-            if (emptyRows.length === 0) {
-                playerList.style.display = 'none';
-                addButton.style.display = 'none';
-            }
-        } catch (error) {
-            console.error('Error adding player to squad:', error);
-        }
-    }
 
-    async function removePlayerFromSquad(playerId, squadId, position) {
+            // Show the Add button and available players list
+            addButton.style.display = 'block';
+            playerList.style.display = 'block';
+
+            // Mark section as pending swap
+            section.classList.add('pending-swap');
+
+            // Fetch available players immediately to populate the list
+            await fetchAndDisplayAvailablePlayers(position, leagueId, draftPeriodId);
+
+            return;
+        }
+
+        // Pre-draft period behavior remains the same
         const payload = {
             userSquadId: parseInt(squadId),
             playerId: parseInt(playerId)
@@ -368,7 +443,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         try {
             const response = await fetch(`${config.backendUrl}/PlayerPositions/delete-user-squad-player`, addAuthHeader({
-                method: 'DELETE',                
+                method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -382,8 +457,63 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             await fetchAndDisplaySquadPlayers(squadId, leagueId);
             await fetchAndDisplayAvailablePlayers(position, leagueId, draftPeriodId);
+
+            const section = document.getElementById(position);
+            const addButton = section.querySelector('.add-button');
+            addButton.style.display = 'block';
         } catch (error) {
             console.error('Error removing player from squad:', error);
+        }
+    }
+
+    async function fetchAndDisplayTransfers(squadId) {
+        try {
+            const response = await fetch(`${config.backendUrl}/PlayerPositions/squad-transfers/${squadId}`, addAuthHeader());
+
+            if (!response.ok) {
+                console.error('Failed to fetch transfers:', response.status, response.statusText);
+                return;
+            }
+
+            const transfers = await response.json();
+            const transfersList = document.getElementById('transfersList');
+
+            if (transfers.length === 0) {
+                transfersList.innerHTML = '<div class="no-transfers">No transfers made yet</div>';
+                return;
+            }
+
+            transfersList.innerHTML = transfers.map(transfer => {
+                const date = new Date(transfer.transferDate).toLocaleDateString('en-GB', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                return `
+                <div class="transfer-item">
+                    <div class="transfer-date">${date}</div>
+                    <div class="transfer-player">
+                        <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${transfer.playerIn.photo.slice(0, -3)}png" 
+                             alt="${transfer.playerIn.webName}" 
+                             class="player-photo">
+                        <span>${transfer.playerIn.webName}</span>
+                    </div>
+                    <div class="transfer-arrow">←</div>
+                    <div class="transfer-player">
+                        <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${transfer.playerOut.photo.slice(0, -3)}png" 
+                             alt="${transfer.playerOut.webName}" 
+                             class="player-photo">
+                        <span>${transfer.playerOut.webName}</span>
+                    </div>
+                </div>
+            `;
+            }).join('');
+
+        } catch (error) {
+            console.error('Error fetching transfers:', error);
         }
     }
 
@@ -400,6 +530,12 @@ document.addEventListener('DOMContentLoaded', async function () {
             const position = event.target.getAttribute('data-position');
             addPlayerToSquad(playerId, squadId, position);
         } else if (event.target.classList.contains('remove-player-button')) {
+            // Check if a swap is already pending
+            if (outPlayerId) {
+                alert('A player swap is pending. Please complete the swap before removing another player.');
+                return;
+            }
+
             const playerId = event.target.getAttribute('data-player-id');
             const position = event.target.getAttribute('data-position');
             removePlayerFromSquad(playerId, squadId, position);

@@ -96,13 +96,13 @@ th {
     display: flex;
     flex-wrap: wrap;
 }
-
+/*
 .player-grid {
     display: flex;
     align-items: center;
     margin: 10px;
     padding: 10px;
-    padding-right: 40px; /* Add padding to the right to make space for the captain button */
+    padding-right: 40px; 
     border: 1px solid #ddd;
     border-radius: 5px;
     background-color: #fff;
@@ -110,13 +110,14 @@ th {
     position: relative;
 }
 
+
 .player-photo {
     width: 40px;
     height: 40px;
     margin-right: 10px;
     border-radius: 50%;
 }
-
+*/
 .selected {
     background-color: #d1e7dd;
 }
@@ -139,10 +140,10 @@ th {
         font-size: 12px;
         font-weight: bold;
     }
-
+/*
 .captain-button {
     position: absolute;
-    right: 10px; /* Adjust the position to the right */
+    right: 10px; 
     top: 50%;
     transform: translateY(-50%);
     background-color: #007bff00;
@@ -152,7 +153,7 @@ th {
     border-radius: 50%;
     cursor: pointer;
 }
-
+    */
     .captain-button:hover {
         background-color: #0056b3;
     }
@@ -160,3 +161,244 @@ th {
 .hide-buttons button {
     display: none !important;
 }
+
+
+    .player-grid img {
+        width: 30px;
+        height: 30px;
+    }
+
+    .player-grid span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+.add-player-button,
+.remove-player-button {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    line-height: 1;
+}
+
+.add-player-button {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.remove-player-button {
+    background-color: #fb948d;
+    color: white;
+}
+
+.add-player-button:hover {
+    background-color: #45a049;
+}
+
+.remove-player-button:hover {
+    background-color: #da190b;
+}
+
+.player-grid {
+    display: grid;
+    grid-template-columns: auto auto auto 1fr;
+    align-items: center;
+    gap: 10px;
+    padding: 5px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+}
+
+.player-checkbox {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+}
+
+.captain-button {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .captain-button i {
+        color: #666;
+        font-size: 16px;
+    }
+
+.player-grid.captain .captain-button i {
+    color: gold;
+}
+
+.player-photo {
+    width: 30px;
+    height: 30px;
+}
+
+.player-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+/*
+.player-grid {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 5px;
+    margin: 5px 0;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    min-height: 40px;
+}*/
+
+.player-grid {
+    display: flex;
+    align-items: center;
+    margin: 10px;
+    padding: 10px;
+    padding-right: 40px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.section.pending-swap {
+    position: relative;
+}
+
+    .section.pending-swap::after {
+        content: 'Pending player swap';
+        position: absolute;
+        top: 0;
+        right: 0;
+        background-color: #ff9800;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+    }
+
+.transfers-section {
+    margin-top: 2rem;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.transfer-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto 1fr auto;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.transfer-date {
+    grid-column: 1 / -1;
+    color: #666;
+    font-size: 0.9em;
+    margin-bottom: 0.5rem;
+}
+
+.transfer-player {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+    .transfer-player img {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+    }
+
+.transfer-arrow {
+    color: #4CAF50;
+    font-weight: bold;
+}
+
+.no-transfers {
+    text-align: center;
+    color: #666;
+    padding: 1rem;
+}
+iframe {
+    min-height: 800px;
+    width: 100%; /* Add this to make iframe full width */
+    border: none; /* Optional: removes the default border */
+    display: block; /* Makes the iframe respect width better */
+}
+
+/* Ensure parent containers don't restrict width */
+#content {
+    padding: 2rem;
+    flex: 1;
+    width: 100%;
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    width: 100%; /* Ensure container takes full width */
+    max-width: 100%; /* Prevent container from exceeding viewport */
+}
+.league-rankings {
+    margin-top: 2rem;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 1rem;
+}
+
+.rankings-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+    .rankings-table th,
+    .rankings-table td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+
+    .rankings-table th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+    }
+
+    .rankings-table tr:hover {
+        background-color: #f5f5f5;
+    }
+
+    .rankings-table td:not(:first-child) {
+        text-align: center;
+    }

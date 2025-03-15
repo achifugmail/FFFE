@@ -190,6 +190,31 @@ export async function populateFixtures() {
     }
 }
 
+export async function populateTeams() {
+    const progressIndicator = document.getElementById('progressIndicator');
+    progressIndicator.style.display = 'block';
+
+    try {
+        const response = await fetch(`${config.backendUrl}/Teams/populate`, {
+            method: 'POST',
+            headers: {
+                ...addAuthHeader().headers
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        alert('Teams populated successfully');
+    } catch (error) {
+        console.error('Error populating teams:', error);
+        alert('Failed to populate teams');
+    } finally {
+        progressIndicator.style.display = 'none';
+    }
+}
+
 export async function populateAllPlayers() {
     const progressIndicator = document.getElementById('progressIndicator');
     if (!progressIndicator) {
@@ -409,3 +434,4 @@ window.createLeague = createLeague;
 window.fetchLeagues = fetchLeagues;
 window.fetchUsers = fetchUsers;
 window.fetchDraftPeriods = fetchDraftPeriods;
+window.populateTeams = populateTeams;

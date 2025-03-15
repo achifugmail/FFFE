@@ -138,9 +138,9 @@ document.addEventListener('DOMContentLoaded', async function () {
                     // Replace this part in the fetchAndDisplaySquadPlayers function where the playerDiv is created
                     playerDiv.innerHTML = `
     <input type="checkbox" class="player-checkbox" data-player-id="${player.id}">
-    <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
-    <span>${player.firstName} ${player.secondName}</span>
     <button class="captain-button" data-player-id="${player.id}"><i class="fas fa-crown"></i></button>
+    <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
+    <span class="player-name">${player.webName}</span>
 `;
                     playersDiv.appendChild(playerDiv);
                 });
@@ -186,7 +186,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 button.addEventListener('click', function () {
                     const playerId = button.getAttribute('data-player-id');
                     markAsCaptain(playerId);
-                    selectPlayer(playerId, true); // Pass true to indicate user interaction
+                    //selectPlayer(playerId, true); // Pass true to indicate user interaction
                 });
             });
         } catch (error) {
@@ -242,13 +242,10 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     // Select a player
+    
     async function selectPlayer(playerId, isUserInteraction) {
         const checkbox = document.querySelector(`.player-checkbox[data-player-id="${playerId}"]`);
-        if (checkbox) {
-            checkbox.checked = true;
-            const playerDiv = checkbox.closest('.player-grid');
-            playerDiv.classList.add('selected');
-        }
+        const playerDiv = checkbox?.closest('.player-grid');
 
         // Call the API to add the player to the team only if it's a user interaction
         if (isUserInteraction) {
@@ -262,11 +259,48 @@ document.addEventListener('DOMContentLoaded', async function () {
                     },
                     body: JSON.stringify({ gameweekId: gameweekId, userSquadId: squadId, playerId: playerId })
                 }));
+
+                if (response.status === 400) { // BadRequest
+                    // Get the error message from the response
+                    const errorMessage = await response.text();
+                    alert(errorMessage);
+
+                    // Revert the checkbox state
+                    if (checkbox) {
+                        checkbox.checked = false;
+                        playerDiv?.classList.remove('selected');
+                    }
+                    return;
+                }
+
                 if (!response.ok) {
                     console.error('Failed to add player to team:', response.status, response.statusText);
+                    // Revert the checkbox state
+                    if (checkbox) {
+                        checkbox.checked = false;
+                        playerDiv?.classList.remove('selected');
+                    }
+                    return;
+                }
+
+                // Only update UI if the API call was successful
+                if (checkbox) {
+                    checkbox.checked = true;
+                    playerDiv?.classList.add('selected');
                 }
             } catch (error) {
                 console.error('Error adding player to team:', error);
+                // Revert the checkbox state
+                if (checkbox) {
+                    checkbox.checked = false;
+                    playerDiv?.classList.remove('selected');
+                }
+            }
+        } else {
+            // For non-user interactions, just update the UI
+            if (checkbox) {
+                checkbox.checked = true;
+                playerDiv?.classList.add('selected');
             }
         }
     }
@@ -274,13 +308,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Deselect a player
     async function deselectPlayer(playerId) {
         const checkbox = document.querySelector(`.player-checkbox[data-player-id="${playerId}"]`);
-        if (checkbox) {
-            checkbox.checked = false;
-            const playerDiv = checkbox.closest('.player-grid');
-            playerDiv.classList.remove('selected');
-        }
+        const playerDiv = checkbox?.closest('.player-grid');
 
-        // Call the API to remove the player from the team
         const squadId = new URLSearchParams(window.location.search).get('SquadId');
         const gameweekId = document.getElementById('gameweekDropdown').value;
         try {
@@ -291,11 +320,42 @@ document.addEventListener('DOMContentLoaded', async function () {
                 },
                 body: JSON.stringify({ gameweekId: gameweekId, userSquadId: squadId, playerId: playerId })
             }));
+
+            if (response.status === 400) { // BadRequest
+                // Get the error message from the response
+                const errorMessage = await response.text();
+                alert(errorMessage);
+
+                // Revert the checkbox state
+                if (checkbox) {
+                    checkbox.checked = true;
+                    playerDiv?.classList.add('selected');
+                }
+                return;
+            }
+
             if (!response.ok) {
                 console.error('Failed to remove player from team:', response.status, response.statusText);
+                // Revert the checkbox state
+                if (checkbox) {
+                    checkbox.checked = true;
+                    playerDiv?.classList.add('selected');
+                }
+                return;
+            }
+
+            // Only update UI if the API call was successful
+            if (checkbox) {
+                checkbox.checked = false;
+                playerDiv?.classList.remove('selected');
             }
         } catch (error) {
             console.error('Error removing player from team:', error);
+            // Revert the checkbox state
+            if (checkbox) {
+                checkbox.checked = true;
+                playerDiv?.classList.add('selected');
+            }
         }
     }
 

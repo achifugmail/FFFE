@@ -131,6 +131,151 @@ document.addEventListener('DOMContentLoaded', async function () {
         fetchAndDisplaySquads();
     });
 
+    function processRankings(userTeams) {
+        // First, group all entries by userId to get unique users
+        const uniqueUsers = {};
+        userTeams.forEach(team => {
+            if (!uniqueUsers[team.userId]) {
+                uniqueUsers[team.userId] = {
+                    userId: team.userId,
+                    squadName: team.squadName,
+                    entries: []
+                };
+            }
+            uniqueUsers[team.userId].entries.push(team);
+        });
+
+        // Group teams by gameweek
+        const gameweeks = {};
+        userTeams.forEach(team => {
+            if (!gameweeks[team.gameweekNumber]) {
+                gameweeks[team.gameweekNumber] = [];
+            }
+            gameweeks[team.gameweekNumber].push(team);
+        });
+
+        // Initialize statistics for each unique user
+        const userStats = {};
+        Object.values(uniqueUsers).forEach(user => {
+            userStats[user.userId] = {
+                squadName: user.squadName,
+                totalPoints: 0,
+                firstPlaces: 0,
+                secondPlaces: 0,
+                lastPlaces: 0,
+                prizePoints: 0
+            };
+        });
+
+        // Process each gameweek
+        Object.entries(gameweeks).forEach(([gameweekNumber, gameweekTeams]) => {
+            // Check if all users have 0 points for this gameweek
+            const allZeroPoints = gameweekTeams.every(team => team.points === 0);
+            if (allZeroPoints) {
+                console.log(`Skipping gameweek ${gameweekNumber} - all users have 0 points`);
+                return; // Skip this gameweek
+            }
+
+            // Sort teams by points for this gameweek
+            const sortedTeams = gameweekTeams.sort((a, b) => b.points - a.points);
+            const teamsCount = sortedTeams.length;
+
+            // Group teams by points to handle ties
+            const pointsGroups = {};
+            sortedTeams.forEach(team => {
+                if (!pointsGroups[team.points]) {
+                    pointsGroups[team.points] = [];
+                }
+                pointsGroups[team.points].push(team);
+            });
+
+            // Sort points in descending order
+            const sortedPoints = Object.keys(pointsGroups).map(Number).sort((a, b) => b - a);
+
+            let currentPosition = 0;
+            sortedPoints.forEach(points => {
+                const tiedTeams = pointsGroups[points];
+                const tiedCount = tiedTeams.length;
+                const positionsSpanned = tiedCount;
+
+                // Calculate what positions these teams are splitting
+                const isFirst = currentPosition === 0;
+                const isSecond = currentPosition === 1 || (currentPosition === 0 && positionsSpanned > 1);
+                const isLast = currentPosition + tiedCount === teamsCount;
+
+                // Calculate prize points for this group
+                let prizePointsPool = 0;
+                if (isFirst) {
+                    // Get 75 from last place
+                    prizePointsPool += 75;
+                    // Get 50 from each middle position
+                    prizePointsPool += 50 * (teamsCount - tiedCount - (isLast ? 0 : 1));
+                }
+
+                // Distribute statistics and prize points among tied teams
+                tiedTeams.forEach(team => {
+                    const stats = userStats[team.userId];
+                    if (!stats) return;
+
+                    stats.totalPoints += team.points;
+
+                    // Split placement counts
+                    if (isFirst) stats.firstPlaces += 1 / tiedCount;
+                    if (isSecond && !isFirst) stats.secondPlaces += 1 / tiedCount;
+                    if (isLast) stats.lastPlaces += 1 / tiedCount;
+
+                    // Split prize points
+                    if (isFirst) {
+                        stats.prizePoints += prizePointsPool / tiedCount;
+                    } else if (isLast) {
+                        stats.prizePoints -= 75 / tiedCount;
+                    } else if (!isSecond) {
+                        stats.prizePoints -= 50;
+                    }
+                });
+
+                currentPosition += tiedCount;
+            });
+        });
+
+        return Object.values(userStats);
+    }
+
+    function displayRankings(rankings) {
+        const tbody = document.getElementById('rankingsTableBody');
+        tbody.innerHTML = '';
+
+        // Sort by total points descending
+        rankings.sort((a, b) => b.totalPoints - a.totalPoints);
+
+        rankings.forEach(squad => {
+            const row = tbody.insertRow();
+            row.innerHTML = `
+        <td>${squad.squadName}</td>
+        <td>${squad.totalPoints}</td>
+        <td>${squad.firstPlaces.toFixed(1)}</td>
+        <td>${squad.secondPlaces.toFixed(1)}</td>
+        <td>${squad.lastPlaces.toFixed(1)}</td>
+        <td>${squad.prizePoints.toFixed(0)}</td>
+    `;
+        });
+    }
+
+    async function fetchAndDisplayRankings(leagueId) {
+        try {
+            const response = await fetch(`${config.backendUrl}/Teams/league/${leagueId}/userteams`, addAuthHeader());
+            if (!response.ok) {
+                console.error('Failed to fetch rankings:', response.status, response.statusText);
+                return;
+            }
+
+            const userTeams = await response.json();
+            displayRankings(processRankings(userTeams));
+        } catch (error) {
+            console.error('Error fetching rankings:', error);
+        }
+    }
+
     // Function to fetch and display existing squads
     async function fetchAndDisplaySquads() {
         const leagueId = leagueDropdown.value;
@@ -167,12 +312,14 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Fetch and display league details and squads on page load
     if (leagueDropdown.value) {
         await fetchAndDisplayLeagueDetails(leagueDropdown.value);
+        fetchAndDisplayRankings(leagueDropdown.value);
         fetchAndDisplaySquads();
     }
 
     // Update league details and squads when league changes
     leagueDropdown.addEventListener('change', async function () {
         await fetchAndDisplayLeagueDetails(this.value);
+        fetchAndDisplayRankings(this.value);
         fetchAndDisplaySquads();
     });
 });

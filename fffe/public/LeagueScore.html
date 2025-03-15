@@ -229,6 +229,7 @@
             <select id="draftPeriodDropdown"></select>
             <label for="gameweekDropdown">Select Gameweek:</label>
             <select id="gameweekDropdown"></select>
+
             <div class="toggle-container">
                 <label class="switch">
                     <input type="checkbox" id="scoreToggle">
@@ -237,10 +238,29 @@
                 <span id="scoreLabel" class="switch-label">Live scores</span>
             </div>
         </div>
-        <div id="squadTableRow" class="container">
-            <!-- Iframes will be populated by JavaScript -->
-        </div>
     </div>
+    <div class="league-rankings">
+        <h2>League Rankings</h2>
+        <table id="rankingsTable" class="rankings-table">
+            <thead>
+                <tr>
+                    <th>Squad</th>
+                    <th>Total Points</th>
+                    <th>1st Places</th>
+                    <th>2nd Places</th>
+                    <th>Last Places</th>
+                    <th>Prize Points</th>
+                </tr>
+            </thead>
+            <tbody id="rankingsTableBody">
+            </tbody>
+        </table>
+    </div>
+
+    <div id="squadTableRow" class="container">
+        <!-- Iframes will be populated by JavaScript -->
+    </div>
+
     <script type="module" src="LeagueScore.js"></script>
 </body>
 </html>
