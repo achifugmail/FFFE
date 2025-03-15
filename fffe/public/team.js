@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         gameweeks.sort((a, b) => a.number - b.number).forEach(gameweek => {
             const option = document.createElement('option');
             option.value = gameweek.id;
-            option.text = `Gameweek ${gameweek.number}`;
+            option.text = `${gameweek.number}`;
             gameweekDropdown.appendChild(option);
         });
 
