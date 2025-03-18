@@ -1,4 +1,4 @@
-/* styles.css */
+﻿/* styles.css */
 
 /* General styles */
 body {
@@ -448,7 +448,7 @@ iframe {
 
 
 .dropdown-container {
-    flex-direction: column;
+    flex-direction: row;
     gap: 5px;
 }
 
@@ -500,4 +500,244 @@ a {
             width: 80px;
             height: 80px;
         }
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    background-color: #4CAF50;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+}
+
+#content {
+    padding: 2rem;
+    flex: 1;
+}
+
+.container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+.collapsible {
+    cursor: pointer;
+    padding: 10px;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 18px;
+    background-color: #f1f1f1;
+}
+
+    .collapsible:after {
+        content: '\002B'; /* Unicode character for "plus" sign (+) */
+        font-size: 13px;
+        color: #777;
+        float: right;
+        margin-left: 5px;
+    }
+
+    .collapsible.active:after {
+        content: "\2212"; /* Unicode character for "minus" sign (−) */
+    }
+
+.content {
+    padding: 0 18px;
+    display: none;
+    overflow: hidden;
+    background-color: #f9f9f9;
+}
+
+.inline-label {
+    display: flex;
+    align-items: center;
+}
+
+    .inline-label label {
+        margin-right: 10px;
+    }
+
+.dropdown-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+iframe {
+    min-height: 800px;
+}
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+    font-size: 16px; /* Base font size */
+}
+
+header {
+    background-color: #4CAF50;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+}
+
+#content {
+    padding: 2rem;
+}
+
+a {
+    display: inline-block;
+    color: #4CAF50;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    border-radius: 4px;
+    
+}
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+h3 {
+    margin-top: 2rem;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    margin-bottom: 0.5rem;
+}
+
+    li a {
+        color: #4CAF50;
+        text-decoration: none;
+    }
+
+        li a:hover {
+            text-decoration: underline;
+        }
+
+.iframe-container {
+    flex: 1 1 350px; /* Flex-grow, flex-shrink, and flex-basis */
+    height: 1000px; /* Set the height of the iframe container */
+    margin: 10px; /* Add some margin between iframes */
+}
+
+    .iframe-container iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.dropdown-container {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.collapsible {
+    cursor: pointer;
+    padding: 10px;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 18px;
+    background-color: #f1f1f1;
+}
+
+    .collapsible:after {
+        content: '\002B'; /* Unicode character for "plus" sign (+) */
+        font-size: 13px;
+        color: #777;
+        float: right;
+        margin-left: 5px;
+    }
+
+    .collapsible.active:after {
+        content: "\2212"; /* Unicode character for "minus" sign (−) */
+    }
+
+.content {
+    padding: 0 18px;
+    display: none;
+    overflow: hidden;
+    background-color: #f9f9f9;
+}
+
+#squadTableRow {
+    width: 100%; /* Make squadTableRow occupy the entire width of the page */
+}
+
+.toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 80px; /* Increased width */
+    height: 40px; /* Increased height */
+}
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 40px; /* Adjusted border-radius */
+}
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 32px; /* Adjusted height */
+        width: 32px; /* Adjusted width */
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+input:checked + .slider {
+    background-color: #4CAF50;
+}
+
+    input:checked + .slider:before {
+        transform: translateX(40px); /* Adjusted translateX */
+    }
+
+.switch-label {
+    margin-left: 10px;
 }

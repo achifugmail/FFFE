@@ -71,8 +71,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Fetch and populate gameweeks based on selected draft period
     const gameweekDropdown = document.getElementById('gameweekDropdown');
-    const scoreToggle = document.getElementById('scoreToggle');
-    const scoreLabel = document.getElementById('scoreLabel');
+    //const scoreToggle = document.getElementById('scoreToggle');
+    //const scoreLabel = document.getElementById('scoreLabel');
     async function fetchAndPopulateGameweeks(draftPeriodId) {
         let gameweeks = [];
         try {
@@ -107,13 +107,13 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         // Set default value for score toggle
         const selectedGameweek = gameweeks.find(gameweek => gameweek.id == gameweekDropdown.value);
-        if (selectedGameweek && new Date(selectedGameweek.endDate + 'Z') > now) {
+        /*if (selectedGameweek && new Date(selectedGameweek.endDate + 'Z') > now) {
             scoreToggle.checked = true;
             scoreLabel.innerText = 'Live scores';
         } else {
             scoreToggle.checked = false;
             scoreLabel.innerText = 'Final scores';
-        }
+        }*/
     }
 
     // Initial population of gameweeks
@@ -126,10 +126,11 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
 
     gameweekDropdown.addEventListener('change', fetchAndDisplaySquads);
+    /*
     scoreToggle.addEventListener('change', function () {
         scoreLabel.innerText = scoreToggle.checked ? 'Live scores' : 'Final scores';
         fetchAndDisplaySquads();
-    });
+    });*/
 
     function processRankings(userTeams) {
         // First, group all entries by userId to get unique users
@@ -292,7 +293,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             const selectedDraftPeriodId = draftPeriodDropdown.value;
             const selectedGameweekId = gameweekDropdown.value;
-            const score = scoreToggle.checked ? 'live' : 'final';
+            const score = /*scoreToggle.checked ? 'live' : */'final';
             const filteredSquads = squads.filter(squad => squad.draftPeriodId == selectedDraftPeriodId);
 
             // Create iframe for each squad
