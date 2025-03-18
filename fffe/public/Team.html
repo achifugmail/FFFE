@@ -119,12 +119,13 @@
         </div>
     </div>
     <script type="module" src="team.js"></script>
-    <script>
-        // Load the navigation menu
+    <script type="module">
+        import { initializeNavigation } from './nav.js';
         fetch('nav.html')
             .then(response => response.text())
             .then(data => {
                 document.getElementById('nav-placeholder').innerHTML = data;
+                initializeNavigation();
             });
     </script>
 </body>

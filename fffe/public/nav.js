@@ -1,21 +1,41 @@
-console.log("Hello World!");
+// nav.js
+export function initializeNavigation() {
+    // Hide the navigation if the page is in an iframe
+    if (window.self !== window.top) {
+        document.getElementById('main-nav').style.display = 'none';
+    }
 
-function toggleNav() {
-    const navPane = document.getElementById('navPane');
-    if (navPane.classList.contains('collapsed')) {
-        navPane.classList.remove('collapsed');
-    } else {
-        navPane.classList.add('collapsed');
+    // Function to highlight the current page in the navigation
+    const currentPath = window.location.pathname;
+    const fileName = currentPath.split('/').pop().toLowerCase();
+
+    // Get all navigation links
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    // Remove active class from all links
+    navLinks.forEach(link => link.classList.remove('active'));
+
+    // Find the matching link and add active class
+    let found = false;
+    navLinks.forEach(link => {
+        const href = link.getAttribute('href').toLowerCase();
+
+        // Check if current page is Team.html and handle Squad.html link
+        if ((fileName === 'team.html' && href === 'squad.html') ||
+            (fileName === href) ||
+            (fileName === '' && href === 'leaguescore.html')) {
+            link.classList.add('active');
+            found = true;
+        }
+    });
+
+    // If no match found and it's not settings page, highlight Settings
+    if (!found && fileName !== 'settings.html') {
+        const settingsLink = Array.from(navLinks).find(link =>
+            link.getAttribute('href').toLowerCase() === 'settings.html'
+        );
+        if (settingsLink) {
+            settingsLink.classList.add('active');
+        }
     }
 }
-
-document.addEventListener('DOMContentLoaded', function () {
-    if (window.self === window.top) {
-        fetch('nav.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('navContainer').innerHTML = data;
-                document.getElementById('navContainer').style.display = 'block';
-            });
-    }
-});

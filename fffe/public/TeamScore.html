@@ -187,15 +187,14 @@
         </table>
     </div>
     <script type="module" src="TeamScore.js"></script>
-    <script>
-        // Only load the navigation menu if not in an iframe
-        if (window.self === window.top) {
-            fetch('nav.html')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('nav-placeholder').innerHTML = data;
-                });
-        }
+    <script type="module">
+        import { initializeNavigation } from './nav.js';
+        fetch('nav.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('nav-placeholder').innerHTML = data;
+                initializeNavigation();
+            });
     </script>
 </body>
 </html>
