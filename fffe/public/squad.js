@@ -45,9 +45,9 @@ document.addEventListener('DOMContentLoaded', async function () {
         return false;
     }
 
-    if (window.self !== window.top) {
-        document.getElementById('header').style.display = 'none';
-    }
+    //if (window.self !== window.top) {
+    //    document.getElementById('header').style.display = 'none';
+    //}
 
     const teamLink = document.getElementById('teamLink');
 
@@ -355,9 +355,15 @@ document.addEventListener('DOMContentLoaded', async function () {
                     body: JSON.stringify(payload)
                 }));
 
+                if (response.status === 400) {
+                    const errorMessage = await response.text();
+                    alert(`Failed to swap player in squad: ${errorMessage}`);
+                    //return;
+                } else
+
                 if (!response.ok) {
                     console.error('Failed to swap player in squad:', response.status, response.statusText);
-                    return;
+                    //return;
                 }
 
                 // Reset outPlayerId after successful swap
@@ -401,6 +407,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         await fetchAndDisplaySquadPlayers(squadId, leagueId);
         await fetchAndDisplayAvailablePlayers(position, leagueId, draftPeriodId);
     }
+
 
 
     async function removePlayerFromSquad(playerId, squadId, position) {

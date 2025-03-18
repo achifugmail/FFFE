@@ -100,14 +100,14 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         // Set default value to the last gameweek by start date that has a start date before the current date and time
         const now = new Date();
-        const pastGameweeks = gameweeks.filter(gameweek => new Date(gameweek.startDate) < now);
+        const pastGameweeks = gameweeks.filter(gameweek => new Date(gameweek.startDate + 'Z') < now);
         if (pastGameweeks.length > 0) {
             gameweekDropdown.value = pastGameweeks[pastGameweeks.length - 1].id;
         }
 
         // Set default value for score toggle
         const selectedGameweek = gameweeks.find(gameweek => gameweek.id == gameweekDropdown.value);
-        if (selectedGameweek && new Date(selectedGameweek.endDate) > now) {
+        if (selectedGameweek && new Date(selectedGameweek.endDate + 'Z') > now) {
             scoreToggle.checked = true;
             scoreLabel.innerText = 'Live scores';
         } else {

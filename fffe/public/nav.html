@@ -1,0 +1,86 @@
+<!-- nav.html -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<nav id="main-nav">
+    <ul>
+        <li><a href="League.html" class="nav-link"><i class="fas fa-trophy"></i> League</a></li>
+        <li><a href="LeagueScore.html" class="nav-link"><i class="fas fa-chart-line"></i> Scores</a></li>
+        <li><a href="Squad.html" class="nav-link"><i class="fas fa-users"></i> Squad</a></li>
+        <li><a href="Settings.html" class="nav-link"><i class="fas fa-cog"></i> Settings</a></li>
+    </ul>
+</nav>
+<style>
+    nav {
+        background-color: #333;
+        overflow: hidden;
+    }
+
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: space-around;
+        }
+
+            nav ul li {
+                display: inline;
+            }
+
+                nav ul li a {
+                    display: block;
+                    color: white;
+                    text-align: center;
+                    padding: 14px 16px;
+                    text-decoration: none;
+                }
+
+                    nav ul li a:hover {
+                        background-color: #111;
+                    }
+                    /* Add this new style for active menu items */
+                    nav ul li a.active {
+                        background-color: #4CAF50;
+                        color: white;
+                    }
+</style>
+<script>
+    // Hide the navigation if the page is in an iframe
+    if (window.self !== window.top) {
+        document.getElementById('main-nav').style.display = 'none';
+    }
+
+    // Function to highlight the current page in the navigation
+    function highlightCurrentPage() {
+        const currentPath = window.location.pathname;
+        const fileName = currentPath.split('/').pop().toLowerCase();
+
+        // Get all navigation links
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        // Remove active class from all links
+        navLinks.forEach(link => link.classList.remove('active'));
+
+        // Find the matching link and add active class
+        let found = false;
+        navLinks.forEach(link => {
+            const href = link.getAttribute('href').toLowerCase();
+            if (fileName === href || (fileName === '' && href === 'leaguescore.html')) {
+                link.classList.add('active');
+                found = true;
+            }
+        });
+
+        // If no match found and it's not settings page, highlight Settings
+        if (!found && fileName !== 'settings.html') {
+            const settingsLink = Array.from(navLinks).find(link =>
+                link.getAttribute('href').toLowerCase() === 'settings.html'
+            );
+            if (settingsLink) {
+                settingsLink.classList.add('active');
+            }
+        }
+    }
+
+    // Call the function when the navigation is loaded
+    highlightCurrentPage();
+</script>

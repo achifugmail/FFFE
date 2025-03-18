@@ -96,9 +96,7 @@
     <script type="module" src="plDataRefresh.js"></script>
 </head>
 <body>
-    <header>
-        <h1>Refresh Premier League Data</h1>
-    </header>
+    <div id="nav-placeholder"></div>
     <div id="content">
         <div class="create-league-container">
             <input type="text" id="leagueName" placeholder="League Name">
@@ -126,7 +124,7 @@
         <label for="gameweekDropdown"></label>
         <button onclick="refreshGameweekData()">Refresh player stats for gameweek</button>
         <select id="gameweekDropdown"></select>
-
+        <button id="refreshInPlayPlayersButton">Refresh In-Play Players</button>
         <div id="progressIndicator">Refreshing data...</div>
 
         <!-- New UI for creating a squad -->
@@ -150,5 +148,13 @@
             </div>
         </div>
     </div>
+    <script>
+        // Load the navigation menu
+        fetch('nav.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('nav-placeholder').innerHTML = data;
+            });
+    </script>
 </body>
 </html>

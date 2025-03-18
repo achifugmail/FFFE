@@ -96,9 +96,7 @@
     </style>
 </head>
 <body>
-    <header>
-        <h1>Player Positions</h1>
-    </header>
+    <div id="nav-placeholder"></div>
     <div id="content">
         <button id="saveButton">Save</button> <!-- Moved save button to the top -->
         <table id="playerTable">
@@ -132,5 +130,13 @@
         </table>
         <div id="paginationControls"></div>
     </div>
+    <script>
+        // Load the navigation menu
+        fetch('nav.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('nav-placeholder').innerHTML = data;
+            });
+    </script>
 </body>
 </html>

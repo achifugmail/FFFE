@@ -176,9 +176,7 @@
     </style>
 </head>
 <body>
-    <header>
-        <h1>Team Score</h1>
-    </header>
+    <div id="nav-placeholder"></div>
     <div id="content" class="container">
         <div id="squadInfo" class="container">
             <!-- Squad info will be populated by JavaScript -->
@@ -189,5 +187,15 @@
         </table>
     </div>
     <script type="module" src="TeamScore.js"></script>
+    <script>
+        // Only load the navigation menu if not in an iframe
+        if (window.self === window.top) {
+            fetch('nav.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('nav-placeholder').innerHTML = data;
+                });
+        }
+    </script>
 </body>
 </html>

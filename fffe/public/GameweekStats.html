@@ -122,9 +122,7 @@
     </style>
 </head>
 <body>
-    <header>
-        <h1>Gameweek Stats</h1>
-    </header>
+    <div id="nav-placeholder"></div>
     <div id="content" class="container">
         <div class="dropdown-container">
             <div>
@@ -151,5 +149,13 @@
     </div>
     <script src="config.js"></script>
     <script type="module" src="GameweekStats.js"></script>
+    <script>
+        // Load the navigation menu
+        fetch('nav.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('nav-placeholder').innerHTML = data;
+            });
+    </script>
 </body>
 </html>

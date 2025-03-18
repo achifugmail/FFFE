@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         // Set default value to the most recent gameweek that has a start date before today
         const now = new Date();
-        const pastGameweeks = gameweeks.filter(gameweek => new Date(gameweek.startDate) <= now);
+        const pastGameweeks = gameweeks.filter(gameweek => new Date(gameweek.startDate + 'Z') <= now);
         if (pastGameweeks.length > 0) {
             // Get the most recent past gameweek
             const mostRecentGameweek = pastGameweeks[pastGameweeks.length - 1];
@@ -96,8 +96,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         const endDateElem = document.getElementById('endDate');
 
         // Format dates
-        const startDate = new Date(gameweek.startDate);
-        const endDate = new Date(gameweek.endDate);
+        const startDate = new Date(gameweek.startDate + 'Z');
+        const endDate = new Date(gameweek.endDate + 'Z');
         const now = new Date();
 
         // Display start date
@@ -203,8 +203,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             // Check if fields should be editable based on current gameweek dates
             if (currentGameweek) {
-                const startDate = new Date(currentGameweek.startDate);
-                const endDate = new Date(currentGameweek.endDate);
+                const startDate = new Date(currentGameweek.startDate + 'Z');
+                const endDate = new Date(currentGameweek.endDate + 'Z');
                 const now = new Date();
                 const shouldBeEditable = now >= startDate && endDate <= startDate;
                 updateFieldsEditability(shouldBeEditable);

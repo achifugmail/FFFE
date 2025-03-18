@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         // Set default value to the first gameweek by start date that has a start date after the current date and time
         const now = new Date();
-        const futureGameweeks = gameweeks.filter(gameweek => new Date(gameweek.startDate) > now);
+        const futureGameweeks = gameweeks.filter(gameweek => new Date(gameweek.startDate + 'Z') > now); 
         if (futureGameweeks.length > 0) {
             gameweekDropdown.value = futureGameweeks[0].id;
         } else if (gameweeks.length > 0) {

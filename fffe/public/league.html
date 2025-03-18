@@ -82,10 +82,7 @@
     </style>
 </head>
 <body>
-    <div id="leagueName"></div>
-    <header>
-        <h1>League Details</h1>
-    </header>
+    <div id="nav-placeholder"></div>
     <div id="content" class="container">
         <div class="dropdown-container">
             <label for="leagueDropdown">League:</label>
@@ -113,19 +110,19 @@
         </div>
         <!-- New UI for creating a squad -->
         <!-- button type="button" class="collapsible">Create Squad</!--button>
-    <div class="content">
-        <h3>Create Squad</h3>
-        <label for="userDropdown">User:</label>
-        <select id="userDropdown"></select>
+        <div class="content">
+            <h3>Create Squad</h3>
+            <label for="userDropdown">User:</label>
+            <select id="userDropdown"></select>
 
-        <label for="draftPeriodDropdown">Draft Period:</label>
-        <select id="draftPeriodDropdown"></select>
+            <label for="draftPeriodDropdown">Draft Period:</label>
+            <select id="draftPeriodDropdown"></select>
 
-        <label for="squadName">Squad Name:</label>
-        <input type="text" id="squadName" />
+            <label for="squadName">Squad Name:</label>
+            <input type="text" id="squadName" />
 
-        <button id="createSquadButton">Create Squad</button>
-    </div-->
+            <button id="createSquadButton">Create Squad</button>
+        </div-->
         <!-- Section to display existing squads -->
         <div class="inline-label">
 
@@ -141,6 +138,14 @@
     </div>
 
     <script type="module" src="league.js"></script>
+    <script>
+        // Load the navigation menu
+        fetch('nav.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('nav-placeholder').innerHTML = data;
+            });
+    </script>
 </body>
 </html>
 

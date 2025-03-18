@@ -27,7 +27,7 @@ export async function fetchGameweeks() {
 
         // Set default value to the last gameweek by start date that has a start date before the current date and time
         const now = new Date();
-        const pastGameweeks = gameweeks.filter(gameweek => new Date(gameweek.startDate) < now);
+        const pastGameweeks = gameweeks.filter(gameweek => new Date(gameweek.startDate + 'Z') < now);
         if (pastGameweeks.length > 0) {
             gameweekDropdown.value = pastGameweeks[pastGameweeks.length - 1].id;
         }
@@ -97,6 +97,38 @@ export async function refreshData() {
         progressIndicator.innerText = 'Error refreshing data.';
     }
 }
+
+export async function refreshInPlayPlayers() {
+    const progressIndicator = document.getElementById('progressIndicator');
+    if (!progressIndicator) {
+        console.error('Progress indicator not found');
+        return;
+    }
+    progressIndicator.style.display = 'block';
+    progressIndicator.innerText = 'Refreshing in-play players...';
+
+    try {
+        const response = await fetch(`${config.backendUrl}/PlayerGameweekStats/nextRefreshDateWithRefresh`, addAuthHeader({
+            method: 'GET'
+        }));
+        const result = await response.text();
+        if (!response.ok) {
+            console.error('Failed to refresh in-play players:', response.status, response.statusText);
+            progressIndicator.innerText = `Failed to refresh in-play players: ${result}`;
+            return;
+        }
+        progressIndicator.innerText = `In-play players refreshed successfully: ${result}`;
+    } catch (error) {
+        console.error('Error refreshing in-play players:', error);
+        progressIndicator.innerText = 'Error refreshing in-play players.';
+    }
+}
+
+// Add event listener for the button
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('refreshInPlayPlayersButton').addEventListener('click', refreshInPlayPlayers);
+});
+
 
 export async function refreshGameweekData() {
     const progressIndicator = document.getElementById('progressIndicator');

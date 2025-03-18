@@ -402,3 +402,46 @@ iframe {
     .rankings-table td:not(:first-child) {
         text-align: center;
     }
+
+.custom-select-container {
+    position: relative;
+    width: 200px;
+    margin-bottom: 20px;
+}
+
+.custom-select {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+    .custom-select .selected-option {
+        flex-grow: 1;
+    }
+
+    .custom-select .options-container {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background-color: #fff;
+        display: none;
+        z-index: 1000;
+    }
+
+    .custom-select .option {
+        padding: 10px;
+        cursor: pointer;
+    }
+
+        .custom-select .option:hover {
+            background-color: #f4f4f4;
+        }
