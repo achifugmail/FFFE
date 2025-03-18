@@ -276,7 +276,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     playerDiv.className = 'player-grid';
                     playerDiv.innerHTML = `
                         <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
-                        <span>${player.firstName} ${player.secondName}</span>
+                        <span>${player.webName}</span>
                         <button class="remove-player-button" data-player-id="${player.id}" data-position="${position.name}">-</button>
                     `;
                     playersDiv.appendChild(playerDiv);
