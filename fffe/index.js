@@ -25,7 +25,7 @@ document.getElementById('loginForm').addEventListener('submit', async function (
         localStorage.setItem('username', username);
         localStorage.setItem('userId', data.userId);
         localStorage.setItem('token', data.token); // Store the JWT
-        window.location.href = 'LeagueScore.html';
+        window.location.href = 'Squad.html';
     } else {
         alert('Login failed. Please check your username and password.');
     }

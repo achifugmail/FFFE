@@ -6,106 +6,19 @@
     <title>Team</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="src/App.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            font-size: 16px; /* Base font size */
-        }
-
-        header {
-            background-color: #4CAF50;
-            color: white;
-            padding: 1rem;
-            text-align: center;
-            width: 100%;
-        }
-
-        #content {
-            padding: 2rem;
-            flex: 1;
-        }
-
-        .container {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
-        }
-
-        .dropdown-container {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        #playerGrid {
-            width: 97%;
-            margin: 0;
-        }
-
-        /* Media Queries for Mobile Responsiveness */
-        @media (max-width: 768px) {
-            body {
-                font-size: 18px; /* Adjust base font size for smaller screens */
-            }
-
-            #content {
-                padding: 1rem;
-            }
-
-            .dropdown-container {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            #playerGrid {
-                width: 100%;
-            }
-        }
-
-        @media (max-width: 480px) {
-            body {
-                font-size: 20px; /* Adjust base font size for smaller screens */
-            }
-
-            #playerGrid {
-                width: 100%;
-            }
-        }
-
-        /* Media Query for High-Resolution Mobile Devices */
-        @media (min-resolution: 2dppx) and (max-width: 1200px) {
-            body {
-                font-size: 22px; /* Increase base font size for high-resolution screens */
-            }
-
-            #playerGrid {
-                width: 100%;
-            }
-        }
-    </style>
+    
 </head>
 <body>
     <div id="nav-placeholder"></div>
+    </div>
     <div id="content" class="container">
-
         <div class="dropdown-container">
-            <div id="squadInfo" class="container">
-                <!-- Squad info will be populated by JavaScript -->
-            </div>
             <div>
-                <label for="filterDraftPeriodDropdown">Select Draft Period:</label>
                 <select id="filterDraftPeriodDropdown">
                     <!-- Options will be populated by JavaScript -->
                 </select>
             </div>
             <div>
-                <label for="gameweekDropdown">Select Gameweek:</label>
                 <select id="gameweekDropdown">
                     <!-- Options will be populated by JavaScript -->
                 </select>

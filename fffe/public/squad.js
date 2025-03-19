@@ -222,7 +222,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
             const squad = await response.json();
             draftPeriodId = squad.draftPeriodId;
-
+            /*
             let draftPeriodName = '';
             try {
                 const respDraft = await fetch(`${config.backendUrl}/DraftPeriods/${draftPeriodId}`, addAuthHeader());
@@ -235,11 +235,11 @@ document.addEventListener('DOMContentLoaded', async function () {
                 }
             } catch (error) {
                 console.error('Error fetching draft period details:', error);
-            }
-
+            }*/
+            /*
             document.getElementById('squadInfo').innerText =
-                `ID: ${squad.id}, Name: ${squad.squadName}, User: ${squad.userId}, Draft Period: ${draftPeriodName}`;
-
+                `${squad.userId}`;
+            */
             if (currentUserId !== squad.userId.toString()) {
                 document.body.classList.add('hide-buttons');
             }

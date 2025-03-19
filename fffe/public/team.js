@@ -80,26 +80,25 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Fetch and display squad info
     async function fetchAndDisplaySquadInfo(squadId) {
-        try {
+         /*try {
             const response = await fetch(`${config.backendUrl}/UserSquads/${squadId}`, addAuthHeader());
 
             if (!response.ok) {
                 console.error('Failed to fetch squad info:', response.status, response.statusText);
                 return;
             }
+           
             const squad = await response.json();
             const username = localStorage.getItem('username');
             const squadInfoDiv = document.getElementById('squadInfo');
             squadInfoDiv.innerHTML = `
-                <div style="display: flex; gap: 20px; align-items: center;">
-                    <h2 style="margin: 0;">Squad: ${squad.squadName}</h2>
-                    <span>User: ${username}</span>
-                    <span>Draft Period: ${squad.draftPeriodId}</span>
+                <div style="display: flex; gap: 20px; align-items: center;">                    
+                    <span>${username}</span>
                 </div>
             `;
         } catch (error) {
             console.error('Error fetching squad info:', error);
-        }
+        }*/
     }
 
     // Fetch and display players in the current squad
