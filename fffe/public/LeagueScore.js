@@ -132,6 +132,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         fetchAndDisplaySquads();
     });*/
 
+    /*
     function processRankings(userTeams) {
         // First, group all entries by userId to get unique users
         const uniqueUsers = {};
@@ -276,6 +277,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             console.error('Error fetching rankings:', error);
         }
     }
+    */
 
     // Function to fetch and display existing squads
     async function fetchAndDisplaySquads() {
@@ -313,14 +315,14 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Fetch and display league details and squads on page load
     if (leagueDropdown.value) {
         await fetchAndDisplayLeagueDetails(leagueDropdown.value);
-        fetchAndDisplayRankings(leagueDropdown.value);
+        //fetchAndDisplayRankings(leagueDropdown.value);
         fetchAndDisplaySquads();
     }
 
     // Update league details and squads when league changes
     leagueDropdown.addEventListener('change', async function () {
         await fetchAndDisplayLeagueDetails(this.value);
-        fetchAndDisplayRankings(this.value);
+        //fetchAndDisplayRankings(this.value);
         fetchAndDisplaySquads();
     });
 });

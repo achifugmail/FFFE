@@ -212,6 +212,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
+
+
     async function fetchSquadDetails() {
         try {
             const response = await fetch(`${config.backendUrl}/UserSquads/${squadId}`, addAuthHeader());

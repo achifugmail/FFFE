@@ -20,10 +20,8 @@ export function initializeNavigation() {
     navLinks.forEach(link => {
         const href = link.getAttribute('href').toLowerCase();
 
-        // Check if current page is Team.html and handle Squad.html link
-        if ((fileName === 'team.html' && href === 'squad.html') ||
-            (fileName === href) ||
-            (fileName === '' && href === 'leaguescore.html')) {
+        // Only highlight the exact matching page
+        if (fileName === href || (fileName === '' && href === 'leaguescore.html')) {
             link.classList.add('active');
             found = true;
         }
