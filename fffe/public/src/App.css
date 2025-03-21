@@ -464,7 +464,53 @@ a {
             width: 70px;
             height: 70px;
         }
+
+    /* Completely revised approach for rankings table on mobile */
+    .rankings-table {
+        width: 100%;
+        font-size: 0.9em; /* Slightly smaller font */
+    }
+
+        .rankings-table th,
+        .rankings-table td {
+            padding: 0.4rem; /* Reduced padding */
+            text-align: center;
+        }
+
+            /* First column (Squad name) gets a bit more space */
+            .rankings-table th:first-child,
+            .rankings-table td:first-child {
+                text-align: left;
+                min-width: 80px; /* Ensure squad names have minimum width */
+            }
+
+            /* Other columns get minimum possible width */
+            .rankings-table th:not(:first-child),
+            .rankings-table td:not(:first-child) {
+                width: 1%; /* Force columns to be as narrow as possible */
+                white-space: nowrap; /* Prevent text wrapping */
+            }
+
+    /* Remove the scroll indicator */
+    .league-rankings::after {
+        content: none;
+    }
+
+    /* Reduce content padding to give more space to the table */
+    #content {
+        padding: 1rem;
+    }
+
+    /* Adjust dropdown container for better space usage */
+    .dropdown-container {
+        flex-wrap: wrap;
+    }
+
+        .dropdown-container select {
+            margin-bottom: 0.5rem;
+        }
 }
+
 
 /* Media Query for High-Resolution Mobile Devices */
 @media (min-resolution: 2dppx) and (max-width: 1200px) {
@@ -848,4 +894,29 @@ li {
     align-items: center;
     justify-content: center;
     color: #aaa; /* Placeholder text color */
+}
+/* Add styles for clickable rows and chevron icon */
+.clickable-row {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+    .clickable-row:hover {
+        background-color: #f0f0f0;
+    }
+
+.chevron-cell {
+    width: 30px;
+    text-align: center !important;
+    color: #4CAF50;
+}
+
+    .chevron-cell i {
+        font-size: 16px;
+    }
+
+@media (max-width: 480px) {
+    .chevron-cell {
+        display: table-cell !important;
+    }
 }

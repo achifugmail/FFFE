@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>League Details</title>
     <link rel="stylesheet" href="src/App.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
     </style>
 </head>
@@ -12,9 +13,7 @@
     <div id="nav-placeholder"></div>
     <div id="content">
         <div class="dropdown-container">
-            <label for="leagueDropdown">League:</label>
             <select id="leagueDropdown"></select>
-            <label for="filterDraftPeriodDropdown">Draft Period:</label>
             <select id="filterDraftPeriodDropdown"></select>
 
         </div>
@@ -24,12 +23,13 @@
                 <thead>
                     <tr>
                         <th>Squad</th>
-                        <th>Total Points</th>
-                        <th>1st Places</th>
-                        <th>2nd Places</th>
-                        <th>Last Places</th>
-                        <th>Prize Points</th>
-                    </tr>
+                        <th>Total</th>
+                        <th>1st</th>
+                        <th>2nd</th>
+                        <th>Last</th>
+                        <th>$</th>
+                        <th aria-label="View"></th>
+                    </tr>                    
                 </thead>
                 <tbody id="rankingsTableBody">
                 </tbody>

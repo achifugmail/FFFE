@@ -3,6 +3,7 @@ import { addAuthHeader } from './config.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
     const currentUserId = localStorage.getItem('userId'); // Retrieve the current user ID from local storage
+    let currentLeagueId; // Track current league ID
 
     // Function to fetch and display leagues for the current user
     async function fetchAndDisplayLeagues() {
@@ -26,14 +27,19 @@ document.addEventListener('DOMContentLoaded', async function () {
             // Set default value to the first league
             if (leagues.length > 0) {
                 leagueDropdown.value = leagues[0].id;
+                currentLeagueId = leagues[0].id;
                 fetchAndDisplayRankings(leagues[0].id);
                 updateLeagueDetails(leagues[0].id);
             }
 
             // Update league details when the selected league changes
             leagueDropdown.addEventListener('change', function () {
+                currentLeagueId = this.value;
                 fetchAndDisplayRankings(this.value);
                 updateLeagueDetails(this.value);
+
+                // Clear squad table when league changes
+                clearSquadTable();
             });
         } catch (error) {
             console.error('Error fetching leagues:', error);
@@ -53,56 +59,45 @@ document.addEventListener('DOMContentLoaded', async function () {
             const league = await response.json();
             document.getElementById('leagueName').innerText = `${league.name}`;
 
-            
+            // Don't fetch squads here anymore - we'll do it on demand
         } catch (error) {
             console.error('Error fetching league details:', error);
         }
-
-        // Fetch and display existing squads
-        fetchAndDisplaySquads(leagueId);
     }
 
-    // Function to fetch and display existing squads
-    async function fetchAndDisplaySquads(leagueId) {
-        try {
-            const respSquads = await fetch(`${config.backendUrl}/UserSquads/ByLeague/${leagueId}`, addAuthHeader());
+    // Function to clear the squad table
+    function clearSquadTable() {
+        const squadTableHeader = document.getElementById('squadTableHeader');
+        const squadTableRow = document.getElementById('squadTableRow');
+        squadTableHeader.innerHTML = ''; // Clear existing headers
+        squadTableRow.innerHTML = ''; // Clear existing row
+    }
 
-            if (!respSquads.ok) {
-                console.error('Failed to fetch squads:', respSquads.status, respSquads.statusText);
-                return;
-            }
-            const squads = await respSquads.json();
-            const squadTableHeader = document.getElementById('squadTableHeader');
-            const squadTableRow = document.getElementById('squadTableRow');
-            squadTableHeader.innerHTML = ''; // Clear existing headers
-            squadTableRow.innerHTML = ''; // Clear existing row
+    // Function to display a specific squad
+    async function displaySquad(squadId, squadName, username) {
+        // Clear existing content first
+        clearSquadTable();
 
-            const selectedDraftPeriodId = document.getElementById('filterDraftPeriodDropdown').value;
-            const filteredSquads = squads.filter(squad => squad.draftPeriodId == selectedDraftPeriodId);
+        const squadTableHeader = document.getElementById('squadTableHeader');
+        const squadTableRow = document.getElementById('squadTableRow');
 
-            // Populate table headers with squad names and usernames
-            filteredSquads.forEach(squad => {
-                const th = document.createElement('th');
-                const squadLink = document.createElement('a');
-                const username = users.find(user => user.id === squad.userId)?.username || `User ${squad.userId}`;
-                squadLink.href = `Squad.html?id=${squad.id}&leagueId=${leagueId}`;
-                squadLink.innerText = `${squad.squadName} - ${username}`;
-                th.appendChild(squadLink);
-                squadTableHeader.appendChild(th);
+        // Create header
+        const th = document.createElement('th');
+        const squadLink = document.createElement('a');
+        squadLink.href = `Squad.html?id=${squadId}&leagueId=${currentLeagueId}`;
+        squadLink.innerText = `${squadName} - ${username}`;
+        th.appendChild(squadLink);
+        squadTableHeader.appendChild(th);
 
-                // Create iframe for each squad
-                const td = document.createElement('td');
-                const iframeContainer = document.createElement('div');
-                iframeContainer.className = 'iframe-container';
-                const iframe = document.createElement('iframe');
-                iframe.src = `Squad.html?id=${squad.id}&leagueId=${leagueId}`;
-                iframeContainer.appendChild(iframe);
-                td.appendChild(iframeContainer);
-                squadTableRow.appendChild(td);
-            });
-        } catch (error) {
-            console.error('Error fetching squads:', error);
-        }
+        // Create iframe for the squad
+        const td = document.createElement('td');
+        const iframeContainer = document.createElement('div');
+        iframeContainer.className = 'iframe-container';
+        const iframe = document.createElement('iframe');
+        iframe.src = `Squad.html?id=${squadId}&leagueId=${currentLeagueId}`;
+        iframeContainer.appendChild(iframe);
+        td.appendChild(iframeContainer);
+        squadTableRow.appendChild(td);
     }
 
     async function fetchAndDisplayRankings(leagueId) {
@@ -114,9 +109,43 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
 
             const userTeams = await response.json();
-            displayRankings(processRankings(userTeams));
+            const rankings = processRankings(userTeams);
+            displayRankings(rankings);
+
+            // Fetch squad details to have them ready when user clicks on a row
+            fetchSquadDetails(leagueId, rankings);
         } catch (error) {
             console.error('Error fetching rankings:', error);
+        }
+    }
+
+    // Store squad details for quick access when user clicks
+    let squadsMap = {};
+
+    // Fetch squad details for the rankings
+    async function fetchSquadDetails(leagueId, rankings) {
+        try {
+            const respSquads = await fetch(`${config.backendUrl}/UserSquads/ByLeague/${leagueId}`, addAuthHeader());
+
+            if (!respSquads.ok) {
+                console.error('Failed to fetch squads:', respSquads.status, respSquads.statusText);
+                return;
+            }
+
+            const squads = await respSquads.json();
+            const selectedDraftPeriodId = document.getElementById('filterDraftPeriodDropdown').value;
+            const filteredSquads = squads.filter(squad => squad.draftPeriodId == selectedDraftPeriodId);
+
+            // Create a map of user IDs to squad details
+            squadsMap = {};
+            filteredSquads.forEach(squad => {
+                if (!squadsMap[squad.userId]) {
+                    squadsMap[squad.userId] = [];
+                }
+                squadsMap[squad.userId].push(squad);
+            });
+        } catch (error) {
+            console.error('Error fetching squad details:', error);
         }
     }
 
@@ -147,6 +176,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         const userStats = {};
         Object.values(uniqueUsers).forEach(user => {
             userStats[user.userId] = {
+                userId: user.userId, // Add userId to the stats object
                 squadName: user.squadName,
                 totalPoints: 0,
                 firstPlaces: 0,
@@ -230,10 +260,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         return Object.values(userStats);
     }
 
-
-
-
-
     function displayRankings(rankings) {
         const tbody = document.getElementById('rankingsTableBody');
         tbody.innerHTML = '';
@@ -244,17 +270,40 @@ document.addEventListener('DOMContentLoaded', async function () {
         rankings.forEach(squad => {
             const row = tbody.insertRow();
             row.innerHTML = `
-            <td>${squad.squadName}</td>
-            <td>${squad.totalPoints}</td>
-            <td>${squad.firstPlaces}</td>
-            <td>${squad.secondPlaces}</td>
-            <td>${squad.lastPlaces}</td>
-            <td>${squad.prizePoints}</td>
-        `;
+                <td data-label="Squad">${squad.squadName}</td>
+                <td data-label="Total Points">${squad.totalPoints}</td>
+                <td data-label="1st Places">${squad.firstPlaces}</td>
+                <td data-label="2nd Places">${squad.secondPlaces}</td>
+                <td data-label="Last Places">${squad.lastPlaces}</td>
+                <td data-label="Prize Points">${squad.prizePoints}</td>
+                <td class="chevron-cell" data-label="View"><i class="fas fa-chevron-right"></i></td>
+            `;
+
+            // Add click event to each row
+            //row.style.cursor = 'pointer';
+            row.classList.add('clickable-row');
+            row.addEventListener('click', async function () {
+                // Get user details
+                const userId = squad.userId;
+
+                try {
+                    // Get the squad for this user
+                    if (squadsMap[userId] && squadsMap[userId].length > 0) {
+                        const userSquad = squadsMap[userId][0];
+                        const username = users.find(user => user.id === userId)?.username || `User ${userId}`;
+                        displaySquad(userSquad.id, squad.squadName, username);
+                    } else {
+                        console.error('No squad found for user', userId);
+                    }
+                } catch (error) {
+                    console.error('Error displaying squad:', error);
+                }
+            });
         });
+
+        // Start with an empty squad table
+        clearSquadTable();
     }
-
-
 
     // Fetch users for dropdown
     let users = [];
@@ -270,16 +319,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         console.error('Error fetching users:', error);
     }
 
-    // Populate user dropdown using 'username' property
-    /*
-    const userDropdown = document.getElementById('userDropdown');
-    users.forEach(user => {
-        const option = document.createElement('option');
-        option.value = user.id;
-        option.text = user.username || `User ${user.id}`;
-        userDropdown.appendChild(option);
-    });
-    */
     // Fetch draft periods for dropdown
     let draftPeriods = [];
     try {
@@ -294,18 +333,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         console.error('Error fetching draft periods:', error);
     }
 
-    // Populate draft period dropdown
-    /*
-    const draftPeriodDropdown = document.getElementById('draftPeriodDropdown');
-    draftPeriods.forEach(draft => {
-        const option = document.createElement('option');
-        option.value = draft.id;
-        option.text = draft.name || `Draft ${draft.id}`;
-        draftPeriodDropdown.appendChild(option);
-    });
-    */
-
-
     // Populate filter draft period dropdown and set default value
     const filterDraftPeriodDropdown = document.getElementById('filterDraftPeriodDropdown');
     draftPeriods.sort((a, b) => a.name.localeCompare(b.name)).forEach(draft => {
@@ -319,11 +346,12 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Add event listener for draft period filter changes
     filterDraftPeriodDropdown.addEventListener('change', function () {
         const currentLeagueId = document.getElementById('leagueDropdown').value;
-        fetchAndDisplaySquads(currentLeagueId);        
+        // Clear squad table when draft period changes
+        clearSquadTable();
+        // Update rankings with new draft period
+        fetchAndDisplayRankings(currentLeagueId);
     });
 
-    // Fetch and display existing squads on page load
+    // Fetch and display existing leagues on page load
     fetchAndDisplayLeagues();
-      
 });
-
