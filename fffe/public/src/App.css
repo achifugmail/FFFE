@@ -920,3 +920,44 @@ li {
         display: table-cell !important;
     }
 }
+
+.loading {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+
+.error {
+    color: #d32f2f;
+    text-align: center;
+    padding: 10px;
+}
+
+/* Style for embedded Squad view */
+#squad-placeholder {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+
+    #squad-placeholder .container {
+        padding: 0;
+        width: 100%;
+    }
+
+    /* Hide duplicate elements in embedded view */
+    #squad-placeholder #nav-placeholder {
+        display: none;
+    }
+
+.iframe-container {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+    .iframe-container iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }

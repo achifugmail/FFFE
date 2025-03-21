@@ -1,4 +1,5 @@
-﻿import config from './config.js';
+﻿
+import config from './config.js';
 import { addAuthHeader } from './config.js';
 let draftPeriodStartDate = null;
 let outPlayerId = null;

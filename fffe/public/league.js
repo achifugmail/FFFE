@@ -29,14 +29,14 @@ document.addEventListener('DOMContentLoaded', async function () {
                 leagueDropdown.value = leagues[0].id;
                 currentLeagueId = leagues[0].id;
                 fetchAndDisplayRankings(leagues[0].id);
-                updateLeagueDetails(leagues[0].id);
+                //updateLeagueDetails(leagues[0].id);
             }
 
             // Update league details when the selected league changes
             leagueDropdown.addEventListener('change', function () {
                 currentLeagueId = this.value;
                 fetchAndDisplayRankings(this.value);
-                updateLeagueDetails(this.value);
+                //updateLeagueDetails(this.value);
 
                 // Clear squad table when league changes
                 clearSquadTable();
@@ -98,6 +98,18 @@ document.addEventListener('DOMContentLoaded', async function () {
         iframeContainer.appendChild(iframe);
         td.appendChild(iframeContainer);
         squadTableRow.appendChild(td);
+
+        // Adjust iframe height based on content
+        iframe.addEventListener('load', function () {
+            function adjustIframeHeight() {
+                const contentHeight = iframe.contentWindow.document.body.scrollHeight;
+                if (iframe.style.height !== contentHeight + 'px') {
+                    iframe.style.height = contentHeight + 'px';
+                    setTimeout(adjustIframeHeight, 1000); // Check again after 100ms
+                }
+            }
+            adjustIframeHeight();
+        });
     }
 
     async function fetchAndDisplayRankings(leagueId) {
@@ -280,7 +292,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             `;
 
             // Add click event to each row
-            //row.style.cursor = 'pointer';
+            row.style.cursor = 'pointer';
             row.classList.add('clickable-row');
             row.addEventListener('click', async function () {
                 // Get user details
