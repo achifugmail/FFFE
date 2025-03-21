@@ -175,8 +175,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                     <td class="web-name">${player.webName}</td>
                     <td>${player.position}</td>
                     <td class="score-column">${player.score}</td>
-                    <td class="adjustment-column"><input type="number" class="adjustment-input" value="${player.Adjustment || 0}" data-player-id="${player.playerId}" data-original-value="${player.Adjustment || 0}"></td>
-                    <td class="adjustment-comment-column"><input type="text" class="adjustment-comment-input" value="${player.AdjustmentComment || ''}" data-player-id="${player.playerId}" data-original-value="${player.AdjustmentComment || ''}" placeholder="Enter comment"></td>
+                    <td class="adjustment-column"><input type="number" class="adjustment-input" value="${player.adjustment || 0}" data-player-id="${player.playerId}" data-original-value="${player.adjustment || 0}"></td>
+                    <td class="adjustment-comment-column"><input type="text" class="adjustment-comment-input" value="${player.adjustmentComment || ''}" data-player-id="${player.playerId}" data-original-value="${player.adjustmentComment || ''}" placeholder="Enter comment"></td>
                     <td class="hideable hidden">${player.app}</td>
                     <td class="hideable hidden">${player.goalsScored}</td>
                     <td class="hideable hidden">${player.assists}</td>
