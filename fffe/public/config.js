@@ -15,7 +15,7 @@ const config = {
         : 'https://ffbe-akdrgxb2fjd6fddh.eastus2-01.azurewebsites.net/api'
 };
 
-export function getToken() {
+function getToken() {
     return localStorage.getItem('token');
 }
 

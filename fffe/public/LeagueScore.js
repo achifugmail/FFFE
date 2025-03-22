@@ -71,8 +71,6 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Fetch and populate gameweeks based on selected draft period
     const gameweekDropdown = document.getElementById('gameweekDropdown');
-    //const scoreToggle = document.getElementById('scoreToggle');
-    //const scoreLabel = document.getElementById('scoreLabel');
     async function fetchAndPopulateGameweeks(draftPeriodId) {
         let gameweeks = [];
         try {
@@ -94,7 +92,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         gameweeks.sort((a, b) => a.number - b.number).forEach(gameweek => {
             const option = document.createElement('option');
             option.value = gameweek.id;
-            option.text = `Gameweek ${gameweek.number}`;
+            option.text = `${gameweek.number}`;
             gameweekDropdown.appendChild(option);
         });
 
@@ -104,16 +102,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         if (pastGameweeks.length > 0) {
             gameweekDropdown.value = pastGameweeks[pastGameweeks.length - 1].id;
         }
-
-        // Set default value for score toggle
-        const selectedGameweek = gameweeks.find(gameweek => gameweek.id == gameweekDropdown.value);
-        /*if (selectedGameweek && new Date(selectedGameweek.endDate + 'Z') > now) {
-            scoreToggle.checked = true;
-            scoreLabel.innerText = 'Live scores';
-        } else {
-            scoreToggle.checked = false;
-            scoreLabel.innerText = 'Final scores';
-        }*/
     }
 
     // Initial population of gameweeks
@@ -126,162 +114,11 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
 
     gameweekDropdown.addEventListener('change', fetchAndDisplaySquads);
-    /*
-    scoreToggle.addEventListener('change', function () {
-        scoreLabel.innerText = scoreToggle.checked ? 'Live scores' : 'Final scores';
-        fetchAndDisplaySquads();
-    });*/
-
-    /*
-    function processRankings(userTeams) {
-        // First, group all entries by userId to get unique users
-        const uniqueUsers = {};
-        userTeams.forEach(team => {
-            if (!uniqueUsers[team.userId]) {
-                uniqueUsers[team.userId] = {
-                    userId: team.userId,
-                    squadName: team.squadName,
-                    entries: []
-                };
-            }
-            uniqueUsers[team.userId].entries.push(team);
-        });
-
-        // Group teams by gameweek
-        const gameweeks = {};
-        userTeams.forEach(team => {
-            if (!gameweeks[team.gameweekNumber]) {
-                gameweeks[team.gameweekNumber] = [];
-            }
-            gameweeks[team.gameweekNumber].push(team);
-        });
-
-        // Initialize statistics for each unique user
-        const userStats = {};
-        Object.values(uniqueUsers).forEach(user => {
-            userStats[user.userId] = {
-                squadName: user.squadName,
-                totalPoints: 0,
-                firstPlaces: 0,
-                secondPlaces: 0,
-                lastPlaces: 0,
-                prizePoints: 0
-            };
-        });
-
-        // Process each gameweek
-        Object.entries(gameweeks).forEach(([gameweekNumber, gameweekTeams]) => {
-            // Check if all users have 0 points for this gameweek
-            const allZeroPoints = gameweekTeams.every(team => team.points === 0);
-            if (allZeroPoints) {
-                console.log(`Skipping gameweek ${gameweekNumber} - all users have 0 points`);
-                return; // Skip this gameweek
-            }
-
-            // Sort teams by points for this gameweek
-            const sortedTeams = gameweekTeams.sort((a, b) => b.points - a.points);
-            const teamsCount = sortedTeams.length;
-
-            // Group teams by points to handle ties
-            const pointsGroups = {};
-            sortedTeams.forEach(team => {
-                if (!pointsGroups[team.points]) {
-                    pointsGroups[team.points] = [];
-                }
-                pointsGroups[team.points].push(team);
-            });
-
-            // Sort points in descending order
-            const sortedPoints = Object.keys(pointsGroups).map(Number).sort((a, b) => b - a);
-
-            let currentPosition = 0;
-            sortedPoints.forEach(points => {
-                const tiedTeams = pointsGroups[points];
-                const tiedCount = tiedTeams.length;
-                const positionsSpanned = tiedCount;
-
-                // Calculate what positions these teams are splitting
-                const isFirst = currentPosition === 0;
-                const isSecond = currentPosition === 1 || (currentPosition === 0 && positionsSpanned > 1);
-                const isLast = currentPosition + tiedCount === teamsCount;
-
-                // Calculate prize points for this group
-                let prizePointsPool = 0;
-                if (isFirst) {
-                    // Get 75 from last place
-                    prizePointsPool += 75;
-                    // Get 50 from each middle position
-                    prizePointsPool += 50 * (teamsCount - tiedCount - (isLast ? 0 : 1));
-                }
-
-                // Distribute statistics and prize points among tied teams
-                tiedTeams.forEach(team => {
-                    const stats = userStats[team.userId];
-                    if (!stats) return;
-
-                    stats.totalPoints += team.points;
-
-                    // Split placement counts
-                    if (isFirst) stats.firstPlaces += 1 / tiedCount;
-                    if (isSecond && !isFirst) stats.secondPlaces += 1 / tiedCount;
-                    if (isLast) stats.lastPlaces += 1 / tiedCount;
-
-                    // Split prize points
-                    if (isFirst) {
-                        stats.prizePoints += prizePointsPool / tiedCount;
-                    } else if (isLast) {
-                        stats.prizePoints -= 75 / tiedCount;
-                    } else if (!isSecond) {
-                        stats.prizePoints -= 50;
-                    }
-                });
-
-                currentPosition += tiedCount;
-            });
-        });
-
-        return Object.values(userStats);
-    }
-
-    function displayRankings(rankings) {
-        const tbody = document.getElementById('rankingsTableBody');
-        tbody.innerHTML = '';
-
-        // Sort by total points descending
-        rankings.sort((a, b) => b.totalPoints - a.totalPoints);
-
-        rankings.forEach(squad => {
-            const row = tbody.insertRow();
-            row.innerHTML = `
-        <td>${squad.squadName}</td>
-        <td>${squad.totalPoints}</td>
-        <td>${squad.firstPlaces.toFixed(1)}</td>
-        <td>${squad.secondPlaces.toFixed(1)}</td>
-        <td>${squad.lastPlaces.toFixed(1)}</td>
-        <td>${squad.prizePoints.toFixed(0)}</td>
-    `;
-        });
-    }
-
-    async function fetchAndDisplayRankings(leagueId) {
-        try {
-            const response = await fetch(`${config.backendUrl}/Teams/league/${leagueId}/userteams`, addAuthHeader());
-            if (!response.ok) {
-                console.error('Failed to fetch rankings:', response.status, response.statusText);
-                return;
-            }
-
-            const userTeams = await response.json();
-            displayRankings(processRankings(userTeams));
-        } catch (error) {
-            console.error('Error fetching rankings:', error);
-        }
-    }
-    */
 
     // Function to fetch and display existing squads
     async function fetchAndDisplaySquads() {
         const leagueId = leagueDropdown.value;
+        const gameweekId = gameweekDropdown.value;
         try {
             const respSquads = await fetch(`${config.backendUrl}/UserSquads/ByLeague/${leagueId}`, addAuthHeader());
 
@@ -295,13 +132,14 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             const selectedDraftPeriodId = draftPeriodDropdown.value;
             const selectedGameweekId = gameweekDropdown.value;
-            const score = /*scoreToggle.checked ? 'live' : */'final';
+            const score = 'final';
             const filteredSquads = squads.filter(squad => squad.draftPeriodId == selectedDraftPeriodId);
 
             // Create iframe for each squad
             filteredSquads.forEach(squad => {
                 const iframeContainer = document.createElement('div');
                 iframeContainer.className = 'iframe-container';
+                iframeContainer.setAttribute('data-squad-id', squad.id);
                 const iframe = document.createElement('iframe');
                 iframe.src = `TeamScore.html?squadId=${squad.id}&draftPeriodId=${selectedDraftPeriodId}&gameweekId=${selectedGameweekId}&score=${score}`;
                 iframeContainer.appendChild(iframe);
@@ -314,15 +152,119 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Fetch and display league details and squads on page load
     if (leagueDropdown.value) {
-        await fetchAndDisplayLeagueDetails(leagueDropdown.value);
-        //fetchAndDisplayRankings(leagueDropdown.value);
+        //await fetchAndDisplayLeagueDetails(leagueDropdown.value);
         fetchAndDisplaySquads();
     }
 
     // Update league details and squads when league changes
     leagueDropdown.addEventListener('change', async function () {
-        await fetchAndDisplayLeagueDetails(this.value);
-        //fetchAndDisplayRankings(this.value);
+        //await fetchAndDisplayLeagueDetails(this.value);
         fetchAndDisplaySquads();
     });
+
+    // Fetch player gameweek stats and create rankings table
+    async function fetchAndDisplayRankings() {
+        const gameweekId = gameweekDropdown.value;
+        try {
+            const response = await fetch(`${config.backendUrl}/UserTeamPlayers/playerGameweekStatsByGameweek?gameweekId=${gameweekId}`, addAuthHeader());
+
+            if (!response.ok) {
+                console.error('Failed to fetch player gameweek stats:', response.status, response.statusText);
+                return;
+            }
+            const playerStats = await response.json();
+            const rankings = processRankings(playerStats);
+            displayRankings(rankings);
+        } catch (error) {
+            console.error('Error fetching player gameweek stats:', error);
+        }
+    }
+
+    // Process player stats to create rankings
+    function processRankings(playerStats) {
+        const userStats = {};
+
+        playerStats.forEach(player => {
+            if (!userStats[player.username]) {
+                userStats[player.username] = {
+                    username: player.username,
+                    totalPoints: 0,
+                    playerCount: 0,
+                    playersRemaining: 0,
+                    squadId: player.squadId
+                };
+            }
+
+            userStats[player.username].totalPoints += player.isCaptain ? player.score * 1.5 : player.score;
+            userStats[player.username].playerCount += 1;
+
+            if (player.id === -1) {
+                userStats[player.username].playersRemaining += 1;
+            }
+        });
+
+        Object.values(userStats).forEach(user => {
+            user.avgPoints = user.totalPoints / (user.playerCount - user.playersRemaining);
+        });
+
+        return Object.values(userStats);
+    }
+
+    // Display rankings table
+    function displayRankings(rankings) {
+        const rankingsTableContainer = document.getElementById('rankingsTableContainer');
+        rankingsTableContainer.innerHTML = ''; // Clear existing table
+
+        const table = document.createElement('table');
+        table.className = 'rankings-table';
+        const thead = document.createElement('thead');
+        const tbody = document.createElement('tbody');
+
+        thead.innerHTML = `
+            <tr>
+                <th>Username</th>
+                <th>Points</th>
+                <th>Avg Points</th>
+                <th>Remaining</th>
+                <th>Details</th>
+            </tr>
+        `;
+
+        rankings.forEach(user => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${user.username}</td>
+                <td>${user.totalPoints}</td>
+                <td>${user.avgPoints.toFixed(2)}</td>
+                <td>${user.playersRemaining}</td>
+                <td><input type="checkbox" class="details-checkbox" data-squad-id="${user.squadId}" checked></td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        table.appendChild(thead);
+        table.appendChild(tbody);
+        rankingsTableContainer.appendChild(table);
+
+        // Add event listeners to checkboxes
+        const checkboxes = document.querySelectorAll('.details-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function () {
+                const squadId = this.getAttribute('data-squad-id');
+                const iframeContainer = document.querySelector(`.iframe-container[data-squad-id="${squadId}"]`);
+                if (this.checked) {
+                    iframeContainer.style.display = 'block';
+                } else {
+                    iframeContainer.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    // Fetch and display rankings on page load
+    fetchAndDisplayRankings();
+
+    // Update rankings when gameweek changes
+    gameweekDropdown.addEventListener('change', fetchAndDisplayRankings);
 });
+

@@ -12,17 +12,20 @@
     <div id="nav-placeholder"></div>
     <div id="content" class="container">
         <div id="leagueInfo"></div>
-        <div class="dropdown-container">            
-            <select id="leagueDropdown"></select>
-            
-            <select id="draftPeriodDropdown"></select>
-            
-            <select id="gameweekDropdown"></select>
+        <div class="dropdown-container">
+            <div>
+                <select id="leagueDropdown"></select>
+            </div>
+            <div>
+                <select id="draftPeriodDropdown"></select>
+            </div>
+            <div>
+                <select id="gameweekDropdown"></select>
 
 
+            </div>
         </div>
-    </div>
-    <!--div class="league-rankings">
+        <!--div class="league-rankings">
         <h2>League Rankings</h2>
         <table id="rankingsTable" class="rankings-table">
             <thead>
@@ -39,20 +42,22 @@
             </tbody>
         </table>
     </div-->
+        <div id="rankingsTableContainer">
+            <!-- Rankings table will be populated by JavaScript -->
+        </div>
+        <div id="squadTableRow" class="container">
+            <!-- Iframes will be populated by JavaScript -->
+        </div>
 
-    <div id="squadTableRow" class="container">
-        <!-- Iframes will be populated by JavaScript -->
-    </div>
-
-    <script type="module" src="LeagueScore.js"></script>
-    <script type="module">
-        import { initializeNavigation } from './nav.js';
-        fetch('nav.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('nav-placeholder').innerHTML = data;
-                initializeNavigation();
-            });
-    </script>
+        <script type="module" src="LeagueScore.js"></script>
+        <script type="module">
+            import { initializeNavigation } from './nav.js';
+            fetch('nav.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('nav-placeholder').innerHTML = data;
+                    initializeNavigation();
+                });
+        </script>
 </body>
 </html>

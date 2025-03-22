@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Team Score</title>
-
-    <style>
+    <link rel="stylesheet" href="src/App.css">
+    <!--style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f9;
@@ -31,7 +31,7 @@
             padding: 0.5rem 1rem;
             text-decoration: none;
             border-radius: 4px;
-            
+
         }
 
             a:hover {
@@ -130,9 +130,9 @@
             display: none;
         }
 
-       
-       
-    </style>
+
+
+    </!--style-->
 </head>
 <body>
     <div id="nav-placeholder"></div>
@@ -140,10 +140,14 @@
         <div id="squadInfo" class="container">
             <!-- Squad info will be populated by JavaScript -->
         </div>
-        <button id="toggleColumnsButton">Toggle Details</button>
-        <table id="playerStatsTable" class="container">
-            <!-- Player stats table will be populated by JavaScript -->
-        </table>
+        <div class="team-score-controls">
+            <button id="toggleColumnsButton">Toggle Details</button>
+        </div>
+        <div id="playerStatsTable-wrapper">
+            <table id="playerStatsTable" class="player-stats-table">
+                <!-- Player stats table will be populated by JavaScript -->
+            </table>
+        </div>
     </div>
     <script type="module" src="TeamScore.js"></script>
     <script type="module">

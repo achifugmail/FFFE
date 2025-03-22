@@ -48,8 +48,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             // Display squad info with username
             const squadInfoDiv = document.getElementById('squadInfo');
             squadInfoDiv.innerHTML = `
-            <h2>Squad: ${squad.squadName}</h2>
-            <p>User: ${username}</p>
+            <h2>${squad.squadName} - ${username}</h2>            
         `;
         } catch (error) {
             console.error('Error fetching squad info:', error);
