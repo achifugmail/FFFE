@@ -10,7 +10,7 @@
 </head>
 <body>
     <div id="nav-placeholder"></div>
-    </div>
+    
     <div id="content" class="container">
         <div class="dropdown-container full-width">
             <div>
@@ -33,11 +33,18 @@
             </div>
         </div>
 
-        <div id="playerGrid" class="container">
-            <!-- Player grid will be populated by JavaScript -->
-        </div>
-        <div id="fixturesContainer" class="container">
-            <!-- Fixtures will be populated by JavaScript -->
+        <div class="team-layout">
+            <div id="playerGrid" class="container">
+                <!-- Player grid will be populated by JavaScript -->
+            </div>
+
+            <button class="fixtures-toggle" id="fixturesToggle">
+                <i class="fas fa-calendar-alt"></i>
+            </button>
+
+            <div id="fixturesContainer" class="container">
+                <!-- Fixtures will be populated by JavaScript -->
+            </div>
         </div>
     </div>
     <script type="module" src="team.js"></script>

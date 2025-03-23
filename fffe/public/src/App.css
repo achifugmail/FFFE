@@ -1129,3 +1129,92 @@ th {
     .fixtures-table td {
         padding: 5px 8px;
     }
+
+/* Layout for player grid and fixtures side by side */
+.team-layout {
+    display: flex;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+}
+
+#playerGrid {
+    flex: 1;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+#fixturesContainer {
+    width: 200px;
+    background-color: #fff;
+    border-left: 1px solid #ddd;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    position: fixed;
+    top: 120px; /* Adjust based on your header height */
+    right: -320px; /* Start off-screen */
+    //height: calc(100vh - 75px);
+    height: 600px;
+    overflow-y: auto;
+    transition: right 0.3s ease;
+    z-index: 100;
+}
+
+/* Fixtures drawer toggle button */
+.fixtures-toggle {
+    position: fixed;
+    right: 10px;
+/*    /top: 80px;*/
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 101;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+    .fixtures-toggle i {
+        font-size: 18px;
+    }
+
+/* When fixtures drawer is open */
+.fixtures-open #playerGrid {
+    opacity: 0.5;
+}
+
+.fixtures-open #fixturesContainer {
+    right: 0;
+}
+
+/* Mobile adjustments */
+@media (min-width: 1200px) {
+    /* On larger screens, show side by side */
+    #fixturesContainer {
+        position: relative;
+        top: auto;
+        right: auto;
+        height: auto;
+        max-height: none;
+    }
+
+    .fixtures-toggle {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Full width drawer on mobile */
+    #fixturesContainer {
+        //width: 100%;
+        right: -100%;
+    }
+
+    .fixtures-open #playerGrid {
+        transform: translateX(-20px);
+    }
+}

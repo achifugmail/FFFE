@@ -510,4 +510,38 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Initial link update
     updateTeamScoreLink();
+
+    const fixturesToggle = document.getElementById('fixturesToggle');
+    const teamLayout = document.querySelector('.team-layout');
+
+    fixturesToggle.addEventListener('click', function () {
+        teamLayout.classList.toggle('fixtures-open');
+
+        // Change the icon based on state
+        const icon = this.querySelector('i');
+        if (teamLayout.classList.contains('fixtures-open')) {
+            icon.className = 'fas fa-times'; // X icon when open
+        } else {
+            icon.className = 'fas fa-calendar-alt'; // Calendar icon when closed
+        }
+    });
+
+    // Check screen width on page load to determine initial state
+    function checkScreenWidth() {
+        if (window.innerWidth >= 1200) {
+            // On larger screens, start with fixtures visible
+            teamLayout.classList.remove('fixtures-open');
+            fixturesToggle.style.display = 'none';
+        } else {
+            // On smaller screens, start with fixtures hidden
+            teamLayout.classList.remove('fixtures-open');
+            fixturesToggle.style.display = 'flex';
+        }
+    }
+
+    // Initial check and setup
+    checkScreenWidth();
+
+    // Re-check when window is resized
+    window.addEventListener('resize', checkScreenWidth);
 });
