@@ -3,10 +3,11 @@ import { addAuthHeader } from './config.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
     // Fetch leagues for dropdown
+    const currentUserId = localStorage.getItem('userId');
     let leagues = [];
     try {
-        const respLeagues = await fetch(`${config.backendUrl}/Leagues`, addAuthHeader());
-
+        const respLeagues = await fetch(`${config.backendUrl}/Leagues/byUser/${currentUserId}`, addAuthHeader());
+        
         if (!respLeagues.ok) {
             console.error('Failed to fetch leagues:', respLeagues.status, respLeagues.statusText);
         } else {
