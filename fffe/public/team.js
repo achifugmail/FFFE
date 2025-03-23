@@ -103,8 +103,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     gameweekDropdown.addEventListener('change', function () {
         fetchAndDisplaySquadPlayers(squadId);
-        updateTeamScoreLink();
-        fetchAndDisplayFixtures(this.value); // Add this line
+        //updateTeamScoreLink();
+        fetchAndDisplayFixtures(this.value); 
     });
 
     async function fetchLeagues() {
