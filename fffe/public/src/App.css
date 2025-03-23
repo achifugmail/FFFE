@@ -1075,11 +1075,12 @@ th {
 /* Team cells for fixtures */
 .team-cell {
     display: flex;
+    align-items: center; /* Changed from baseline to center for better vertical alignment */
+    gap: 4px; /* Reduced gap from 8px to 4px */
+    height: 25px; /* Reduced height from 35px to 25px */
     align-items:baseline;
-    
-    gap: 8px;
-    height: 35px; /* Set a consistent height for all cells */
 }
+
 
 .home-team-cell {
     justify-content: flex-start; /* Left align for home team */
@@ -1091,36 +1092,38 @@ th {
 
 .team-short-name {
     display: inline-block;
-    text-align: center; /* Center the text horizontally within its container */
-    vertical-align: middle; /* Help with vertical alignment */
-    line-height: 25px; /* Match the height of the team logo */
+    text-align: center;
+    vertical-align: middle;
+    line-height: 20px; /* Reduced from 25px to match new logo size */
+    font-size: 0.9em; /* Added slightly smaller font size */
 }
 
 .team-logo {
-    width: 25px;
-    height: 25px;
+    width: 20px; /* Reduced from 25px */
+    height: 20px; /* Reduced from 25px */
     object-fit: contain;
-    vertical-align: middle; /* Align the image vertically */
+    vertical-align: middle;
     position: relative;
-    top: 5px; /* Move the logo down by 5 pixels */
+    top: 5px; /* Changed from 5px to 0 since we're using align-items: center now */
+    vertical-align: middle;
 }
 
 .vs-cell {
     text-align: center;
-    padding: 0 8px;
+    padding: 0 4px; /* Reduced from 8px to 4px */
     font-weight: bold;
-    border:none;
+    border: none;
+    vertical-align: middle;
 }
 
-/* Make the fixtures table a bit more compact and centered */
 .fixtures-table {
-    
     border-collapse: collapse;
     margin: 0 auto;
 }
 
     .fixtures-table tr {
         border-bottom: 1px solid #eee;
+        height: 22px; /* Set explicit row height */
     }
 
         .fixtures-table tr:last-child {
@@ -1128,7 +1131,8 @@ th {
         }
 
     .fixtures-table td {
-        padding: 5px 8px;
+        border:none;
+        vertical-align: middle;
     }
 
 /* Layout for player grid and fixtures side by side */
@@ -1149,23 +1153,23 @@ th {
     background-color: #fff;
     border-left: 1px solid #ddd;
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
-    padding: 10px;
+    padding: 5px;
     position: fixed;
     top: 140px; /* Adjust based on your header height */
     right: -190px; /* Start off-screen */
     bottom: 0;
     /*height: calc(100vh - 75px);*/
-    height: 600px;
+    height: 450px;
     overflow-y: auto;
     transition: right 0.3s ease;
     z-index: 100;
 }
 
 /* Fixtures drawer toggle button */
-    .fixtures-toggle {
+.fixtures-toggle {
     position: fixed;
     right: 10px;
-/*    /top: 80px;*/
+    bottom: 20px; /* Position near the bottom of the page instead of using top property */
     background-color: #4CAF50;
     color: white;
     border: none;
@@ -1176,7 +1180,7 @@ th {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    z-index: 101;
+    z-index: 101; /* Increased z-index to ensure button stays above other elements */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
