@@ -1152,6 +1152,7 @@ th {
     position: fixed;
     top: 140px; /* Adjust based on your header height */
     right: -190px; /* Start off-screen */
+    bottom: 0;
     /*height: calc(100vh - 75px);*/
     height: 600px;
     overflow-y: auto;

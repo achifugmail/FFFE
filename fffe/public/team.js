@@ -539,6 +539,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
+
+
     // Initial check and setup
     checkScreenWidth();
 
