@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     let draftPeriodId;
     let squadId;  // Remove the URL parameter assignment
     const currentUserId = localStorage.getItem('userId');
+    const currentUsername = localStorage.getItem('username');
 
     const filterDraftPeriodDropdown = document.getElementById('filterDraftPeriodDropdown');
 
@@ -211,12 +212,12 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             positions.forEach(position => {
                 const section = document.createElement('div');
-                section.className = 'section';
+                section.className = 'section position-section';
                 section.id = position.name;
+                section.setAttribute('data-position', position.name);
 
-                const header = document.createElement('h3');
-                header.innerText = position.name;
-                section.appendChild(header);
+                // Remove the header and use a data attribute instead
+                // No need for the h3 element anymore
 
                 const playersDiv = document.createElement('div');
                 playersDiv.className = 'players';
@@ -226,12 +227,11 @@ document.addEventListener('DOMContentLoaded', async function () {
                 filteredPlayers.forEach(player => {
                     const playerDiv = document.createElement('div');
                     playerDiv.className = 'player-grid';
-                    // Replace this part in the fetchAndDisplaySquadPlayers function where the playerDiv is created
                     playerDiv.innerHTML = `
-    <input type="checkbox" class="player-checkbox" data-player-id="${player.id}">
-    <button class="captain-button" data-player-id="${player.id}"><i class="fas fa-crown"></i></button>
-    <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
-    <span class="player-name">${player.webName}</span>
+<input type="checkbox" class="player-checkbox" data-player-id="${player.id}">
+<button class="captain-button" data-player-id="${player.id}"><i class="fas fa-crown"></i></button>
+<img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
+<span class="player-name">${player.webName}</span>
 `;
                     playersDiv.appendChild(playerDiv);
                 });

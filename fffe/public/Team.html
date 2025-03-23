@@ -6,13 +6,13 @@
     <title>Team</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="src/App.css">
-    
+
 </head>
 <body>
     <div id="nav-placeholder"></div>
     </div>
     <div id="content" class="container">
-        <div class="dropdown-container">
+        <div class="dropdown-container full-width">
             <div>
                 <select id="leagueDropdown"></select>
             </div>
@@ -26,10 +26,13 @@
                     <!-- Options will be populated by JavaScript -->
                 </select>
             </div>
+            <div class="link-container">
+                <a id="teamScoreLink" href="#" title="View Team Score">
+                    <i class="fas fa-chart-line"></i>
+                </a>
+            </div>
         </div>
-        <div>
-            <a id="teamScoreLink" href="#">View Team Score</a>
-        </div>
+
         <div id="playerGrid" class="container">
             <!-- Player grid will be populated by JavaScript -->
         </div>

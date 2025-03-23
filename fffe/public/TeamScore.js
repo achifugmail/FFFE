@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     const gameweekId = urlParams.get('gameweekId');
     const squadId = urlParams.get('squadId');
     const score = urlParams.get('score');
+    //const username = localStorage.getItem('username');
 
     // Check if the page is loaded within an iframe
     if (window.self !== window.top) {
@@ -17,13 +18,17 @@ document.addEventListener('DOMContentLoaded', async function () {
         hideableColumns.forEach(column => {
             column.classList.toggle('hidden');
         });
-        //adjustTableWidth();
+        // Toggle the chevron direction
+        const chevron = document.getElementById('toggleColumnsIcon');
+        chevron.classList.toggle('fa-chevron-right');
+        chevron.classList.toggle('fa-chevron-down');
     }
 
     // Fetch and display squad info
     async function fetchAndDisplaySquadInfo(squadId) {
         try {
             // Fetch squad info
+
             const squadResponse = await fetch(`${config.backendUrl}/UserSquads/${squadId}`, addAuthHeader());
 
             if (!squadResponse.ok) {
@@ -99,7 +104,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             <th>Photo</th>
             <th class="web-name">Web Name</th>
             <th>Position</th>
-            <th>Score</th>
+            <th>Score <i id="toggleColumnsIcon" class="fas fa-chevron-right"></i></th>
             <th class="hideable hidden">Apps</th>
             <th class="hideable hidden">Goals</th>
             <th class="hideable hidden">Assists</th>
@@ -187,7 +192,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     await fetchAndDisplaySquadInfo(squadId);
     await fetchAndDisplayPlayerStats(gameweekId, squadId, score);
-    document.getElementById('toggleColumnsButton').addEventListener('click', toggleColumnVisibility);
+    document.getElementById('toggleColumnsIcon').addEventListener('click', toggleColumnVisibility);
     //adjustTableWidth(); // Adjust table width on initial load
 
 
@@ -195,4 +200,3 @@ document.addEventListener('DOMContentLoaded', async function () {
         fetchAndDisplayPlayerStats(gameweekId, squadId, score);
     }, 60000); // 60000 milliseconds = 1 minute
 });
-
