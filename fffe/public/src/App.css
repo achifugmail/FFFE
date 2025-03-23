@@ -1109,6 +1109,7 @@ th {
     text-align: center;
     padding: 0 8px;
     font-weight: bold;
+    border:none;
 }
 
 /* Make the fixtures table a bit more compact and centered */
@@ -1151,13 +1152,16 @@ th {
     padding: 10px;
     position: fixed;
     top: 140px; /* Adjust based on your header height */
-    right: -190px; /* Start off-screen */
-    bottom: 0;
-    /*height: calc(100vh - 75px);*/
+    right: 0;
     height: 600px;
     overflow-y: auto;
-    transition: right 0.3s ease;
+    transform: translateX(100%); /* Hide panel by moving it completely out of view */
+    transition: transform 0.3s ease;
     z-index: 100;
+}
+
+.fixtures-open #fixturesContainer {
+    transform: translateX(0); /* Show panel */
 }
 
 /* Fixtures drawer toggle button */
