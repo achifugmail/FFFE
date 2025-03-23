@@ -61,9 +61,50 @@ document.addEventListener('DOMContentLoaded', async function () {
         updateTeamScoreLink();
     });
 
+    async function fetchAndDisplayFixtures(gameweekId) {
+        try {
+            const response = await fetch(`${config.backendUrl}/fixtures/gameweek/${gameweekId}`, addAuthHeader());
+            if (!response.ok) {
+                console.error('Failed to fetch fixtures:', response.status, response.statusText);
+                return;
+            }
+
+            const fixtures = await response.json();
+            const fixturesContainer = document.getElementById('fixturesContainer');
+
+            // Clear any existing content
+            fixturesContainer.innerHTML = '';
+
+            // Create fixtures table
+            const table = document.createElement('table');
+            table.className = 'fixtures-table';
+
+            fixtures.forEach(fixture => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                <td class="team-cell home-team-cell">
+                    <img src="https://resources.premierleague.com/premierleague/badges/70/t${fixture.homeTeam.code}.png" class="team-logo" alt="${fixture.homeTeam.name}">
+                    <span class="team-short-name">${fixture.homeTeam.shortName}</span>
+                </td>
+                <td class="vs-cell">-</td>
+                <td class="team-cell away-team-cell">
+                    <span class="team-short-name">${fixture.awayTeam.shortName}</span>
+                    <img src="https://resources.premierleague.com/premierleague/badges/70/t${fixture.awayTeam.code}.png" class="team-logo" alt="${fixture.awayTeam.name}">
+                </td>
+            `;
+                table.appendChild(row);
+            });
+
+            fixturesContainer.appendChild(table);
+        } catch (error) {
+            console.error('Error fetching fixtures:', error);
+        }
+    }
+
     gameweekDropdown.addEventListener('change', function () {
         fetchAndDisplaySquadPlayers(squadId);
         updateTeamScoreLink();
+        fetchAndDisplayFixtures(this.value); // Add this line
     });
 
     async function fetchLeagues() {
@@ -465,6 +506,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     squadId = await fetchSquadId();
     await fetchAndDisplaySquadInfo(squadId);
     await fetchAndDisplaySquadPlayers(squadId);
+    await fetchAndDisplayFixtures(gameweekDropdown.value);
 
     // Initial link update
     updateTeamScoreLink();
