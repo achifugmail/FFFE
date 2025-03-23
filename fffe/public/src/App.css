@@ -1151,15 +1151,20 @@ th {
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
     padding: 10px;
     position: fixed;
-    top: 0; /* Changed from 140px to 0 */
-    bottom: 0; /* Added to ensure full height */
+    top: 0;
+    bottom: 0;
     right: 0;
-    height: 100%; /* Changed from fixed 600px height to 100% */
+    /* Use viewport units instead of percentage */
+    /*height: 100vh; /* viewport height units instead of percentage */
+    height: calc(100 * var(--vh, 1vh));
     overflow-y: auto;
-    transform: translateX(100%); /* Keep using transform instead of right positioning */
+    transform: translateX(100%);
     transition: transform 0.3s ease;
     z-index: 100;
-    -webkit-overflow-scrolling: touch; /* Improve scrolling on iOS */
+    /* Add these to handle iOS Safari specifically */
+    -webkit-overflow-scrolling: touch;
+    /* This prevents the container from resizing when the address bar shows/hides */
+    height: -webkit-fill-available;
 }
 
 .fixtures-open #fixturesContainer {

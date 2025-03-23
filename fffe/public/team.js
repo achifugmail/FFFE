@@ -13,6 +13,18 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     const filterDraftPeriodDropdown = document.getElementById('filterDraftPeriodDropdown');
 
+    function setFixedHeight() {
+        // Force correct height calculation when address bar appears/disappears
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+
+        // Then use this custom property for the fixtures container
+        const fixturesContainer = document.getElementById('fixturesContainer');
+        if (fixturesContainer) {
+            fixturesContainer.style.height = `calc(100 * var(--vh))`;
+        }
+    }
+
 
     // Fetch and populate gameweeks based on selected draft period
     const gameweekDropdown = document.getElementById('gameweekDropdown');
@@ -526,20 +538,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     });
 
-    document.addEventListener('scroll', function (e) {
-        // Don't allow scroll events to close the panel
-        if (teamLayout.classList.contains('fixtures-open')) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-    }, { passive: false });
 
-    // Make the fixtures container itself scrollable independently
-    const fixturesContainer = document.getElementById('fixturesContainer');
-    fixturesContainer.addEventListener('touchmove', function (e) {
-        // Allow scrolling inside the fixtures container
-        e.stopPropagation();
-    }, { passive: true });
 
     // Check screen width on page load to determine initial state
     function checkScreenWidth() {
@@ -561,4 +560,6 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Re-check when window is resized
     window.addEventListener('resize', checkScreenWidth);
+    setFixedHeight();
+    window.addEventListener('resize', setFixedHeight);
 });
