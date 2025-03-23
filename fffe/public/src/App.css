@@ -1151,30 +1151,31 @@ th {
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
     padding: 10px;
     position: fixed;
-    top: 140px; /* Adjust based on your header height */
+    top: 0; /* Changed from 140px to 0 */
+    bottom: 0; /* Added to ensure full height */
     right: 0;
-    height: 600px;
+    height: 100%; /* Changed from fixed 600px height to 100% */
     overflow-y: auto;
-    transform: translateX(100%); /* Hide panel by moving it completely out of view */
+    transform: translateX(100%); /* Keep using transform instead of right positioning */
     transition: transform 0.3s ease;
     z-index: 100;
+    -webkit-overflow-scrolling: touch; /* Improve scrolling on iOS */
 }
 
 .fixtures-open #fixturesContainer {
     transform: translateX(0); /* Show panel */
 }
 
-/* Fixtures drawer toggle button */
-    .fixtures-toggle {
-    position: sticky;
-    right: 10px;
-/*    /top: 80px;*/
+.fixtures-toggle {
+    position: fixed; /* Changed from sticky to fixed */
+    bottom: 20px; /* Position at bottom instead of top */
+    right: 20px;
     background-color: #4CAF50;
     color: white;
     border: none;
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
+    width: 50px; /* Slightly larger for easier tapping */
+    height: 50px; /* Slightly larger for easier tapping */
     display: flex;
     align-items: center;
     justify-content: center;

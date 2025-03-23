@@ -526,6 +526,21 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     });
 
+    document.addEventListener('scroll', function (e) {
+        // Don't allow scroll events to close the panel
+        if (teamLayout.classList.contains('fixtures-open')) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    }, { passive: false });
+
+    // Make the fixtures container itself scrollable independently
+    const fixturesContainer = document.getElementById('fixturesContainer');
+    fixturesContainer.addEventListener('touchmove', function (e) {
+        // Allow scrolling inside the fixtures container
+        e.stopPropagation();
+    }, { passive: true });
+
     // Check screen width on page load to determine initial state
     function checkScreenWidth() {
         if (window.innerWidth >= 1200) {
