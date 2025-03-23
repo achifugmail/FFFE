@@ -1151,36 +1151,27 @@ th {
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
     padding: 10px;
     position: fixed;
-    top: 0;
+    top: 140px; /* Adjust based on your header height */
+    right: -190px; /* Start off-screen */
     bottom: 0;
-    right: 0;
-    /* Use viewport units instead of percentage */
-    /*height: 100vh; /* viewport height units instead of percentage */
-    height: calc(100 * var(--vh, 1vh));
+    /*height: calc(100vh - 75px);*/
+    height: 600px;
     overflow-y: auto;
-    transform: translateX(100%);
-    transition: transform 0.3s ease;
+    transition: right 0.3s ease;
     z-index: 100;
-    /* Add these to handle iOS Safari specifically */
-    -webkit-overflow-scrolling: touch;
-    /* This prevents the container from resizing when the address bar shows/hides */
-    height: -webkit-fill-available;
 }
 
-.fixtures-open #fixturesContainer {
-    transform: translateX(0); /* Show panel */
-}
-
-.fixtures-toggle {
-    position: fixed; /* Changed from sticky to fixed */
-    bottom: 20px; /* Position at bottom instead of top */
-    right: 20px;
+/* Fixtures drawer toggle button */
+    .fixtures-toggle {
+    position: fixed;
+    right: 10px;
+/*    /top: 80px;*/
     background-color: #4CAF50;
     color: white;
     border: none;
     border-radius: 50%;
-    width: 50px; /* Slightly larger for easier tapping */
-    height: 50px; /* Slightly larger for easier tapping */
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;

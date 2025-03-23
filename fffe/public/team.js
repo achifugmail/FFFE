@@ -13,18 +13,6 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     const filterDraftPeriodDropdown = document.getElementById('filterDraftPeriodDropdown');
 
-    function setFixedHeight() {
-        // Force correct height calculation when address bar appears/disappears
-        const vh = window.innerHeight * 0.01;
-        document.documentElement.style.setProperty('--vh', `${vh}px`);
-
-        // Then use this custom property for the fixtures container
-        const fixturesContainer = document.getElementById('fixturesContainer');
-        if (fixturesContainer) {
-            fixturesContainer.style.height = `calc(100 * var(--vh))`;
-        }
-    }
-
 
     // Fetch and populate gameweeks based on selected draft period
     const gameweekDropdown = document.getElementById('gameweekDropdown');
@@ -70,7 +58,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     filterDraftPeriodDropdown.addEventListener('change', async function () {
         await fetchAndPopulateGameweeks(this.value);
         fetchAndDisplaySquadPlayers(squadId);
-        updateTeamScoreLink();
+        //updateTeamScoreLink();
     });
 
     async function fetchAndDisplayFixtures(gameweekId) {
@@ -521,7 +509,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     await fetchAndDisplayFixtures(gameweekDropdown.value);
 
     // Initial link update
-    updateTeamScoreLink();
+    //updateTeamScoreLink();
 
     const fixturesToggle = document.getElementById('fixturesToggle');
     const teamLayout = document.querySelector('.team-layout');
@@ -547,19 +535,17 @@ document.addEventListener('DOMContentLoaded', async function () {
             teamLayout.classList.remove('fixtures-open');
             fixturesToggle.style.display = 'none';
         } else {
-            // On smaller screens, start with fixtures hidden
-            teamLayout.classList.remove('fixtures-open');
+            // On smaller screens, start with fixtures hidden only if not already shown by fixturesToggle
+            if (!teamLayout.classList.contains('fixtures-open')) {
+                teamLayout.classList.remove('fixtures-open');
+            }
             fixturesToggle.style.display = 'flex';
         }
     }
-
-
 
     // Initial check and setup
     checkScreenWidth();
 
     // Re-check when window is resized
     window.addEventListener('resize', checkScreenWidth);
-    setFixedHeight();
-    window.addEventListener('resize', setFixedHeight);
 });
