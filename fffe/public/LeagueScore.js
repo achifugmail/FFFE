@@ -262,10 +262,223 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     }
 
+    async function fetchAndCreateUserTeamCards() {
+        const gameweekId = gameweekDropdown.value;
+        try {
+            const response = await fetch(`${config.backendUrl}/UserTeamPlayers/playerGameweekStatsByGameweek?gameweekId=${gameweekId}`, addAuthHeader());
+
+            if (!response.ok) {
+                console.error('Failed to fetch player gameweek stats:', response.status, response.statusText);
+                return;
+            }
+            const playerStats = await response.json();
+            createUserTeamCards(playerStats);
+        } catch (error) {
+            console.error('Error fetching player gameweek stats:', error);
+        }
+    }
+
+    // Function to process player stats and create user team cards
+    function createUserTeamCards(playerStats) {
+        const userTeamCardsContainer = document.getElementById('userTeamCardsContainer');
+        userTeamCardsContainer.innerHTML = ''; // Clear existing cards
+
+        // Group players by username
+        const userTeams = {};
+
+        playerStats.forEach(player => {
+            if (!userTeams[player.username]) {
+                userTeams[player.username] = {
+                    username: player.username,
+                    squadName: player.squadName,
+                    squadId: player.squadId,
+                    totalScore: 0,
+                    players: []
+                };
+            }
+
+            // Add player to the user's team
+            userTeams[player.username].players.push(player);
+
+            // Add to total score (with captain bonus if applicable)
+            userTeams[player.username].totalScore += player.isCaptain ? player.score * 1.5 : player.score;
+        });
+
+        // Create card for each user team
+        Object.values(userTeams).forEach(team => {
+            const card = createTeamCard(team);
+            userTeamCardsContainer.appendChild(card);
+        });
+
+        // Add swipe functionality for mobile
+        setupSwipeInteraction();
+    }
+
+    // Function to create a card for a user team
+    function createTeamCard(team) {
+        const card = document.createElement('div');
+        card.className = 'user-team-card';
+        card.setAttribute('data-squad-id', team.squadId);
+
+        // Create card header with username and total score
+        const header = document.createElement('div');
+        header.className = 'user-team-card-header';
+        header.innerHTML = `
+        <h3 title="${team.username} - ${team.squadName}">${team.username}</h3>
+        <span class="total-score">${Math.round(team.totalScore)}</span>
+    `;
+        card.appendChild(header);
+
+        // Group players by position
+        const playersByPosition = {};
+        team.players.forEach(player => {
+            if (!playersByPosition[player.position]) {
+                playersByPosition[player.position] = [];
+            }
+            playersByPosition[player.position].push(player);
+        });
+
+        // Create a section for each position group
+        const positionOrder = ['GK', 'DEF', 'WB', 'DM', 'AM', 'FW'];
+
+        positionOrder.forEach(position => {
+            if (playersByPosition[position] && playersByPosition[position].length > 0) {
+                const positionGroup = document.createElement('div');
+                positionGroup.className = 'position-group';
+
+                // Add position label
+                const positionLabel = document.createElement('span');
+                positionLabel.className = 'position-label';
+                positionLabel.textContent = position;
+                positionGroup.appendChild(positionLabel);
+
+                // Add each player in this position
+                playersByPosition[position].forEach(player => {
+                    const playerRow = document.createElement('div');
+                    playerRow.className = 'player-row';
+
+                    // Add appropriate classes based on player status
+                    if (player.id === null) {
+                        playerRow.classList.add('null-player');
+                    } else if (player.id === -1) {
+                        playerRow.classList.add('pending-player');
+                    }
+
+                    // Create player photo element with captain marker if needed
+                    const photoContainer = document.createElement('div');
+                    photoContainer.className = player.isCaptain ? 'captain-marker' : '';
+
+                    const photo = document.createElement('img');
+                    photo.className = 'player-photo';
+                    // Use a default image if photo is missing (this helps prevent broken images)
+                    if (player.photo) {
+                        photo.src = `https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png`;
+                    } else {
+                        photo.src = 'https://resources.premierleague.com/premierleague/photos/players/40x40/p0.png';
+                    }
+                    photo.alt = player.webName || 'Player';
+                    photoContainer.appendChild(photo);
+
+                    // Create player name element
+                    const name = document.createElement('div');
+                    name.className = 'player-name';
+                    name.textContent = player.webName || 'Unknown';
+                    name.title = player.webName || 'Unknown';
+
+                    // Create score element
+                    const score = document.createElement('div');
+                    score.className = 'player-score';
+                    score.textContent = player.score || '0';
+
+                    // Add all elements to the player row
+                    playerRow.appendChild(photoContainer);
+                    playerRow.appendChild(name);
+                    playerRow.appendChild(score);
+
+                    positionGroup.appendChild(playerRow);
+                });
+
+                card.appendChild(positionGroup);
+            }
+        });
+
+        return card;
+    }
+
+    // Setup swipe functionality for mobile devices
+    // Setup swipe functionality for mobile devices
+    function setupSwipeInteraction() {
+        const container = document.getElementById('userTeamCardsContainer');
+        if (!container) return; // Guard clause in case container doesn't exist
+
+        let startX, endX;
+        let isScrolling = false;
+        let reachedEnd = false;
+        let reachedStart = false;
+
+        container.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            isScrolling = false;
+
+            // Check if scrolled to the right end
+            reachedEnd = container.scrollLeft + container.clientWidth >= container.scrollWidth - 10;
+
+            // Check if scrolled to the left end
+            reachedStart = container.scrollLeft <= 10;
+        });
+
+        container.addEventListener('touchmove', (e) => {
+            if (!startX) return;
+
+            const currentX = e.touches[0].clientX;
+            const diffX = startX - currentX;
+
+            // If scrolling horizontally, prevent expanding/collapsing cards
+            if (Math.abs(diffX) > 5) {
+                isScrolling = true;
+            }
+
+            // If reached the right end and trying to scroll more right, expand cards
+            if (reachedEnd && diffX > 0 && !isScrolling) {
+                e.preventDefault();
+                document.querySelectorAll('.user-team-card').forEach(card => {
+                    card.classList.add('expanded');
+                });
+            }
+
+            // If reached the left end and trying to scroll more left, collapse cards
+            if (reachedStart && diffX < 0 && !isScrolling) {
+                e.preventDefault();
+                document.querySelectorAll('.user-team-card').forEach(card => {
+                    card.classList.remove('expanded');
+                });
+            }
+        });
+
+        container.addEventListener('touchend', () => {
+            startX = null;
+        });
+
+        // Add click handler to toggle expansion on desktop
+        container.addEventListener('click', (e) => {
+            const card = e.target.closest('.user-team-card');
+            if (card) {
+                // Toggle only the clicked card instead of all cards
+                card.classList.toggle('expanded');
+            }
+        });
+    }
+
+
+
     // Fetch and display rankings on page load
-    fetchAndDisplayRankings();
+    //fetchAndDisplayRankings();
+    fetchAndDisplayRankings().then(() => {
+        fetchAndCreateUserTeamCards();
+    });
 
     // Update rankings when gameweek changes
     gameweekDropdown.addEventListener('change', fetchAndDisplayRankings);
+    gameweekDropdown.addEventListener('change', fetchAndCreateUserTeamCards);
 });
 
