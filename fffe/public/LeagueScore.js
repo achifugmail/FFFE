@@ -304,11 +304,13 @@ document.addEventListener('DOMContentLoaded', async function () {
             userTeams[player.username].totalScore += player.isCaptain ? player.score * 1.5 : player.score;
         });
 
-        // Create card for each user team
-        Object.values(userTeams).forEach(team => {
-            const card = createTeamCard(team);
-            userTeamCardsContainer.appendChild(card);
-        });
+        // Create card for each user team, sorted descending by totalScore
+        Object.values(userTeams)
+            .sort((a, b) => b.totalScore - a.totalScore)
+            .forEach(team => {
+                const card = createTeamCard(team);
+                userTeamCardsContainer.appendChild(card);
+            });
 
         // Add swipe functionality for mobile
         setupSwipeInteraction();

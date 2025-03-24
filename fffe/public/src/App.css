@@ -1414,8 +1414,8 @@ th {
     position: absolute;
     top: -8px;
     left: 5px;
-    background: #bfd9c0;
-    color: white;
+    background: white;
+    color: lightgray;
     padding: 0 5px;
     border-radius: 8px;
     font-size: 10px;
