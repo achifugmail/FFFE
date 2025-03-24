@@ -101,13 +101,15 @@ th {
 }
 
 .captain {
-    border: 2px solid gold;
-    background-color: #fff3cd;
+    border: 2px solid blue;
+    background-color: #cce5ff;
     position: relative;
+    z-index: 1;
+    overflow: visible !important;
 }
 
     .captain::after {
-        content: 'C';
+        content: 'c';
         position: absolute;
         top: -10px;
         right: -10px;
@@ -117,6 +119,9 @@ th {
         padding: 5px;
         font-size: 12px;
         font-weight: bold;
+        z-index: 1020; /* Higher z-index than other elements (1010 & 101) */
+        box-shadow: 0 1px 1px rgba(0,0,0,0.2); /* Optional: add shadow for better visibility */
+        display:none;
     }
 /*
 .captain-button {
@@ -212,6 +217,7 @@ th {
 
 .player-grid.captain .captain-button i {
     color: gold;
+    
 }
 
 
@@ -1141,9 +1147,6 @@ th {
     border: 1px solid #b8daff;
 }
 
-
-
-/* Fix the player-name class to ensure text truncation works properly */
 .player-name {
     overflow: hidden;
     text-overflow: ellipsis;
