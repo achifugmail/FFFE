@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             console.error('Error refreshing player gameweek stats:', error);
         }
     }
-
+-
     async function fetchAndCreateUserTeamCards() {
         const gameweekId = gameweekDropdown.value;
         try {
@@ -168,6 +168,9 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     // Function to process player stats and create user team cards
+    let previousTeamStats = {};
+
+    // Update the createUserTeamCards function to track and highlight total/average changes
     function createUserTeamCards(playerStats, expandedStates = {}) {
         const userTeamCardsContainer = document.getElementById('userTeamCardsContainer');
 
@@ -216,9 +219,21 @@ document.addEventListener('DOMContentLoaded', async function () {
             previousPlayerScores[playerKey] = player.score;
         });
 
-        // Calculate average points for each team
+        // Calculate average points for each team and add previous stats for comparison
         Object.values(userTeams).forEach(team => {
             team.avgPoints = team.totalScore / (team.playerCount - team.playersRemaining);
+
+            // Add previous totals and averages for comparison
+            if (previousTeamStats[team.squadId]) {
+                team.previousTotalScore = previousTeamStats[team.squadId].totalScore;
+                team.previousAvgPoints = previousTeamStats[team.squadId].avgPoints;
+            }
+
+            // Update for next refresh
+            previousTeamStats[team.squadId] = {
+                totalScore: team.totalScore,
+                avgPoints: team.avgPoints
+            };
         });
 
         // Create card for each user team, sorted descending by totalScore
@@ -239,10 +254,10 @@ document.addEventListener('DOMContentLoaded', async function () {
         userTeamCardsContainer.innerHTML = tempContainer.innerHTML;
 
         // Re-setup swipe functionality after DOM updates
-        setupSwipeInteraction();
+        //setupSwipeInteraction();
     }
 
-    // Function to create a card for a user team
+    // Update the createTeamCard function to highlight changes in total score and average
     function createTeamCard(team) {
         const card = document.createElement('div');
         card.className = 'user-team-card';
@@ -251,9 +266,16 @@ document.addEventListener('DOMContentLoaded', async function () {
         // Create card header with username and total score
         const header = document.createElement('div');
         header.className = 'user-team-card-header';
+
+        // Create total score span with highlighting if changed
+        const totalScoreClass = team.previousTotalScore !== undefined ?
+            (team.totalScore > team.previousTotalScore ? "total-score score-increased" :
+                team.totalScore < team.previousTotalScore ? "total-score score-decreased" :
+                    "total-score") : "total-score";
+
         header.innerHTML = `
-        <h3 title="${team.username} - ${team.squadName}">${team.username}</h3>
-        <span class="total-score">${Math.round(team.totalScore)}</span>
+    <h3 title="${team.username} - ${team.squadName}">${team.username}</h3>
+    <span class="${totalScoreClass}">${Math.round(team.totalScore)}</span>
     `;
         card.appendChild(header);
 
@@ -343,16 +365,22 @@ document.addEventListener('DOMContentLoaded', async function () {
         // Add card footer with average points
         const footer = document.createElement('div');
         footer.className = 'user-team-card-footer';
+
+        // Add avg points with highlighting if changed
+        const avgClass = team.previousAvgPoints !== undefined ?
+            (team.avgPoints > team.previousAvgPoints ? "avg-points-value score-increased" :
+                team.avgPoints < team.previousAvgPoints ? "avg-points-value score-decreased" :
+                    "avg-points-value") : "avg-points-value";
+
         footer.innerHTML = `
-        <span class="avg-points-label">~ </span>
-        <span class="avg-points-value">${team.avgPoints ? team.avgPoints.toFixed(2) : 'N/A'}</span>
+    <span class="avg-points-label">~ </span>
+    <span class="${avgClass}">${team.avgPoints ? team.avgPoints.toFixed(2) : 'N/A'}</span>
     `;
         card.appendChild(footer);
 
         return card;
     }
 
-    // Setup swipe functionality for mobile devices
     // Setup swipe functionality for mobile devices
     function setupSwipeInteraction() {
         const container = document.getElementById('userTeamCardsContainer');

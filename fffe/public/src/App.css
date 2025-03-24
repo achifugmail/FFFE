@@ -1531,10 +1531,31 @@ th {
 }
 
 .score-increased {
-    color: #4CAF50;
+    color: #3cb371; /* Medium sea green */
+    animation: flash-green 1.5s;
 }
 
 .score-decreased {
-    color: #f44336;
+    color: #dc3545; /* Red */
+    animation: flash-red 1.5s;
 }
 
+@keyframes flash-green {
+    0%, 100% {
+        color: #3cb371;
+    }
+
+    50% {
+        color: #2a6f4f;
+    }
+}
+
+@keyframes flash-red {
+    0%, 100% {
+        color: #dc3545;
+    }
+
+    50% {
+        color: #a52834;
+    }
+}
