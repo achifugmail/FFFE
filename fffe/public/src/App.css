@@ -1426,7 +1426,7 @@ th {
     display: grid;
     grid-template-columns: 25px 30px;
     align-items: center;
-    padding: 1px 0;
+    
     margin: 2px 0;
 }
 
