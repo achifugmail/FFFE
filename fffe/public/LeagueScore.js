@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             console.error('Error refreshing player gameweek stats:', error);
         }
     }
--
+
     async function fetchAndCreateUserTeamCards() {
         const gameweekId = gameweekDropdown.value;
         try {
@@ -170,6 +170,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Function to process player stats and create user team cards
     let previousTeamStats = {};
 
+    /*
     // Update the createUserTeamCards function to track and highlight total/average changes
     function createUserTeamCards(playerStats, expandedStates = {}) {
         const userTeamCardsContainer = document.getElementById('userTeamCardsContainer');
@@ -253,9 +254,349 @@ document.addEventListener('DOMContentLoaded', async function () {
         // Replace the container's content with the new cards
         userTeamCardsContainer.innerHTML = tempContainer.innerHTML;
 
+        // NEW: Call setupPlayerPhotoInteractions after updating the DOM
+        setupPlayerPhotoInteractions();
+
         // Re-setup swipe functionality after DOM updates
         //setupSwipeInteraction();
     }
+*/
+    function createPlayerCard(player) {
+        // Create container for player card with specified dimensions
+        const playerCardContainer = document.createElement('div');
+        playerCardContainer.className = 'player-detail-card';
+
+        // Create header section with photo, name, score and close button
+        const cardHeader = document.createElement('div');
+        cardHeader.className = 'player-card-header';
+
+        // Add player photo
+        const photo = document.createElement('img');
+        photo.className = 'player-card-photo';
+        if (player.photo) {
+            photo.src = `https://resources.premierleague.com/premierleague/photos/players/110x140/p${player.photo.slice(0, -3)}png`;
+        } else {
+            photo.src = 'https://resources.premierleague.com/premierleague/photos/players/110x140/p0.png';
+        }
+        photo.alt = player.webName || 'Player';
+
+        // Add player name and score
+        const nameScoreContainer = document.createElement('div');
+        nameScoreContainer.className = 'player-card-name-score';
+
+        const name = document.createElement('h3');
+        name.textContent = player.webName || 'Unknown';
+
+        const score = document.createElement('div');
+        score.className = 'player-card-score';
+        score.textContent = player.score || '0';
+
+        nameScoreContainer.appendChild(name);
+        nameScoreContainer.appendChild(score);
+
+        // Add close button
+        const closeButton = document.createElement('button');
+        closeButton.className = 'player-card-close';
+        closeButton.innerHTML = '&times;';
+        closeButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            playerCardContainer.remove();
+            document.getElementById('player-card-overlay').remove();
+        });
+
+        cardHeader.appendChild(photo);
+        cardHeader.appendChild(nameScoreContainer);
+        cardHeader.appendChild(closeButton);
+
+        // Create stats container
+        const statsContainer = document.createElement('div');
+        statsContainer.className = 'player-card-stats';
+
+        // Add position with icon
+        const positionItem = document.createElement('div');
+        positionItem.className = 'player-stat-item';
+        positionItem.innerHTML = `<i class="fa fa-user-tag"></i> ${player.position || 'N/A'}`;
+        statsContainer.appendChild(positionItem);
+
+        // Add goalkeeper-specific stats
+        if (player.position === 'GK') {
+            // Goals conceded (GK only)
+            const goalsConceeded = document.createElement('div');
+            goalsConceeded.className = 'player-stat-item';
+            goalsConceeded.innerHTML = `<i class="fa fa-futbol"></i> ${player.goalsConceded || '0'} conceded`;
+            statsContainer.appendChild(goalsConceeded);
+
+            // Saves (more important for GK)
+            const saves = document.createElement('div');
+            saves.className = 'player-stat-item';
+            saves.innerHTML = `<i class="fa fa-hand-paper"></i> ${player.saves || '0'} saves`;
+            statsContainer.appendChild(saves);
+        }
+
+        // Add common stats with icons
+        const statItems = [
+            { icon: 'fa fa-futbol', value: player.goalsScored || '0', label: 'goals' },
+            { icon: 'fa fa-hands-helping', value: player.assists || '0', label: 'assists' },
+            { icon: 'fa fa-shield-alt', value: player.cleanSheets || '0', label: 'clean sheets' },
+            { icon: 'fa fa-clock', value: player.minutesPlayed || '0', label: 'minutes' },
+            { icon: 'fa fa-square yellow-card', value: player.yellowCards || '0', label: 'yellow cards' },
+            { icon: 'fa fa-square red-card', value: player.redCards || '0', label: 'red cards' },
+            { icon: 'fa fa-times-circle', value: player.ownGoals || '0', label: 'own goals' }
+        ];
+
+        statItems.forEach(item => {
+            const statItem = document.createElement('div');
+            statItem.className = 'player-stat-item';
+            statItem.innerHTML = `<i class="${item.icon}"></i> ${item.value}`;
+            statsContainer.appendChild(statItem);
+        });
+
+        // Assemble the card
+        playerCardContainer.appendChild(cardHeader);
+        playerCardContainer.appendChild(statsContainer);
+
+        return playerCardContainer;
+    }
+
+    // Handle player photo zoom and card display
+    // Modify the createUserTeamCards function to call setupPlayerPhotoInteractions
+    function createUserTeamCards(playerStats, expandedStates = {}) {
+    const userTeamCardsContainer = document.getElementById('userTeamCardsContainer');
+
+    // Create a temporary container to build new cards
+    const tempContainer = document.createElement('div');
+
+    // Group players by username
+    const userTeams = {};
+
+    playerStats.forEach(player => {
+        // Create a unique key for each player to track score changes
+        const playerKey = `${player.username}-${player.webName}-${player.position}`;
+
+        // Store current score for comparison with next refresh
+        if (!previousPlayerScores[playerKey]) {
+            previousPlayerScores[playerKey] = player.score;
+        }
+
+        if (!userTeams[player.username]) {
+            userTeams[player.username] = {
+                username: player.username,
+                squadName: player.squadName,
+                squadId: player.squadId,
+                totalScore: 0,
+                playerCount: 0,
+                playersRemaining: 0,
+                players: []
+            };
+        }
+
+        // Add player to the user's team
+        userTeams[player.username].players.push({
+            ...player,
+            previousScore: previousPlayerScores[playerKey]
+        });
+
+        // Count players and identify remaining players (id === -1)
+        userTeams[player.username].playerCount += 1;
+        if (player.id === -1) {
+            userTeams[player.username].playersRemaining += 1;
+        }
+
+        userTeams[player.username].totalScore += player.score;
+
+        // Update previous score for next comparison
+        previousPlayerScores[playerKey] = player.score;
+    });
+
+    // Calculate average points for each team and add previous stats for comparison
+    Object.values(userTeams).forEach(team => {
+        team.avgPoints = team.totalScore / (team.playerCount - team.playersRemaining);
+
+        // Add previous totals and averages for comparison
+        if (previousTeamStats[team.squadId]) {
+            team.previousTotalScore = previousTeamStats[team.squadId].totalScore;
+            team.previousAvgPoints = previousTeamStats[team.squadId].avgPoints;
+        }
+
+        // Update for next refresh
+        previousTeamStats[team.squadId] = {
+            totalScore: team.totalScore,
+            avgPoints: team.avgPoints
+        };
+    });
+
+    // Create card for each user team, sorted descending by totalScore
+    Object.values(userTeams)
+        .sort((a, b) => b.totalScore - a.totalScore)
+        .forEach(team => {
+            const card = createTeamCard(team);
+
+            // Restore expanded state if it exists
+            if (expandedStates[team.squadId]) {
+                card.classList.add('expanded');
+            }
+
+            tempContainer.appendChild(card);
+        });
+
+    // Replace the container's content with the new cards
+    userTeamCardsContainer.innerHTML = tempContainer.innerHTML;
+
+    // Setup the player photo interactions
+    setupPlayerPhotoInteractions();
+    
+    // Setup the header click interactions
+    setupHeaderClickInteractions();
+}
+
+    function setupHeaderClickInteractions() {
+        console.log('Setting up header click interactions...');
+
+        // Get all team card headers
+        const cardHeaders = document.querySelectorAll('.user-team-card-header');
+        console.log(`Found ${cardHeaders.length} team card headers`);
+
+        // Remove any existing event listeners to prevent duplication
+        cardHeaders.forEach(header => {
+            // Create a new copy of the header element to remove old event listeners
+            const newHeader = header.cloneNode(true);
+            header.parentNode.replaceChild(newHeader, header);
+        });
+
+        // Add click/tap event listeners to all team card headers
+        document.querySelectorAll('.user-team-card-header').forEach(header => {
+            header.style.cursor = 'pointer'; // Make it visually clear that headers are clickable
+
+            header.addEventListener('click', (e) => {
+                console.log('Header clicked');
+                e.stopPropagation(); // Prevent event from bubbling to the card
+
+                // Find the parent card and toggle its expanded state
+                const card = header.closest('.user-team-card');
+                if (card) {
+                    card.classList.toggle('expanded');
+                    console.log(`Card expanded state toggled: ${card.classList.contains('expanded')}`);
+                }
+            });
+        });
+    }
+
+    // Update the setupPlayerPhotoInteractions function for debugging
+    function setupPlayerPhotoInteractions() {
+        console.log('Setting up player photo interactions...');
+
+        // Get all player photos
+        const playerPhotos = document.querySelectorAll('.player-photo');
+        console.log(`Found ${playerPhotos.length} player photos`);
+
+        // Remove any existing event listeners to prevent duplication
+        playerPhotos.forEach(photo => {
+            // Create a new copy of the photo element to remove old event listeners
+            const newPhoto = photo.cloneNode(true);
+            photo.parentNode.replaceChild(newPhoto, photo);
+        });
+
+        // Add click/tap event listeners to all player photos
+        document.querySelectorAll('.player-photo').forEach(photo => {
+            let isZoomed = false;
+
+            photo.addEventListener('click', (e) => {
+                console.log('Photo clicked');
+                e.stopPropagation();
+
+                if (!isZoomed) {
+                    console.log('Zooming photo');
+                    // First click: zoom the photo by 20%
+                    photo.style.transform = 'scale(1.2)';
+                    photo.style.zIndex = '100';
+                    isZoomed = true;
+
+                    // Add click outside listener to revert zoom
+                    const handleOutsideClick = (event) => {
+                        if (event.target !== photo) {
+                            console.log('Outside click detected, reverting zoom');
+                            photo.style.transform = '';
+                            photo.style.zIndex = '';
+                            isZoomed = false;
+                            document.removeEventListener('click', handleOutsideClick);
+                        }
+                    };
+
+                    // Delay adding the outside click handler to prevent immediate triggering
+                    setTimeout(() => {
+                        document.addEventListener('click', handleOutsideClick);
+                    }, 10);
+
+                } else {
+                    console.log('Creating player card');
+                    // Second click: show player card
+                    const playerRow = photo.closest('.player-row');
+
+                    // Get the full player data from the data attribute
+                    let player;
+                    try {
+                        player = JSON.parse(playerRow.getAttribute('data-player'));
+                        console.log('Retrieved player data:', player);
+                    } catch (error) {
+                        console.error('Error parsing player data:', error);
+                        // Fallback to simplified player object if JSON parsing fails
+                        const playerName = playerRow.querySelector('.player-name').textContent;
+                        const playerScore = playerRow.querySelector('.player-score').textContent;
+                        const position = playerRow.closest('.position-group').querySelector('.position-label').textContent;
+
+                        player = {
+                            webName: playerName,
+                            score: playerScore,
+                            position: position,
+                            photo: photo.src.split('p')[1]?.split('.')[0] + '.jpg',
+                            goalsScored: 0,
+                            assists: 0,
+                            cleanSheets: 0,
+                            minutesPlayed: 0,
+                            yellowCards: 0,
+                            redCards: 0,
+                            ownGoals: 0,
+                            goalsConceded: 0,
+                            saves: 0
+                        };
+                    }
+
+                    // Create overlay to darken the background
+                    const overlay = document.createElement('div');
+                    overlay.id = 'player-card-overlay';
+                    overlay.className = 'player-card-overlay';
+                    overlay.addEventListener('click', () => {
+                        console.log('Overlay clicked, removing card');
+                        overlay.remove();
+                        document.querySelector('.player-detail-card')?.remove();
+                    });
+
+                    // Create and position the player card
+                    const playerCard = createPlayerCard(player);
+
+                    // Add the overlay and card to the document
+                    document.body.appendChild(overlay);
+                    document.body.appendChild(playerCard);
+
+                    // Position the card in the center of the screen
+                    playerCard.style.position = 'fixed';
+                    playerCard.style.top = '50%';
+                    playerCard.style.left = '50%';
+                    playerCard.style.transform = 'translate(-50%, -50%)';
+                    playerCard.style.zIndex = '1001';
+
+                    // Reset photo zoom
+                    photo.style.transform = '';
+                    photo.style.zIndex = '';
+                    isZoomed = false;
+                }
+            });
+
+            // Make it visually clear that photos are clickable
+            photo.style.cursor = 'pointer';
+        });
+    }
+
 
     // Update the createTeamCard function to highlight changes in total score and average
     function createTeamCard(team) {
@@ -306,6 +647,9 @@ document.addEventListener('DOMContentLoaded', async function () {
                 playersByPosition[position].forEach(player => {
                     const playerRow = document.createElement('div');
                     playerRow.className = 'player-row';
+
+                    // Store complete player data as a JSON string in a data attribute
+                    playerRow.setAttribute('data-player', JSON.stringify(player));
 
                     // Add appropriate classes based on player status
                     if (player.id === null) {
@@ -381,6 +725,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         return card;
     }
 
+    // Setup swipe functionality for mobile devices
     // Setup swipe functionality for mobile devices
     function setupSwipeInteraction() {
         const container = document.getElementById('userTeamCardsContainer');
