@@ -1372,6 +1372,9 @@ th {
     .user-team-card.expanded {
         flex: 0 0 150px;
     }
+    .user-team-card.collapsed {
+    flex: 0 0 70px; /* Make cards narrower when collapsed */
+}
 
 .user-team-card-header {
     display: flex;
@@ -1621,13 +1624,13 @@ th {
 
 .player-card-close {
     position: absolute;
-    top: 8px;
-    right: 8px;
+    top: 0px;
+    right: 0px;
     background: none;
     border: none;
     font-size: 1.5rem;
     cursor: pointer;
-    color: #666;
+    color: #ddd;
 }
 
 /* Stats container */
@@ -1796,3 +1799,31 @@ th {
     content: "\f256";
     font-family: "Font Awesome 6 Free";
 }
+/* Card container wrapper for positioning the toggle button */
+.card-container-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+/* Cards toggle button */
+.cards-toggle {
+    position: fixed;
+    right: 10px;
+    bottom: 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 101;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+    .cards-toggle i {
+        font-size: 18px;
+    }

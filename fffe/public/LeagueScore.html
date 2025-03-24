@@ -20,24 +20,27 @@
         </div>
         <div>
             <select id="gameweekDropdown"></select>
-
-
         </div>
     </div>
-    <div id="userTeamCardsContainer" class="user-team-cards-container">
-        <!-- User team cards will be inserted here by JavaScript -->
+    <div class="card-container-wrapper">
+        <div id="userTeamCardsContainer" class="user-team-cards-container">
+            <!-- User team cards will be inserted here by JavaScript -->
+        </div>
+
+        <button class="cards-toggle" id="cardsToggle">
+            <i class="fas fa-expand"></i>
+        </button>
     </div>
 
-
-        <script type="module" src="LeagueScore.js"></script>
-        <script type="module">
-            import { initializeNavigation } from './nav.js';
-            fetch('nav.html')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('nav-placeholder').innerHTML = data;
-                    initializeNavigation();
-                });
-        </script>
+    <script type="module" src="LeagueScore.js"></script>
+    <script type="module">
+        import { initializeNavigation } from './nav.js';
+        fetch('nav.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('nav-placeholder').innerHTML = data;
+                initializeNavigation();
+            });
+    </script>
 </body>
 </html>

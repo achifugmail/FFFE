@@ -369,7 +369,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         // Add own goals for all positions with red football icon
         statItems.push({ iconClass: 'fa fa-futbol', value: player.ownGoals || '0', label: '', color: '#d32f2f' });
-
+        -
         // Create each stat item - they'll naturally flow into the grid layout
         statItems.forEach(item => {
             const statItem = document.createElement('div');
@@ -412,7 +412,15 @@ document.addEventListener('DOMContentLoaded', async function () {
     const tempContainer = document.createElement('div');
 
     // Group players by username
-    const userTeams = {};
+        const userTeams = {};
+
+        cardsExpanded = true;
+
+        const toggleIcon = document.querySelector('#cardsToggle i');
+        if (toggleIcon) {
+            toggleIcon.className = 'fas fa-compress';
+        }
+
 
     playerStats.forEach(player => {
         // Create a unique key for each player to track score changes
@@ -471,18 +479,21 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
 
     // Create card for each user team, sorted descending by totalScore
-    Object.values(userTeams)
-        .sort((a, b) => b.totalScore - a.totalScore)
-        .forEach(team => {
-            const card = createTeamCard(team);
+        Object.values(userTeams)
+            .sort((a, b) => b.totalScore - a.totalScore)
+            .forEach(team => {
+                const card = createTeamCard(team);
 
-            // Restore expanded state if it exists
-            if (expandedStates[team.squadId]) {
+                // Always add expanded class by default
                 card.classList.add('expanded');
-            }
 
-            tempContainer.appendChild(card);
-        });
+                // If we've previously saved a different state, use that instead
+                if (expandedStates[team.squadId] === false) {
+                    card.classList.remove('expanded');
+                }
+
+                tempContainer.appendChild(card);
+            });
 
     // Replace the container's content with the new cards
     userTeamCardsContainer.innerHTML = tempContainer.innerHTML;
@@ -849,6 +860,37 @@ document.addEventListener('DOMContentLoaded', async function () {
     window.addEventListener('beforeunload', () => {
         if (refreshInterval) {
             clearInterval(refreshInterval);
+        }
+    });
+
+    const cardsToggle = document.getElementById('cardsToggle');
+    let cardsExpanded = true; // Start with cards expanded
+
+    // Set the initial button icon
+    if (cardsToggle.querySelector('i')) {
+        cardsToggle.querySelector('i').className = 'fas fa-compress';
+    }
+
+    cardsToggle.addEventListener('mouseenter', function () {
+        this.style.opacity = '1';
+    });
+
+    cardsToggle.addEventListener('mouseleave', function () {
+        this.style.opacity = '0.5';
+    });
+
+    cardsToggle.addEventListener('click', function () {
+        const cards = document.querySelectorAll('.user-team-card');
+        cardsExpanded = !cardsExpanded;
+
+        // Update icon based on state
+        const icon = this.querySelector('i');
+        if (cardsExpanded) {
+            icon.className = 'fas fa-compress'; // Compress icon when expanded
+            cards.forEach(card => card.classList.add('expanded'));
+        } else {
+            icon.className = 'fas fa-expand'; // Expand icon when collapsed
+            cards.forEach(card => card.classList.remove('expanded'));
         }
     });
 });
