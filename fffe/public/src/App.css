@@ -28,7 +28,7 @@ a {
     margin: 0 auto;
     padding: 1px;
     background-color: #fff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);-
 }
 
 /* Buttons */
@@ -1658,4 +1658,141 @@ th {
 
 .red-card {
     color: #d32f2f !important;
+}
+
+.stat-icon {
+    margin-right: 8px;
+    display: inline-block;
+    width: 20px;
+    text-align: center;
+}
+
+.stat-position:before {
+    content: "\f007";
+    font-family: "Font Awesome 5 Free";
+}
+
+.stat-goals:before {
+    content: "\f1e3";
+    font-family: "Font Awesome 5 Free";
+}
+
+.stat-assists:before {
+    content: "\f4c4";
+    font-family: "Font Awesome 5 Free";
+}
+
+.stat-clean-sheets:before {
+    content: "\f49e";
+    font-family: "Font Awesome 5 Free";
+}
+
+.stat-minutes:before {
+    content: "\f017";
+    font-family: "Font Awesome 5 Free";
+}
+
+.stat-yellow-cards:before {
+    content: "\f0c8";
+    font-family: "Font Awesome 5 Free";
+    color: #f9a825;
+}
+
+.stat-red-cards:before {
+    content: "\f0c8";
+    font-family: "Font Awesome 5 Free";
+    color: #d32f2f;
+}
+
+.stat-own-goals:before {
+    content: "\f057";
+    font-family: "Font Awesome 5 Free";
+}
+
+.stat-goals-conceded:before {
+    content: "\f1e3";
+    font-family: "Font Awesome 5 Free";
+    color: #d32f2f;
+}
+
+.stat-saves:before {
+    content: "\f256";
+    font-family: "Font Awesome 5 Free";
+}
+
+.player-card-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 16px;
+    padding: 16px;
+}
+
+.player-stat-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+    .player-stat-item.full-width {
+        grid-column: 1 / -1; /* Make certain stats span both columns */
+    }
+
+.stat-icon {
+    margin-right: 8px;
+    display: inline-block;
+    width: 20px;
+    text-align: center;
+}
+
+.stat-position:before {
+    content: "\f007";
+    font-family: "Font Awesome 6 Free";
+}
+
+.stat-goals:before {
+    content: "\f1e3";
+    font-family: "Font Awesome 6 Free";
+}
+
+.stat-assists:before {
+    content: "\f4c4";
+    font-family: "Font Awesome 6 Free";
+}
+
+.stat-clean-sheets:before {
+    content: "\f3ed"; /* fa-shield-alt */
+    font-family: "Font Awesome 6 Free";
+}
+
+.stat-minutes:before {
+    content: "\f017";
+    font-family: "Font Awesome 6 Free";
+}
+
+.stat-yellow-cards:before {
+    content: "\f0c8";
+    font-family: "Font Awesome 6 Free";
+    color: #f9a825;
+}
+
+.stat-red-cards:before {
+    content: "\f0c8";
+    font-family: "Font Awesome 6 Free";
+    color: #d32f2f;
+}
+
+.stat-own-goals:before {
+    content: "\f057";
+    font-family: "Font Awesome 6 Free";
+}
+
+.stat-goals-conceded:before {
+    content: "\f1e3";
+    font-family: "Font Awesome 6 Free";
+    color: #d32f2f;
+}
+
+.stat-saves:before {
+    content: "\f256";
+    font-family: "Font Awesome 6 Free";
 }

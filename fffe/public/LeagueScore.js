@@ -280,18 +280,24 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
         photo.alt = player.webName || 'Player';
 
-        // Add player name and score
+        // Add player name, position, and score
         const nameScoreContainer = document.createElement('div');
         nameScoreContainer.className = 'player-card-name-score';
 
         const name = document.createElement('h3');
         name.textContent = player.webName || 'Unknown';
 
+        // Add position with CSS class
+        const positionItem = document.createElement('div');
+        positionItem.className = 'player-card-position';
+        positionItem.textContent = player.position || 'N/A';
+
         const score = document.createElement('div');
         score.className = 'player-card-score';
         score.textContent = player.score || '0';
 
         nameScoreContainer.appendChild(name);
+        nameScoreContainer.appendChild(positionItem);
         nameScoreContainer.appendChild(score);
 
         // Add close button
@@ -304,50 +310,86 @@ document.addEventListener('DOMContentLoaded', async function () {
             document.getElementById('player-card-overlay').remove();
         });
 
+        // Append elements to card header in the desired order
         cardHeader.appendChild(photo);
         cardHeader.appendChild(nameScoreContainer);
         cardHeader.appendChild(closeButton);
 
-        // Create stats container
+        // Create stats container with grid layout for 2 columns
         const statsContainer = document.createElement('div');
         statsContainer.className = 'player-card-stats';
-
-        // Add position with icon
-        const positionItem = document.createElement('div');
-        positionItem.className = 'player-stat-item';
-        positionItem.innerHTML = `<i class="fa fa-user-tag"></i> ${player.position || 'N/A'}`;
-        statsContainer.appendChild(positionItem);
 
         // Add goalkeeper-specific stats
         if (player.position === 'GK') {
             // Goals conceded (GK only)
-            const goalsConceeded = document.createElement('div');
-            goalsConceeded.className = 'player-stat-item';
-            goalsConceeded.innerHTML = `<i class="fa fa-futbol"></i> ${player.goalsConceded || '0'} conceded`;
-            statsContainer.appendChild(goalsConceeded);
+            const goalsConceededItem = document.createElement('div');
+            goalsConceededItem.className = 'player-stat-item';
 
-            // Saves (more important for GK)
-            const saves = document.createElement('div');
-            saves.className = 'player-stat-item';
-            saves.innerHTML = `<i class="fa fa-hand-paper"></i> ${player.saves || '0'} saves`;
-            statsContainer.appendChild(saves);
+            const goalsConceededIcon = document.createElement('i');
+            goalsConceededIcon.className = 'fa fa-futbol stat-icon';
+            goalsConceededIcon.style.color = '#f9a825'; // Yellow color for goals conceded
+
+            goalsConceededItem.appendChild(goalsConceededIcon);
+            goalsConceededItem.appendChild(document.createTextNode(` ${player.goalsConceded || '0'}`));
+            statsContainer.appendChild(goalsConceededItem);
+
+            // Saves (GK only)
+            const savesItem = document.createElement('div');
+            savesItem.className = 'player-stat-item';
+
+            const savesIcon = document.createElement('i');
+            savesIcon.className = 'fa fa-hand-paper stat-icon';
+
+            savesItem.appendChild(savesIcon);
+            savesItem.appendChild(document.createTextNode(` ${player.saves || '0'}`));
+            statsContainer.appendChild(savesItem);
         }
 
-        // Add common stats with icons
-        const statItems = [
-            { icon: 'fa fa-futbol', value: player.goalsScored || '0', label: 'goals' },
-            { icon: 'fa fa-hands-helping', value: player.assists || '0', label: 'assists' },
-            { icon: 'fa fa-shield-alt', value: player.cleanSheets || '0', label: 'clean sheets' },
-            { icon: 'fa fa-clock', value: player.minutesPlayed || '0', label: 'minutes' },
-            { icon: 'fa fa-square yellow-card', value: player.yellowCards || '0', label: 'yellow cards' },
-            { icon: 'fa fa-square red-card', value: player.redCards || '0', label: 'red cards' },
-            { icon: 'fa fa-times-circle', value: player.ownGoals || '0', label: 'own goals' }
-        ];
+        // Create an array to hold only the relevant stat items for this player position
+        const statItems = [];
 
+        // Add goals scored for all positions
+        statItems.push({ iconClass: 'fa fa-futbol', value: player.goalsScored || '0', label: '' });
+
+        // Add assists for all positions
+        statItems.push({ iconClass: 'fa fa-hands-helping', value: player.assists || '0', label: '' });
+
+        // Add clean sheets only for defensive positions (GK, DEF, WB, DM)
+        const defensivePositions = ['GK', 'DEF', 'WB', 'DM'];
+        if (defensivePositions.includes(player.position)) {
+            statItems.push({ iconClass: 'fa fa-shield-alt', value: player.cleanSheets || '0', label: '' });
+        }
+
+        // Add minutes played for all positions
+        statItems.push({ iconClass: 'fa fa-clock', value: player.minutesPlayed || '0', label: '' });
+
+        // Add cards for all positions
+        statItems.push({ iconClass: 'fa fa-square yellow-card', value: player.yellowCards || '0', label: '' });
+        statItems.push({ iconClass: 'fa fa-square red-card', value: player.redCards || '0', label: '' });
+
+        // Add own goals for all positions with red football icon
+        statItems.push({ iconClass: 'fa fa-futbol', value: player.ownGoals || '0', label: '', color: '#d32f2f' });
+
+        // Create each stat item - they'll naturally flow into the grid layout
         statItems.forEach(item => {
             const statItem = document.createElement('div');
             statItem.className = 'player-stat-item';
-            statItem.innerHTML = `<i class="${item.icon}"></i> ${item.value}`;
+
+            const icon = document.createElement('i');
+            icon.className = `${item.iconClass} stat-icon`;
+
+            // Add colors for specific icons
+            if (item.iconClass.includes('yellow-card')) {
+                icon.style.color = '#f9a825'; // Yellow color for yellow cards
+            } else if (item.iconClass.includes('red-card')) {
+                icon.style.color = '#d32f2f'; // Red color for red cards
+            } else if (item.color) {
+                icon.style.color = item.color; // Custom color if specified
+            }
+
+            statItem.appendChild(icon);
+            statItem.appendChild(document.createTextNode(` ${item.value} ${item.label}`));
+
             statsContainer.appendChild(statItem);
         });
 
@@ -357,6 +399,9 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         return playerCardContainer;
     }
+
+
+
 
     // Handle player photo zoom and card display
     // Modify the createUserTeamCards function to call setupPlayerPhotoInteractions
