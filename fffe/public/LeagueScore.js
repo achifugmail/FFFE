@@ -1,6 +1,10 @@
 import config from './config.js';
 import { addAuthHeader } from './config.js';
 
+let previousPlayerScores = {};
+let refreshInterval;
+const REFRESH_INTERVAL = 60000; // 60 seconds
+
 document.addEventListener('DOMContentLoaded', async function () {
     // Fetch leagues for dropdown
     const currentUserId = localStorage.getItem('userId');
@@ -25,22 +29,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         option.text = league.name || `League ${league.id}`;
         leagueDropdown.appendChild(option);
     });
-
-    // Fetch and display league details based on selected league
-    async function fetchAndDisplayLeagueDetails(leagueId) {
-        try {
-            const response = await fetch(`${config.backendUrl}/Leagues/${leagueId}`, addAuthHeader());
-
-            if (!response.ok) {
-                console.error('Failed to fetch league details:', response.status, response.statusText);
-                return;
-            }
-            const league = await response.json();
-            document.getElementById('leagueName').innerText = league.name;
-        } catch (error) {
-            console.error('Error fetching league details:', error);
-        }
-    }
 
     // Fetch draft periods for dropdown
     let draftPeriods = [];
@@ -111,155 +99,51 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Update gameweeks when draft period changes
     draftPeriodDropdown.addEventListener('change', async function () {
         await fetchAndPopulateGameweeks(this.value);
-        fetchAndDisplaySquads();
+        //fetchAndDisplaySquads();
     });
 
-    gameweekDropdown.addEventListener('change', fetchAndDisplaySquads);
+    //gameweekDropdown.addEventListener('change', fetchAndDisplaySquads);
 
-    // Function to fetch and display existing squads
-    async function fetchAndDisplaySquads() {
-        const leagueId = leagueDropdown.value;
-        const gameweekId = gameweekDropdown.value;
-        try {
-            const respSquads = await fetch(`${config.backendUrl}/UserSquads/ByLeague/${leagueId}`, addAuthHeader());
-
-            if (!respSquads.ok) {
-                console.error('Failed to fetch squads:', respSquads.status, respSquads.statusText);
-                return;
-            }
-            const squads = await respSquads.json();
-            const squadTableRow = document.getElementById('squadTableRow');
-            squadTableRow.innerHTML = ''; // Clear existing row
-
-            const selectedDraftPeriodId = draftPeriodDropdown.value;
-            const selectedGameweekId = gameweekDropdown.value;
-            const score = 'final';
-            const filteredSquads = squads.filter(squad => squad.draftPeriodId == selectedDraftPeriodId);
-
-            // Create iframe for each squad
-            filteredSquads.forEach(squad => {
-                const iframeContainer = document.createElement('div');
-                iframeContainer.className = 'iframe-container';
-                iframeContainer.setAttribute('data-squad-id', squad.id);
-                const iframe = document.createElement('iframe');
-                iframe.src = `TeamScore.html?squadId=${squad.id}&draftPeriodId=${selectedDraftPeriodId}&gameweekId=${selectedGameweekId}&score=${score}`;
-                iframeContainer.appendChild(iframe);
-                squadTableRow.appendChild(iframeContainer);
-            });
-        } catch (error) {
-            console.error('Error fetching squads:', error);
-        }
-    }
-
+    
     // Fetch and display league details and squads on page load
     if (leagueDropdown.value) {
         //await fetchAndDisplayLeagueDetails(leagueDropdown.value);
-        fetchAndDisplaySquads();
+        //fetchAndDisplaySquads();
     }
 
     // Update league details and squads when league changes
     leagueDropdown.addEventListener('change', async function () {
         //await fetchAndDisplayLeagueDetails(this.value);
-        fetchAndDisplaySquads();
+        //fetchAndDisplaySquads();
+        //fetchAndDisplayRankings().then(() => {
+            fetchAndCreateUserTeamCards();
+        //});
     });
 
-    // Fetch player gameweek stats and create rankings table
-    async function fetchAndDisplayRankings() {
+    async function refreshUserTeamCards() {
+        // Store the expanded state of each card
+        const expandedStates = {};
+        document.querySelectorAll('.user-team-card').forEach(card => {
+            const squadId = card.getAttribute('data-squad-id');
+            expandedStates[squadId] = card.classList.contains('expanded');
+        });
+
         const gameweekId = gameweekDropdown.value;
         try {
             const response = await fetch(`${config.backendUrl}/UserTeamPlayers/playerGameweekStatsByGameweek?gameweekId=${gameweekId}`, addAuthHeader());
 
             if (!response.ok) {
-                console.error('Failed to fetch player gameweek stats:', response.status, response.statusText);
+                console.error('Failed to fetch player gameweek stats on refresh:', response.status, response.statusText);
                 return;
             }
+
             const playerStats = await response.json();
-            const rankings = processRankings(playerStats);
-            displayRankings(rankings);
+
+            // Create new cards
+            createUserTeamCards(playerStats, expandedStates);
         } catch (error) {
-            console.error('Error fetching player gameweek stats:', error);
+            console.error('Error refreshing player gameweek stats:', error);
         }
-    }
-
-    // Process player stats to create rankings
-    function processRankings(playerStats) {
-        const userStats = {};
-
-        playerStats.forEach(player => {
-            if (!userStats[player.username]) {
-                userStats[player.username] = {
-                    username: player.username,
-                    totalPoints: 0,
-                    playerCount: 0,
-                    playersRemaining: 0,
-                    squadId: player.squadId
-                };
-            }
-
-            userStats[player.username].totalPoints += player.score;
-            userStats[player.username].playerCount += 1;
-
-            if (player.id === -1) {
-                userStats[player.username].playersRemaining += 1;
-            }
-        });
-
-        Object.values(userStats).forEach(user => {
-            user.avgPoints = user.totalPoints / (user.playerCount - user.playersRemaining);
-        });
-
-        return Object.values(userStats);
-    }
-
-    // Display rankings table
-    function displayRankings(rankings) {
-        const rankingsTableContainer = document.getElementById('rankingsTableContainer');
-        rankingsTableContainer.innerHTML = ''; // Clear existing table
-
-        const table = document.createElement('table');
-        table.className = 'rankings-table';
-        const thead = document.createElement('thead');
-        const tbody = document.createElement('tbody');
-
-        thead.innerHTML = `
-            <tr>
-                <th>Username</th>
-                <th>Points</th>
-                <th>Avg Points</th>
-                <th>Remaining</th>
-                <th>Details</th>
-            </tr>
-        `;
-
-        rankings.forEach(user => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${user.username}</td>
-                <td>${user.totalPoints}</td>
-                <td>${user.avgPoints.toFixed(2)}</td>
-                <td>${user.playersRemaining}</td>
-                <td><input type="checkbox" class="details-checkbox" data-squad-id="${user.squadId}" checked></td>
-            `;
-            tbody.appendChild(row);
-        });
-
-        table.appendChild(thead);
-        table.appendChild(tbody);
-        rankingsTableContainer.appendChild(table);
-
-        // Add event listeners to checkboxes
-        const checkboxes = document.querySelectorAll('.details-checkbox');
-        checkboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', function () {
-                const squadId = this.getAttribute('data-squad-id');
-                const iframeContainer = document.querySelector(`.iframe-container[data-squad-id="${squadId}"]`);
-                if (this.checked) {
-                    iframeContainer.style.display = 'block';
-                } else {
-                    iframeContainer.style.display = 'none';
-                }
-            });
-        });
     }
 
     async function fetchAndCreateUserTeamCards() {
@@ -273,34 +157,68 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
             const playerStats = await response.json();
             createUserTeamCards(playerStats);
+
+            // Setup the interval for periodic refresh if not already set up
+            if (!refreshInterval) {
+                refreshInterval = setInterval(refreshUserTeamCards, REFRESH_INTERVAL);
+            }
         } catch (error) {
             console.error('Error fetching player gameweek stats:', error);
         }
     }
 
     // Function to process player stats and create user team cards
-    function createUserTeamCards(playerStats) {
+    function createUserTeamCards(playerStats, expandedStates = {}) {
         const userTeamCardsContainer = document.getElementById('userTeamCardsContainer');
-        userTeamCardsContainer.innerHTML = ''; // Clear existing cards
+
+        // Create a temporary container to build new cards
+        const tempContainer = document.createElement('div');
 
         // Group players by username
         const userTeams = {};
 
         playerStats.forEach(player => {
+            // Create a unique key for each player to track score changes
+            const playerKey = `${player.username}-${player.webName}-${player.position}`;
+
+            // Store current score for comparison with next refresh
+            if (!previousPlayerScores[playerKey]) {
+                previousPlayerScores[playerKey] = player.score;
+            }
+
             if (!userTeams[player.username]) {
                 userTeams[player.username] = {
                     username: player.username,
                     squadName: player.squadName,
                     squadId: player.squadId,
                     totalScore: 0,
+                    playerCount: 0,
+                    playersRemaining: 0,
                     players: []
                 };
             }
 
             // Add player to the user's team
-            userTeams[player.username].players.push(player);
-                        
+            userTeams[player.username].players.push({
+                ...player,
+                previousScore: previousPlayerScores[playerKey]
+            });
+
+            // Count players and identify remaining players (id === -1)
+            userTeams[player.username].playerCount += 1;
+            if (player.id === -1) {
+                userTeams[player.username].playersRemaining += 1;
+            }
+
             userTeams[player.username].totalScore += player.score;
+
+            // Update previous score for next comparison
+            previousPlayerScores[playerKey] = player.score;
+        });
+
+        // Calculate average points for each team
+        Object.values(userTeams).forEach(team => {
+            team.avgPoints = team.totalScore / (team.playerCount - team.playersRemaining);
         });
 
         // Create card for each user team, sorted descending by totalScore
@@ -308,10 +226,19 @@ document.addEventListener('DOMContentLoaded', async function () {
             .sort((a, b) => b.totalScore - a.totalScore)
             .forEach(team => {
                 const card = createTeamCard(team);
-                userTeamCardsContainer.appendChild(card);
+
+                // Restore expanded state if it exists
+                if (expandedStates[team.squadId]) {
+                    card.classList.add('expanded');
+                }
+
+                tempContainer.appendChild(card);
             });
 
-        // Add swipe functionality for mobile
+        // Replace the container's content with the new cards
+        userTeamCardsContainer.innerHTML = tempContainer.innerHTML;
+
+        // Re-setup swipe functionality after DOM updates
         setupSwipeInteraction();
     }
 
@@ -386,10 +313,20 @@ document.addEventListener('DOMContentLoaded', async function () {
                     name.textContent = player.webName || 'Unknown';
                     name.title = player.webName || 'Unknown';
 
-                    // Create score element
+                    // Create score element with highlighting if changed
                     const score = document.createElement('div');
                     score.className = 'player-score';
                     score.textContent = player.score || '0';
+
+                    // Check if score has changed
+                    if (player.previousScore !== undefined && player.previousScore !== player.score) {
+                        score.classList.add('score-changed');
+                        if (player.score > player.previousScore) {
+                            score.classList.add('score-increased');
+                        } else if (player.score < player.previousScore) {
+                            score.classList.add('score-decreased');
+                        }
+                    }
 
                     // Add all elements to the player row
                     playerRow.appendChild(photoContainer);
@@ -402,6 +339,15 @@ document.addEventListener('DOMContentLoaded', async function () {
                 card.appendChild(positionGroup);
             }
         });
+
+        // Add card footer with average points
+        const footer = document.createElement('div');
+        footer.className = 'user-team-card-footer';
+        footer.innerHTML = `
+        <span class="avg-points-label">~ </span>
+        <span class="avg-points-value">${team.avgPoints ? team.avgPoints.toFixed(2) : 'N/A'}</span>
+    `;
+        card.appendChild(footer);
 
         return card;
     }
@@ -474,12 +420,18 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Fetch and display rankings on page load
     //fetchAndDisplayRankings();
-    fetchAndDisplayRankings().then(() => {
+    //fetchAndDisplayRankings().then(() => {
         fetchAndCreateUserTeamCards();
-    });
+    //});
 
     // Update rankings when gameweek changes
-    gameweekDropdown.addEventListener('change', fetchAndDisplayRankings);
+    //gameweekDropdown.addEventListener('change', fetchAndDisplayRankings);
     gameweekDropdown.addEventListener('change', fetchAndCreateUserTeamCards);
+
+    window.addEventListener('beforeunload', () => {
+        if (refreshInterval) {
+            clearInterval(refreshInterval);
+        }
+    });
 });
 

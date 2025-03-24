@@ -779,8 +779,8 @@ li {
 
     .player-grid img {
         border-radius: 50%;
-        width: 30px;
-        height: 30px;
+        width: 25px;
+        height: 25px;
     }
 
 .add-button {
@@ -1435,8 +1435,6 @@ th {
 }
 
 .player-photo {
-    width: 20px;
-    height: 20px;
     border-radius: 50%;
     object-fit: cover;
 }
@@ -1447,7 +1445,7 @@ th {
     text-overflow: ellipsis;
     display: none;
     padding-left: 3px;
-    font-size: 11px;
+    font-size: 12px;
 }
 
 .user-team-card.expanded .player-name {
@@ -1455,7 +1453,7 @@ th {
 }
 
 .player-score {
-    text-align: center;    
+    text-align: -webkit-right;
     font-size: 12px;
 }
 
@@ -1500,3 +1498,43 @@ th {
             
         }
 }
+.user-team-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 8px;
+    margin-top: 5px;
+    border-top: 1px solid #eee;
+    font-size: 12px;
+}
+
+.avg-points-label {
+    color: #666;
+}
+
+.avg-points-value {
+    color: #666;
+}
+
+@keyframes scoreHighlight {
+    0% {
+        background-color: rgba(255, 255, 0, 0.7);
+    }
+
+    100% {
+        background-color: transparent;
+    }
+}
+
+.score-changed {
+    animation: scoreHighlight 2s ease-out;
+}
+
+.score-increased {
+    color: #4CAF50;
+}
+
+.score-decreased {
+    color: #f44336;
+}
+
