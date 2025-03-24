@@ -1,5 +1,4 @@
-﻿/* styles.css */
-
+﻿.player-grid /* styles.css */
 /* General styles */
 body {
     font-family: Arial, sans-serif;
@@ -981,9 +980,10 @@ th {
 .position-section {
     position: relative;
     border: 1px solid #ccc;
-    padding: 8px 8px 8px 8px;
+    padding: 5px 5px 5px 5px;
     border-radius: 5px;
-    margin-bottom: 20px;
+    margin-bottom: 5px;
+    margin-top: 10px; 
 }
 
     .position-section::before {
@@ -998,6 +998,7 @@ th {
         font-size: 14px;
         font-weight: bold;
         box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        z-index: 1010;
     }
 
 /* Styling for teamScoreLink */
@@ -1046,7 +1047,6 @@ th {
         margin-left: auto; /* This will still push it to the right */
     }
 
-/* Update the player-grid class to ensure it handles overflow correctly */
 .player-grid {
     display: flex;
     align-items: center;
@@ -1057,9 +1057,91 @@ th {
     border-radius: 5px;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
     position: relative;
-    width: 200px;
-    overflow: hidden; /* Add this to contain overflowing content */
+    width: 260px; /* Increased from 200px to accommodate status icons */
+    overflow: hidden;
 }
+
+/* Style for player status icons */
+.player-status {
+    margin-left: 5px;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+/* Warning status - yellow triangle for doubtful players */
+.status-warning {
+    color: #856404;
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+}
+
+/* Injury status - red icon for injured players */
+.status-injured {
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+}
+
+/* Suspended status - blue icon for suspended players */
+.status-suspended {
+    color: #004085;
+    background-color: #cce5ff;
+    border: 1px solid #b8daff;
+}
+
+/* Unavailable status - gray icon for unavailable players */
+.status-unavailable {
+    color: #383d41;
+    background-color: #e2e3e5;
+    border: 1px solid #d6d8db;
+}
+
+/* Player form indicator styles */
+.player-form {
+    margin-left: 5px;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: bold;
+    flex-shrink: 0; /* Prevent shrinking */
+}
+
+/* Form ratings with color coding */
+.form-poor {
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+}
+
+.form-good {
+    color: #856404;
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+}
+
+.form-very-good {
+    color: #155724;
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+}
+
+.form-extraordinary {
+    color: #004085;
+    background-color: #cce5ff;
+    border: 1px solid #b8daff;
+}
+
+
 
 /* Fix the player-name class to ensure text truncation works properly */
 .player-name {

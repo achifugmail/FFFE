@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         // Set default value to the first gameweek by start date that has a start date after the current date and time
         const now = new Date();
-        const futureGameweeks = gameweeks.filter(gameweek => new Date(gameweek.startDate + 'Z') > now); 
+        const futureGameweeks = gameweeks.filter(gameweek => new Date(gameweek.startDate + 'Z') > now);
         if (futureGameweeks.length > 0) {
             gameweekDropdown.value = futureGameweeks[0].id;
         } else if (gameweeks.length > 0) {
@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     gameweekDropdown.addEventListener('change', function () {
         fetchAndDisplaySquadPlayers(squadId);
         //updateTeamScoreLink();
-        fetchAndDisplayFixtures(this.value); 
+        fetchAndDisplayFixtures(this.value);
     });
 
     async function fetchLeagues() {
@@ -214,25 +214,62 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Fetch and display squad info
     async function fetchAndDisplaySquadInfo(squadId) {
-         /*try {
-            const response = await fetch(`${config.backendUrl}/UserSquads/${squadId}`, addAuthHeader());
+        /*try {
+           const response = await fetch(`${config.backendUrl}/UserSquads/${squadId}`, addAuthHeader());
 
-            if (!response.ok) {
-                console.error('Failed to fetch squad info:', response.status, response.statusText);
-                return;
-            }
-           
-            const squad = await response.json();
-            const username = localStorage.getItem('username');
-            const squadInfoDiv = document.getElementById('squadInfo');
-            squadInfoDiv.innerHTML = `
-                <div style="display: flex; gap: 20px; align-items: center;">                    
-                    <span>${username}</span>
-                </div>
-            `;
-        } catch (error) {
-            console.error('Error fetching squad info:', error);
-        }*/
+           if (!response.ok) {
+               console.error('Failed to fetch squad info:', response.status, response.statusText);
+               return;
+           }
+          
+           const squad = await response.json();
+           const username = localStorage.getItem('username');
+           const squadInfoDiv = document.getElementById('squadInfo');
+           squadInfoDiv.innerHTML = `
+               <div style="display: flex; gap: 20px; align-items: center;">                    
+                   <span>${username}</span>
+               </div>
+           `;
+       } catch (error) {
+           console.error('Error fetching squad info:', error);
+       }*/
+    }
+
+    function getPlayerFormIndicator(player) {
+        if (!player.form && player.form !== 0) return '';
+
+        const form = parseFloat(player.form);
+        let formClass;
+
+        if (form < 3) {
+            formClass = 'form-poor';
+        } else if (form >= 3 && form < 4) {
+            formClass = 'form-good';
+        } else if (form >= 4 && form < 6) {
+            formClass = 'form-very-good';
+        } else {
+            formClass = 'form-extraordinary';
+        }
+
+        return `<div class="player-form ${formClass}" title="Form: ${form}">${form.toFixed(1)}</div>`;
+    }
+
+    // Function to generate player status icon HTML
+    function getPlayerStatusIcon(player) {
+        if (!player.status) return '';
+
+        switch (player.status.toLowerCase()) {
+            case 'i':
+                return `<div class="player-status status-injured" title="Injured"><i class="fas fa-medkit"></i></div>`;
+            case 'd':
+                return `<div class="player-status status-warning" title="Doubtful"><i class="fas fa-exclamation-triangle"></i></div>`;
+            case 's':
+                return `<div class="player-status status-suspended" title="Suspended"><i class="fas fa-ban"></i></div>`;
+            case 'u':
+                return `<div class="player-status status-unavailable" title="Unavailable"><i class="fas fa-times-circle"></i></div>`;
+            default:
+                return '';
+        }
     }
 
     // Fetch and display players in the current squad
@@ -273,6 +310,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 <button class="captain-button" data-player-id="${player.id}"><i class="fas fa-crown"></i></button>
 <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
 <span class="player-name">${player.webName}</span>
+${getPlayerFormIndicator(player)}
+${getPlayerStatusIcon(player)}
 `;
                     playersDiv.appendChild(playerDiv);
                 });
@@ -355,7 +394,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
 
         // Call the API to update the captain
-       
+
         const gameweekId = document.getElementById('gameweekDropdown').value;
         try {
             const response = await fetch(`${config.backendUrl}/UserTeamPlayers/updateCaptainByGameweekAndSquad`, addAuthHeader({
@@ -374,14 +413,14 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     // Select a player
-    
+
     async function selectPlayer(playerId, isUserInteraction) {
         const checkbox = document.querySelector(`.player-checkbox[data-player-id="${playerId}"]`);
         const playerDiv = checkbox?.closest('.player-grid');
 
         // Call the API to add the player to the team only if it's a user interaction
         if (isUserInteraction) {
-            
+
             const gameweekId = document.getElementById('gameweekDropdown').value;
             try {
                 const response = await fetch(`${config.backendUrl}/UserTeamPlayers/AddByGameweekAndSquad`, addAuthHeader({
@@ -442,7 +481,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         const checkbox = document.querySelector(`.player-checkbox[data-player-id="${playerId}"]`);
         const playerDiv = checkbox?.closest('.player-grid');
 
-        
+
         const gameweekId = document.getElementById('gameweekDropdown').value;
         try {
             const response = await fetch(`${config.backendUrl}/UserTeamPlayers/DeleteByGameweekAndSquad`, addAuthHeader({
@@ -525,8 +564,6 @@ document.addEventListener('DOMContentLoaded', async function () {
             icon.className = 'fas fa-calendar-alt'; // Calendar icon when closed
         }
     });
-
-
 
     // Check screen width on page load to determine initial state
     function checkScreenWidth() {
