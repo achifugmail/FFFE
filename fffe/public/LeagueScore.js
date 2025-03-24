@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 };
             }
 
-            userStats[player.username].totalPoints += player.isCaptain ? player.score * 1.5 : player.score;
+            userStats[player.username].totalPoints += player.score;
             userStats[player.username].playerCount += 1;
 
             if (player.id === -1) {
@@ -299,9 +299,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             // Add player to the user's team
             userTeams[player.username].players.push(player);
-
-            // Add to total score (with captain bonus if applicable)
-            userTeams[player.username].totalScore += player.isCaptain ? player.score * 1.5 : player.score;
+                        
+            userTeams[player.username].totalScore += player.score;
         });
 
         // Create card for each user team, sorted descending by totalScore
