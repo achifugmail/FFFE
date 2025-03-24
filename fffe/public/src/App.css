@@ -1096,8 +1096,8 @@ th {
 
 /* Suspended status - blue icon for suspended players */
 .status-suspended {
-    color: #004085;
-    background-color: #cce5ff;
+    color: #ffffff;
+    background-color: #f66565;
     border: 1px solid #b8daff;
 }
 
@@ -1122,30 +1122,7 @@ th {
     flex-shrink: 0; /* Prevent shrinking */
 }
 
-/* Form ratings with color coding */
-.form-poor {
-    color: #721c24;
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
-}
 
-.form-good {
-    color: #856404;
-    background-color: #fff3cd;
-    border: 1px solid #ffeeba;
-}
-
-.form-very-good {
-    color: #155724;
-    background-color: #d4edda;
-    border: 1px solid #c3e6cb;
-}
-
-.form-extraordinary {
-    color: #004085;
-    background-color: #cce5ff;
-    border: 1px solid #b8daff;
-}
 
 .player-name {
     overflow: hidden;
@@ -1156,6 +1133,67 @@ th {
     flex: 1; /* Allow it to take available space */
 }
 
+/* Form icons using arrows */
+.form-poor .player-form-icon::before {
+    content: "\f063"; /* fa-arrow-down */
+    color: #dc3545;
+}
+
+.form-good .player-form-icon::before {
+    content: "\f061"; /* fa-arrow-right */
+    color: #ffc107;
+}
+
+.form-very-good .player-form-icon::before {
+    content: "\f062"; /* fa-arrow-up */
+    color: #28a745;
+}
+
+.form-extraordinary .player-form-icon::before {
+    content: "\f0aa"; /* fa-arrow-circle-up */
+    color: #007bff;
+}
+
+/* Form icons using shapes */
+.form-poor .player-form-icon::before {
+    content: "\f057"; /* fa-times-circle */
+    color: #dc3545;
+}
+
+.form-good .player-form-icon::before {
+    content: "\f111"; /* fa-circle */
+    color: #ffc107;
+}
+
+.form-very-good .player-form-icon::before {
+    content: "\f058"; /* fa-check-circle */
+    color: #28a745;
+}
+
+.form-extraordinary .player-form-icon::before {
+    content: "\f055"; /* fa-plus-circle */
+    color: #007bff;
+}
+/* Form icons using battery levels */
+.form-poor .player-form-icon::before {
+    content: "\f244"; /* fa-battery-empty */
+    color: #dc3545;
+}
+
+.form-good .player-form-icon::before {
+    content: "\f243"; /* fa-battery-quarter */
+    color: #ffc107;
+}
+
+.form-very-good .player-form-icon::before {
+    content: "\f242"; /* fa-battery-half */
+    color: #28a745;
+}
+
+.form-extraordinary .player-form-icon::before {
+    content: "\f240"; /* fa-battery-full */
+    color: #007bff;
+}
 /* Team cells for fixtures */
 /* Team cells for fixtures */
 .team-cell {

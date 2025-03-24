@@ -251,7 +251,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             formClass = 'form-extraordinary';
         }
 
-        return `<div class="player-form ${formClass}" title="Form: ${form}">${form.toFixed(1)}</div>`;
+        return `<div class="player-form ${formClass}" title="Form: ${form}"><i class="player-form-icon fas"></i></div>`;
     }
 
     // Function to generate player status icon HTML
