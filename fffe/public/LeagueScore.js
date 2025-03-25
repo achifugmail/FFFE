@@ -349,45 +349,109 @@ document.addEventListener('DOMContentLoaded', async function () {
         const statItems = [];
 
         // Add goals scored for all positions
-        statItems.push({ iconClass: 'fa fa-futbol', value: player.goalsScored || '0', label: '' });
+        statItems.push({
+            iconType: 'fa',
+            iconClass: 'fa fa-futbol',
+            value: player.goalsScored || '0',
+            label: ''
+        });
 
-        // Add assists for all positions
-        statItems.push({ iconClass: 'fa fa-hands-helping', value: player.assists || '0', label: '' });
+        // Add assists for all positions with the custom SVG icon
+        statItems.push({
+            iconType: 'svg',
+            svgContent: '<svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 14 14"><ellipse cx="7" cy="7" rx="7" ry="7" fill="transparent"></ellipse><g id="ic_assist" transform="translate(0 0)"><path id="Path_88" fill="currentColor" fill-rule="evenodd" d="M12.608 5.7c-.175.1-.377.209-.6.337-.156.09-.322.188-.493.3-.806.524-6.651 4.113-7.836 4.793s-3.035.929-3.565.016 1.029-1.952 1.948-3.055C3.11 6.833 4.48 5.461 4.48 5.461c-.088-.426.332-.712.494-.805a.607.607 0 0 1 .06-.03c-.117-.5.631-.929.631-.929l1.147-2.518a.231.231 0 0 1 .094-.105.236.236 0 0 1 .208-.013l1.024.424c.673.283-.769 1.89-.465 1.962a1.67 1.67 0 0 0 1.043-.273 2.826 2.826 0 0 0 .735-.614c.48-.56-.03-1.38.249-1.543.1-.054.287-.034.642.095 1.393.535 2.192 2.211 2.776 3.254.402.709.121.973-.51 1.334zm-8.018.693a.085.085 0 0 0-.075.022l-.631.62a.079.079 0 0 0 .04.135l3.227.669a.09.09 0 0 0 .058-.009l.981-.563a.081.081 0 0 0-.02-.15zm5.558-.418l-4.407-.844a.089.089 0 0 0-.075.023l-.628.618a.081.081 0 0 0 .041.137l3.99.807a.089.089 0 0 0 .058-.009l1.041-.581a.082.082 0 0 0-.02-.151zM3.807 12.1a.083.083 0 0 1-.039.1l-.734.422a.082.082 0 0 1-.1-.016l-.546-.579a.083.083 0 0 1-.016-.063 5.312 5.312 0 0 0 1.3-.462zm1.668-.92a.083.083 0 0 1-.039.1l-.736.42a.082.082 0 0 1-.1-.016l-.41-.484c.3-.177.693-.415 1.15-.691zm5.687-3.4a.084.084 0 0 1-.039.1l-.735.422a.082.082 0 0 1-.1-.016l-.488-.5c.441-.27.839-.516 1.158-.716zM12.5 6.132c.1-.052.184-.1.268-.154L12.9 5.9l.222.754a.084.084 0 0 1-.039.1l-.734.422a.082.082 0 0 1-.1-.016L11.7 6.6c.144-.093.294-.182.466-.281.118-.068.224-.129.334-.187z"></path></g></svg>',
+            value: player.assists || '0',
+            label: '',
+            margin: '5px',
+            color: '#555'
+        });
 
         // Add clean sheets only for defensive positions (GK, DEF, WB, DM)
         const defensivePositions = ['GK', 'DEF', 'WB', 'DM'];
         if (defensivePositions.includes(player.position)) {
-            statItems.push({ iconClass: 'fa fa-shield-alt', value: player.cleanSheets || '0', label: '' });
+            statItems.push({
+                iconType: 'fa',
+                iconClass: 'fa fa-shield-alt',
+                value: player.cleanSheets || '0',
+                label: ''
+            });
         }
 
         // Add minutes played for all positions
-        statItems.push({ iconClass: 'fa fa-clock', value: player.minutesPlayed || '0', label: '' });
+        statItems.push({
+            iconType: 'fa',
+            iconClass: 'fa fa-clock',
+            value: player.minutesPlayed || '0',
+            label: ''
+        });
 
         // Add cards for all positions
-        statItems.push({ iconClass: 'fa fa-square yellow-card', value: player.yellowCards || '0', label: '' });
-        statItems.push({ iconClass: 'fa fa-square red-card', value: player.redCards || '0', label: '' });
+        statItems.push({
+            iconType: 'fa',
+            iconClass: 'fa fa-square yellow-card',
+            value: player.yellowCards || '0',
+            label: ''
+        });
+
+        statItems.push({
+            iconType: 'fa',
+            iconClass: 'fa fa-square red-card',
+            value: player.redCards || '0',
+            label: ''
+        });
 
         // Add own goals for all positions with red football icon
-        statItems.push({ iconClass: 'fa fa-futbol', value: player.ownGoals || '0', label: '', color: '#d32f2f' });
-        -
+        statItems.push({
+            iconType: 'fa',
+            iconClass: 'fa fa-futbol',
+            value: player.ownGoals || '0',
+            label: '',
+            color: '#d32f2f'
+        });
+
         // Create each stat item - they'll naturally flow into the grid layout
         statItems.forEach(item => {
             const statItem = document.createElement('div');
             statItem.className = 'player-stat-item';
 
-            const icon = document.createElement('i');
-            icon.className = `${item.iconClass} stat-icon`;
+            // Create icon based on the type (Font Awesome or SVG)
+            let iconElement;
 
-            // Add colors for specific icons
-            if (item.iconClass.includes('yellow-card')) {
-                icon.style.color = '#f9a825'; // Yellow color for yellow cards
-            } else if (item.iconClass.includes('red-card')) {
-                icon.style.color = '#d32f2f'; // Red color for red cards
-            } else if (item.color) {
-                icon.style.color = item.color; // Custom color if specified
+            if (item.iconType === 'svg') {
+                // Create a span to hold the SVG
+                iconElement = document.createElement('span');
+                iconElement.className = 'stat-icon';
+                iconElement.innerHTML = item.svgContent;
+
+                // Apply margin if specified
+                if (item.margin) {
+                    iconElement.style.marginLeft = item.margin;
+                    iconElement.style.marginRight = '18px';
+                }
+
+                // Style the SVG
+                const svgElement = iconElement.querySelector('svg');
+                if (svgElement) {
+                    svgElement.style.verticalAlign = 'middle';
+                    // Set the fill color directly to #555 instead of using currentColor
+                    svgElement.querySelector('path').setAttribute('fill', '#555');
+                }
+            } else {
+                // Create Font Awesome icon
+                iconElement = document.createElement('i');
+                iconElement.className = `${item.iconClass} stat-icon`;
+
+                // Add colors for specific icons
+                if (item.iconClass.includes('yellow-card')) {
+                    iconElement.style.color = '#f9a825'; // Yellow color for yellow cards
+                } else if (item.iconClass.includes('red-card')) {
+                    iconElement.style.color = '#d32f2f'; // Red color for red cards
+                } else if (item.color) {
+                    iconElement.style.color = item.color; // Custom color if specified
+                }
             }
 
-            statItem.appendChild(icon);
+            statItem.appendChild(iconElement);
             statItem.appendChild(document.createTextNode(` ${item.value} ${item.label}`));
 
             statsContainer.appendChild(statItem);
@@ -399,8 +463,6 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         return playerCardContainer;
     }
-
-
 
 
     // Handle player photo zoom and card display
@@ -563,7 +625,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 if (!isZoomed) {
                     console.log('Zooming photo');
                     // First click: zoom the photo by 20%
-                    photo.style.transform = 'scale(1.2)';
+                    photo.style.transform = 'scale(1.4)';
                     photo.style.zIndex = '100';
                     isZoomed = true;
 
