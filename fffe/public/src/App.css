@@ -1448,7 +1448,7 @@ th {
     text-overflow: ellipsis;
     display: none;
     padding-left: 3px;
-    font-size: 12px;
+    font-size: 14px;
 }
 
 .user-team-card.expanded .player-name {

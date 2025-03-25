@@ -50,8 +50,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     //    document.getElementById('header').style.display = 'none';
     //}
 
-    const teamLink = document.getElementById('teamLink');
-
+    
     async function updateSquadId() {
         // Check URL parameters first
         const urlParams = new URLSearchParams(window.location.search);
@@ -65,7 +64,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
 
         if (squadId) {
-            teamLink.href = `Team.html?SquadId=${squadId}`;
             await fetchAndCreateSections();
             await fetchSquadDetails();
             await fetchAndDisplaySquadPlayers(squadId, leagueId);
@@ -179,12 +177,17 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             positions.forEach(position => {
                 const section = document.createElement('div');
-                section.className = 'section';
+                // Change from 'section' class to 'section position-section'
+                section.className = 'section position-section';
                 section.id = position.name;
+                // Add data-position attribute for the decorative label
+                section.setAttribute('data-position', position.name);
 
-                const header = document.createElement('h3');
-                header.innerText = position.name;
-                section.appendChild(header);
+                // No need for h3 header anymore since position-section uses a ::before pseudo-element
+                // Remove this line:
+                // const header = document.createElement('h3');
+                // header.innerText = position.name;
+                // section.appendChild(header);
 
                 const squadPlayersDiv = document.createElement('div');
                 squadPlayersDiv.className = 'players';
@@ -279,7 +282,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     playerDiv.className = 'player-grid';
                     playerDiv.innerHTML = `
                         <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
-                        <span>${player.webName}</span>
+                        <span class="player-name">${player.webName}</span>
                         <button class="remove-player-button" data-player-id="${player.id}" data-position="${position.name}">-</button>
                     `;
                     playersDiv.appendChild(playerDiv);
@@ -326,7 +329,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 const isPlayerInSquad = squadPlayers.some(p => p.id === player.id);
                 playerDiv.innerHTML = `
                     <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
-                    <span>${player.firstName} ${player.secondName}</span>
+                    <span class="player-name">${player.webName}</span>
                     <button class="${isPlayerInSquad ? 'remove-player-button' : 'add-player-button'}" data-player-id="${player.id}" data-position="${position.name}">${isPlayerInSquad ? '-' : '+'}</button>
                 `;
                 playerList.appendChild(playerDiv);
