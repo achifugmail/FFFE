@@ -116,7 +116,12 @@ document.addEventListener('DOMContentLoaded', async function () {
     async function fetchLeagues() {
         try {
             const response = await fetch(`${config.backendUrl}/Leagues/byUser/${currentUserId}`, addAuthHeader());
-
+            if (response.status === 401) {
+                console.error('Authentication error: Unauthorized access (401)');
+                // Redirect to the root site
+                window.location.href = '/';
+                return;
+            }
             if (!response.ok) {
                 console.error('Failed to fetch leagues:', response.status, response.statusText);
                 return;

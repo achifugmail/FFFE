@@ -335,7 +335,12 @@ document.addEventListener('DOMContentLoaded', async function () {
     let draftPeriods = [];
     try {
         const respDrafts = await fetch(`${config.backendUrl}/DraftPeriods`, addAuthHeader());
-
+        if (respDrafts.status === 401) {
+            console.error('Authentication error: Unauthorized access (401)');
+            // Redirect to the root site
+            window.location.href = '/';
+            return;
+        }
         if (!respDrafts.ok) {
             console.error('Failed to fetch draft periods:', respDrafts.status, respDrafts.statusText);
         } else {
