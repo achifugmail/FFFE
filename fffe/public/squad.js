@@ -18,6 +18,28 @@ document.addEventListener('DOMContentLoaded', async function () {
         leagueId = urlLeagueId;
     }
 
+    let transfersLoaded = false;
+
+    // Later in the code, add the event listener for the toggle button
+    document.getElementById('transfersToggle').addEventListener('click', function () {
+        const teamLayout = document.querySelector('.team-layout');
+        teamLayout.classList.toggle('transfers-open');
+
+        // Change the icon based on state
+        const icon = this.querySelector('i');
+        if (teamLayout.classList.contains('transfers-open')) {
+            icon.className = 'fas fa-times'; // X icon when open
+
+            // Load transfers only if they haven't been loaded yet
+            if (!transfersLoaded && squadId) {
+                fetchAndDisplayTransfers(squadId);
+                transfersLoaded = true;
+            }
+        } else {
+            icon.className = 'fas fa-exchange-alt'; // Exchange icon when closed
+        }
+    });
+
     // Modify the checkAndHandleUrlSquadId function to also handle leagueId:
     function checkAndHandleUrlSquadId() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -39,7 +61,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             fetchAndCreateSections();
             fetchSquadDetails();
-            fetchAndDisplaySquadPlayers(squadId, leagueId);
+            //fetchAndDisplaySquadPlayers(squadId, leagueId);
             fetchAndDisplayTransfers(squadId);
             return true;
         }
@@ -67,7 +89,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             await fetchAndCreateSections();
             await fetchSquadDetails();
             await fetchAndDisplaySquadPlayers(squadId, leagueId);
-            await fetchAndDisplayTransfers(squadId);
+            //await fetchAndDisplayTransfers(squadId);
         }
     }
 
@@ -264,6 +286,42 @@ document.addEventListener('DOMContentLoaded', async function () {
             console.error('Error fetching squad details:', error);
         }
     }
+    function getPlayerFormIndicator(player) {
+        if (!player.form && player.form !== 0) return '';
+
+        const form = parseFloat(player.form);
+        let formClass;
+
+        if (form < 3) {
+            formClass = 'form-poor';
+        } else if (form >= 3 && form < 4) {
+            formClass = 'form-good';
+        } else if (form >= 4 && form < 6) {
+            formClass = 'form-very-good';
+        } else {
+            formClass = 'form-extraordinary';
+        }
+
+        return `<div class="player-form ${formClass}" title="Form: ${form}"><i class="player-form-icon fas"></i></div>`;
+    }
+
+    // Also add this function for status icons (it might be useful too)
+    function getPlayerStatusIcon(player) {
+        if (!player.status) return '';
+
+        switch (player.status.toLowerCase()) {
+            case 'i':
+                return `<div class="player-status status-injured" title="Injured"><i class="fas fa-medkit"></i></div>`;
+            case 'd':
+                return `<div class="player-status status-warning" title="Doubtful"><i class="fas fa-exclamation-triangle"></i></div>`;
+            case 's':
+                return `<div class="player-status status-suspended" title="Suspended"><i class="fas fa-ban"></i></div>`;
+            case 'u':
+                return `<div class="player-status status-unavailable" title="Unavailable"><i class="fas fa-times-circle"></i></div>`;
+            default:
+                return '';
+        }
+    }
 
     async function fetchAndDisplaySquadPlayers(squadId, leagueId) {
         try {
@@ -274,22 +332,45 @@ document.addEventListener('DOMContentLoaded', async function () {
                 return;
             }
             squadPlayers = await response.json();
+
+            // Find the maximum TotalScore in the squad for color scaling
+            const maxScore = Math.max(...squadPlayers.map(player => player.points || 0));
+
             const positions = await fetch(`${config.backendUrl}/PlayerPositions/positions`, addAuthHeader()).then(res => res.json());
 
             positions.forEach(position => {
                 const section = document.getElementById(position.name);
                 const playersDiv = section.querySelector('.players');
-                const playerList = section.querySelector('.player-list'); // Add this line
+                const playerList = section.querySelector('.player-list');
                 playersDiv.innerHTML = '';
                 const filteredPlayers = squadPlayers.filter(player => player.positionName === position.name);
                 filteredPlayers.forEach(player => {
+                    // Get the score for this player (default to 0 if undefined)
+                    const playerScore = player.points || 0;
+
+                    // Calculate color based on the score (from red to green)
+                    const colorPercent = maxScore > 0 ? (playerScore / maxScore) * 100 : 0;
+                    const scoreColor = getScoreColor(colorPercent);
+
                     const playerDiv = document.createElement('div');
                     playerDiv.className = 'player-grid';
+                    
                     playerDiv.innerHTML = `
-                        <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
-                        <span class="player-name">${player.webName}</span>
-                        <button class="remove-player-button" data-player-id="${player.id}" data-position="${position.name}">-</button>
-                    `;
+                    <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
+                    <span class="player-name">${player.webName}</span>
+                    <span class="player-total-score" style="color: ${scoreColor};">${playerScore}</span>
+                    ${getPlayerFormIndicator(player)}
+                    ${getPlayerStatusIcon(player)}
+                    <button class="remove-player-button" data-player-id="${player.id}" data-position="${position.name}">-</button>
+                `;/*
+                    playerDiv.innerHTML = `
+                    <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
+                    <span class="player-name">${player.webName}</span>
+                    <span class="player-total-score" style="color: ${scoreColor};">${playerScore}</span>
+                    ${getPlayerFormIndicator(player)}
+                    ${getPlayerStatusIcon(player)}
+                    <button class="remove-player-button" data-player-id="${player.id}" data-position="${position.name}"><i class="fas fa-trash-alt"></i></button>
+                `;*/
                     playersDiv.appendChild(playerDiv);
                 });
 
@@ -310,9 +391,21 @@ document.addEventListener('DOMContentLoaded', async function () {
                     playerList.style.display = 'none'; // Hide available players when position is filled
                 }
             });
+
+
         } catch (error) {
             console.error('Error fetching squad players:', error);
         }
+    }
+
+    // Helper function to calculate color based on score percentage
+    function getScoreColor(percentage) {
+        // Convert percentage to a value between 0 and 120
+        // 0% = red (hue 0)
+        // 50% = yellow (hue 60)
+        // 100% = green (hue 120)
+        const hue = Math.min(percentage * 1.2, 120);
+        return `hsl(${hue}, 80%, 45%)`;
     }
 
     async function fetchAndDisplayAvailablePlayers(position, leagueId, draftPeriodId) {
@@ -332,11 +425,21 @@ document.addEventListener('DOMContentLoaded', async function () {
                 const playerDiv = document.createElement('div');
                 playerDiv.className = 'player-grid';
                 const isPlayerInSquad = squadPlayers.some(p => p.id === player.id);
+               
                 playerDiv.innerHTML = `
-                    <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
-                    <span class="player-name">${player.webName}</span>
-                    <button class="${isPlayerInSquad ? 'remove-player-button' : 'add-player-button'}" data-player-id="${player.id}" data-position="${position.name}">${isPlayerInSquad ? '-' : '+'}</button>
-                `;
+                <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
+                <span class="player-name">${player.webName}</span>
+                ${getPlayerFormIndicator(player)}
+                ${getPlayerStatusIcon(player)}
+                <button class="${isPlayerInSquad ? 'remove-player-button' : 'add-player-button'}" data-player-id="${player.id}" data-position="${position.name}">${isPlayerInSquad ? '-' : '+'}</button>
+            `; /*
+                playerDiv.innerHTML = `
+                <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
+                <span class="player-name">${player.webName}</span>
+                <button class="${isPlayerInSquad ? 'remove-player-button' : 'add-player-button'}" data-player-id="${player.id}" data-position="${position.name}">
+                    ${isPlayerInSquad ? '<i class="fas fa-trash-alt"></i>' : '+'}
+                </button>
+            `;*/
                 playerList.appendChild(playerDiv);
             });
             playerList.style.display = 'block';

@@ -5,11 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Squad Details</title>
     <link rel="stylesheet" href="src/App.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        
-        
-
-        
     </style>
 </head>
 <body>
@@ -25,17 +22,18 @@
                 <select id="draftPeriodDropdown"></select>
             </div>
         </div>
-        <!-- Link to Team Details page -->
 
-        <!-- Grid for player positions -->
+        <!-- Team layout containing player grid and transfers panel -->
+        <div class="team-layout">
+            <div id="playerGrid"></div>
 
-    </div>
-    <div class="container">
-        <div id="playerGrid"></div>
-        <!-- Transfers section -->
-        <div class="transfers-section">
-            <h2>Transfers</h2>
-            <div id="transfersList"></div>
+            <button class="transfers-toggle" id="transfersToggle">
+                <i class="fas fa-exchange-alt"></i>
+            </button>
+
+            <div id="transfersContainer">
+                <div id="transfersList"></div>
+            </div>
         </div>
     </div>
 
