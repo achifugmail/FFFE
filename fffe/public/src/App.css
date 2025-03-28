@@ -1319,7 +1319,7 @@ th {
 .fixtures-toggle {
     position: fixed;
     right: 10px;
-    bottom: 20px; /* Position near the bottom of the page instead of using top property */
+    bottom: 20px; 
     background-color: #4CAF50;
     color: white;
     border: none;
@@ -1859,7 +1859,7 @@ th {
 .transfers-toggle {
     position: fixed;
     right: 10px;
-    bottom: 70px;
+    bottom: 20px;
     background-color: #4CAF50;
     color: white;
     border: none;
