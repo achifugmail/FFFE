@@ -5,6 +5,377 @@ document.addEventListener('DOMContentLoaded', async function () {
     const currentUserId = localStorage.getItem('userId'); // Retrieve the current user ID from local storage
     let currentLeagueId; // Track current league ID
 
+    let previousPlayerScores = {};
+    let previousTeamStats = {};
+    let cardsExpanded = true;
+
+    // Function to fetch and display all squad players in the league
+    async function fetchAndCreateUserTeamCards() {
+        const leagueId = document.getElementById('leagueDropdown').value;
+        if (!leagueId) return;
+
+        try {
+            // Call the new endpoint
+            const response = await fetch(`${config.backendUrl}/PlayerPositions/league-user-squad-players/${leagueId}`, addAuthHeader());
+
+            if (!response.ok) {
+                console.error('Failed to fetch league squad players:', response.status, response.statusText);
+                return;
+            }
+
+            const players = await response.json();
+            const rankingsResponse = await fetch(`${config.backendUrl}/Teams/league/${leagueId}/userteams`, addAuthHeader());
+            const rankings = await rankingsResponse.json();
+            const processedRankings = processRankings(rankings);
+            createUserTeamCards(players, processedRankings);
+        } catch (error) {
+            console.error('Error fetching league squad players:', error);
+        }
+    }
+
+    // Function to process player stats and create user team cards
+    function createUserTeamCards(players, rankings, expandedStates = {}) {
+        const userTeamCardsContainer = document.getElementById('userTeamCardsContainer');
+        if (!userTeamCardsContainer) return;
+
+        // Create a temporary container to build new cards
+        const tempContainer = document.createElement('div');
+
+        // Group players by squadId
+        const userTeams = {};
+
+        players.forEach(player => {
+            // Create a unique key for each player to track if needed
+            const playerKey = `${player.squadId}-${player.webName}-${player.positionName}`;
+
+            // Store current score/points for comparison if needed
+            const playerScore = player.points || 0;
+            if (!previousPlayerScores[playerKey]) {
+                previousPlayerScores[playerKey] = playerScore;
+            }
+
+            if (!userTeams[player.squadId]) {
+                // Find the user by userId
+                const user = users.find(u => u.id === player.userId);
+                const username = user ? user.username : 'User';
+
+                // Find the ranking for the squad
+                const ranking = rankings.find(r => r.userId === player.userId);
+
+                userTeams[player.squadId] = {
+                    username: username,
+                    squadName: player.squadName || `Squad ${player.squadId}`,
+                    squadId: player.squadId,
+                    totalScore: 0,
+                    totalPoints: ranking ? ranking.totalPoints : 0,
+                    firstPlaces: ranking ? ranking.firstPlaces : 0,
+                    secondPlaces: ranking ? ranking.secondPlaces : 0,
+                    lastPlaces: ranking ? ranking.lastPlaces : 0,
+                    prizePoints: ranking ? ranking.prizePoints : 0,
+                    playerCount: 0,
+                    playersRemaining: 0,
+                    players: []
+                };
+            }
+
+            // Add player to the user's team
+            userTeams[player.squadId].players.push({
+                ...player,
+                previousScore: previousPlayerScores[playerKey],
+                webName: player.webName || player.displayName || 'Unknown',
+                position: player.positionName,
+                score: playerScore
+            });
+
+            // Count players and update total score
+            userTeams[player.squadId].playerCount += 1;
+            userTeams[player.squadId].totalScore += playerScore;
+
+            // Update previous score for next comparison
+            previousPlayerScores[playerKey] = playerScore;
+        });
+
+        // Calculate average points for each team
+        Object.values(userTeams).forEach(team => {
+            team.avgPoints = team.totalScore / team.playerCount;
+
+            // Add previous totals and averages for comparison
+            if (previousTeamStats[team.squadId]) {
+                team.previousTotalScore = previousTeamStats[team.squadId].totalScore;
+                team.previousAvgPoints = previousTeamStats[team.squadId].avgPoints;
+            }
+
+            // Update for next refresh
+            previousTeamStats[team.squadId] = {
+                totalScore: team.totalScore,
+                avgPoints: team.avgPoints
+            };
+        });
+
+        // Create card for each user team, sorted by totalPoints descending
+        Object.values(userTeams)
+            .sort((a, b) => b.totalPoints - a.totalPoints)
+            .forEach(team => {
+                const card = createTeamCard(team);
+
+                // Apply expanded state
+                if (cardsExpanded || expandedStates[team.squadId]) {
+                    card.classList.add('expanded');
+                }
+
+                tempContainer.appendChild(card);
+            });
+
+        // Replace the container's content with the new cards
+        userTeamCardsContainer.innerHTML = tempContainer.innerHTML;
+
+        // Setup player photo interactions
+        setupPlayerPhotoInteractions();
+
+        // Setup header click interactions
+        setupHeaderClickInteractions();
+    }
+
+    // Function to create a team card
+    function createTeamCard(team) {
+        const card = document.createElement('div');
+        card.className = 'user-team-card';
+        card.setAttribute('data-squad-id', team.squadId);
+
+        // Create card header with username, total points, and ranking icons
+        const header = document.createElement('div');
+        header.className = 'user-team-card-header2';
+
+        // Create total points span with highlighting if changed
+        const totalPointsClass = "total-score";
+
+        header.innerHTML = `
+    <div class="header-top league-header">
+        <h3 title="${team.username} - ${team.squadName}">${team.username}</h3>
+        <span class="${totalPointsClass}">${Math.round(team.totalPoints)}</span>
+    </div>
+    <div class="ranking-icons">
+        <div class="ranking-icon">
+            <i class="fas fa-medal gold-medal" title="First Places"></i>
+            <span>${team.firstPlaces}</span>
+        </div>
+        <div class="ranking-icon">
+            <i class="fas fa-medal silver-medal" title="Second Places"></i>
+            <span>${team.secondPlaces}</span>
+        </div>
+        <div class="ranking-icon">
+            <i class="fas fa-poop brown-icon" title="Last Places"></i>
+            <span>${team.lastPlaces}</span>
+        </div>
+        <div class="ranking-icon">
+            <i class="fas fa-money-bill-wave green-icon" title="Prize Points"></i>
+            <span>${team.prizePoints}</span>
+        </div>
+    </div>
+`;
+        card.appendChild(header);
+
+        // Group players by position
+        const playersByPosition = {};
+        team.players.forEach(player => {
+            if (!playersByPosition[player.position]) {
+                playersByPosition[player.position] = [];
+            }
+            playersByPosition[player.position].push(player);
+        });
+
+        // Create a section for each position group
+        const positionOrder = ['GK', 'DEF', 'WB', 'DM', 'AM', 'FW'];
+
+        positionOrder.forEach(position => {
+            if (playersByPosition[position] && playersByPosition[position].length > 0) {
+                const positionGroup = document.createElement('div');
+                positionGroup.className = 'position-group';
+
+                // Add position label
+                const positionLabel = document.createElement('span');
+                positionLabel.className = 'position-label';
+                positionLabel.textContent = position;
+                positionGroup.appendChild(positionLabel);
+
+                // Add each player in this position
+                playersByPosition[position].forEach(player => {
+                    const playerRow = document.createElement('div');
+                    playerRow.className = 'player-row';
+
+                    // Store complete player data as a JSON string in a data attribute
+                    playerRow.setAttribute('data-player', JSON.stringify(player));
+
+                    // Create player photo element with captain marker if needed
+                    const photoContainer = document.createElement('div');
+                    photoContainer.className = player.isCaptain ? 'captain-marker' : '';
+
+                    const photo = document.createElement('img');
+                    photo.className = 'player-photo';
+                    // Use a default image if photo is missing
+                    if (player.photo) {
+                        photo.src = `https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png`;
+                    } else {
+                        photo.src = 'https://resources.premierleague.com/premierleague/photos/players/40x40/p0.png';
+                    }
+                    photo.alt = player.webName || 'Player';
+                    photoContainer.appendChild(photo);
+
+                    // Create player name element
+                    const name = document.createElement('div');
+                    name.className = 'player-name';
+                    name.textContent = player.webName || 'Unknown';
+                    name.title = player.webName || 'Unknown';
+
+                    // Create score element with highlighting if changed
+                    const score = document.createElement('div');
+                    score.className = 'player-score';
+                    score.textContent = player.score || '0';
+
+                    // Add all elements to the player row
+                    playerRow.appendChild(photoContainer);
+                    playerRow.appendChild(name);
+                    playerRow.appendChild(score);
+
+                    positionGroup.appendChild(playerRow);
+                });
+
+                card.appendChild(positionGroup);
+            }
+        });
+
+        // Add card footer with total score
+        const footer = document.createElement('div');
+        footer.className = 'user-team-card-footer';
+
+        // Add total score with highlighting if changed
+        const totalScoreClass = "total-score";
+
+        footer.innerHTML = `
+        
+        <span class="${totalScoreClass}">${team.totalScore ? Math.round(team.totalScore) : 'N/A'}</span>
+    `;
+        card.appendChild(footer);
+
+        return card;
+    }
+
+
+    // Function for player photo interactions (zoom and player card)
+    function setupPlayerPhotoInteractions() {
+        // Get all player photos
+        const playerPhotos = document.querySelectorAll('.player-photo');
+
+        // Remove any existing event listeners to prevent duplication
+        playerPhotos.forEach(photo => {
+            const newPhoto = photo.cloneNode(true);
+            photo.parentNode.replaceChild(newPhoto, photo);
+        });
+
+        // Add click/tap event listeners to all player photos
+        document.querySelectorAll('.player-photo').forEach(photo => {
+            let isZoomed = false;
+
+            photo.addEventListener('click', (e) => {
+                e.stopPropagation();
+
+                if (!isZoomed) {
+                    // First click: zoom the photo
+                    photo.style.transform = 'scale(1.4)';
+                    photo.style.zIndex = '100';
+                    isZoomed = true;
+
+                    // Add click outside listener to revert zoom
+                    const handleOutsideClick = (event) => {
+                        if (event.target !== photo) {
+                            photo.style.transform = '';
+                            photo.style.zIndex = '';
+                            isZoomed = false;
+                            document.removeEventListener('click', handleOutsideClick);
+                        }
+                    };
+
+                    // Delay adding the outside click handler
+                    setTimeout(() => {
+                        document.addEventListener('click', handleOutsideClick);
+                    }, 10);
+                } else {
+                    // We could add detailed player card functionality here if needed
+                    photo.style.transform = '';
+                    photo.style.zIndex = '';
+                    isZoomed = false;
+                }
+            });
+
+            // Make it visually clear that photos are clickable
+            photo.style.cursor = 'pointer';
+        });
+    }
+
+    // Function to handle header click interactions
+    function setupHeaderClickInteractions() {
+        // Get all team card headers
+        const cardHeaders = document.querySelectorAll('.user-team-card-header2');
+
+        // Remove any existing event listeners to prevent duplication
+        cardHeaders.forEach(header => {
+            const newHeader = header.cloneNode(true);
+            header.parentNode.replaceChild(newHeader, header);
+        });
+
+        // Add click/tap event listeners to all team card headers
+        document.querySelectorAll('.user-team-card-header2').forEach(header => {
+            header.style.cursor = 'pointer'; // Make it visually clear that headers are clickable
+
+            header.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent event from bubbling to the card
+
+                // Find the parent card and toggle its expanded state
+                const card = header.closest('.user-team-card');
+                if (card) {
+                    card.classList.toggle('expanded');
+                }
+            });
+        });
+    }
+
+    // Setup the toggle button functionality
+    function setupCardsToggle() {
+        const cardsToggle = document.getElementById('cardsToggle');
+        if (!cardsToggle) return;
+
+        // Set the initial button icon
+        if (cardsToggle.querySelector('i')) {
+            cardsToggle.querySelector('i').className = 'fas fa-compress';
+        }
+
+        cardsToggle.addEventListener('mouseenter', function () {
+            this.style.opacity = '1';
+        });
+
+        cardsToggle.addEventListener('mouseleave', function () {
+            this.style.opacity = '0.5';
+        });
+
+        cardsToggle.addEventListener('click', function () {
+            const cards = document.querySelectorAll('.user-team-card');
+            cardsExpanded = !cardsExpanded;
+
+            // Update icon based on state
+            const icon = this.querySelector('i');
+            if (cardsExpanded) {
+                icon.className = 'fas fa-compress'; // Compress icon when expanded
+                cards.forEach(card => card.classList.add('expanded'));
+            } else {
+                icon.className = 'fas fa-expand'; // Expand icon when collapsed
+                cards.forEach(card => card.classList.remove('expanded'));
+            }
+        });
+    }
+
+
+
+
     // Function to fetch and display leagues for the current user
     async function fetchAndDisplayLeagues() {
         try {
@@ -122,7 +493,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             const userTeams = await response.json();
             const rankings = processRankings(userTeams);
-            displayRankings(rankings);
+            //displayRankings(rankings);
 
             // Fetch squad details to have them ready when user clicks on a row
             fetchSquadDetails(leagueId, rankings);
@@ -145,12 +516,12 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
 
             const squads = await respSquads.json();
-            const selectedDraftPeriodId = document.getElementById('filterDraftPeriodDropdown').value;
-            const filteredSquads = squads.filter(squad => squad.draftPeriodId == selectedDraftPeriodId);
+            //const selectedDraftPeriodId = document.getElementById('filterDraftPeriodDropdown').value;
+            //const filteredSquads = squads.filter(squad => squad.draftPeriodId == selectedDraftPeriodId);
 
             // Create a map of user IDs to squad details
             squadsMap = {};
-            filteredSquads.forEach(squad => {
+            squads.forEach(squad => {
                 if (!squadsMap[squad.userId]) {
                     squadsMap[squad.userId] = [];
                 }
@@ -332,6 +703,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     // Fetch draft periods for dropdown
+    /*
     let draftPeriods = [];
     try {
         const respDrafts = await fetch(`${config.backendUrl}/DraftPeriods`, addAuthHeader());
@@ -349,8 +721,9 @@ document.addEventListener('DOMContentLoaded', async function () {
     } catch (error) {
         console.error('Error fetching draft periods:', error);
     }
-
+    */
     // Populate filter draft period dropdown and set default value
+    /*
     const filterDraftPeriodDropdown = document.getElementById('filterDraftPeriodDropdown');
     draftPeriods.sort((a, b) => a.name.localeCompare(b.name)).forEach(draft => {
         const option = document.createElement('option');
@@ -368,7 +741,22 @@ document.addEventListener('DOMContentLoaded', async function () {
         // Update rankings with new draft period
         fetchAndDisplayRankings(currentLeagueId);
     });
+    */
+    setupCardsToggle();
 
     // Fetch and display existing leagues on page load
-    fetchAndDisplayLeagues();
+    await fetchAndDisplayLeagues();
+
+    // After leagues are loaded, set up the change event listener
+    const leagueDropdown = document.getElementById('leagueDropdown');
+    if (leagueDropdown) {
+        leagueDropdown.addEventListener('change', fetchAndCreateUserTeamCards);
+
+        // Now that we know leagues are loaded, we can safely check and use the value
+        if (leagueDropdown.value) {
+            // Initial fetch for the selected league
+            fetchAndCreateUserTeamCards();
+        }
+    }
+
 });

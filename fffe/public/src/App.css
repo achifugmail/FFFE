@@ -1427,6 +1427,8 @@ th {
         background-color: #4CAF50;
         color: white;
         */
+        text-align: right;
+        display: block;
         font-weight: bold;
         border-radius: 10px;
         font-size: 12px;
@@ -1530,8 +1532,7 @@ th {
 }
 .user-team-card-footer {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    justify-content: right;    
     padding: 5px 8px;
     margin-top: 5px;
     border-top: 1px solid #eee;
@@ -1539,6 +1540,7 @@ th {
 }
 
 .avg-points-label {
+    text-align: left;
     color: #666;
 }
 
@@ -1930,4 +1932,85 @@ th {
     .transfers-open #playerGrid {
         transform: translateX(-20px);
     }
+}
+
+.user-team-card-header2 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+    .user-team-card-header2 h3 {
+        margin: 0;
+        font-size: 14px;
+        color: #444;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 140px;
+    }
+
+    .user-team-card-header2 .total-score {
+        /*
+        background-color: #4CAF50;
+        color: white;
+        */
+        text-align: right;
+        display: block;
+        font-weight: bold;
+        border-radius: 10px;
+        font-size: 12px;
+    }
+
+.user-team-card-header2 {
+    display: flex;
+    flex-direction: column;
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.ranking-icons {
+    margin-top: 5px;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.ranking-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+}
+
+.ranking-icon i {
+    margin-bottom: 2px;
+}
+
+.ranking-icon span {
+    font-size: 12px;
+}
+
+.gold-medal {
+    color: gold;
+}
+
+.silver-medal {
+    color: silver;
+}
+
+.brown-icon {
+    color: brown;
+}
+
+.green-icon {
+    color: green;
 }

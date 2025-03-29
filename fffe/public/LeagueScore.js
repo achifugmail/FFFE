@@ -576,7 +576,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         console.log('Setting up header click interactions...');
 
         // Get all team card headers
-        const cardHeaders = document.querySelectorAll('.user-team-card-header');
+        const cardHeaders = document.querySelectorAll('.user-team-card-header2');
         console.log(`Found ${cardHeaders.length} team card headers`);
 
         // Remove any existing event listeners to prevent duplication
@@ -587,7 +587,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
 
         // Add click/tap event listeners to all team card headers
-        document.querySelectorAll('.user-team-card-header').forEach(header => {
+        document.querySelectorAll('.user-team-card-header2').forEach(header => {
             header.style.cursor = 'pointer'; // Make it visually clear that headers are clickable
 
             header.addEventListener('click', (e) => {
