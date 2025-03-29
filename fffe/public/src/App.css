@@ -1315,6 +1315,8 @@ th {
     z-index: 100;
 }
 
+
+
 /* Fixtures drawer toggle button */
 .fixtures-toggle {
     position: fixed;
@@ -1481,6 +1483,9 @@ th {
 }
 
 .user-team-card.expanded .player-name {
+    display: block;
+}
+.transfer-player .player-name {
     display: block;
 }
 
@@ -1882,14 +1887,14 @@ th {
 
 /* Transfers container styling */
 #transfersContainer {
-    width: 75%;
+    width: 310px;
     background-color: #fff;
     border-left: 1px solid #ddd;
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
     padding: 15px;
     position: fixed;
     top: 13%;
-    right: -190px;
+    right: -305px;
     bottom: 0;
     height: 74%;
     overflow-y: auto;
@@ -1911,11 +1916,11 @@ th {
 @media (min-width: 1200px) {
     /* On larger screens, show side by side */
     #transfersContainer {
-        position: relative;
-        top: auto;
+        position: sticky;
+        top: 20px;
         right: auto;
-        height: auto;
-        max-height: none;
+        height: 75%;
+        max-height: 650px;
     }
 
     .transfers-toggle {

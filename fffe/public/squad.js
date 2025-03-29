@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     });
 
-    // Modify the checkAndHandleUrlSquadId function to also handle leagueId:
+    
     function checkAndHandleUrlSquadId() {
         const urlParams = new URLSearchParams(window.location.search);
         const urlSquadId = urlParams.get('id');
@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             fetchAndCreateSections();
             fetchSquadDetails();
-            //fetchAndDisplaySquadPlayers(squadId, leagueId);
+            fetchAndDisplaySquadPlayers(squadId, leagueId);
             fetchAndDisplayTransfers(squadId);
             return true;
         }
@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             await fetchAndCreateSections();
             await fetchSquadDetails();
             await fetchAndDisplaySquadPlayers(squadId, leagueId);
-            //await fetchAndDisplayTransfers(squadId);
+            await fetchAndDisplayTransfers(squadId);
         }
     }
 
@@ -620,14 +620,14 @@ document.addEventListener('DOMContentLoaded', async function () {
                         <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${transfer.playerIn.photo.slice(0, -3)}png" 
                              alt="${transfer.playerIn.webName}" 
                              class="player-photo">
-                        <span>${transfer.playerIn.webName}</span>
+                        <span class="player-name">${transfer.playerIn.webName}</span>
                     </div>
                     <div class="transfer-arrow">←</div>
                     <div class="transfer-player">
                         <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${transfer.playerOut.photo.slice(0, -3)}png" 
                              alt="${transfer.playerOut.webName}" 
                              class="player-photo">
-                        <span>${transfer.playerOut.webName}</span>
+                        <span class="player-name">${transfer.playerOut.webName}</span>
                     </div>
                 </div>
             `;
@@ -663,9 +663,9 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     });
 
-    if (!checkAndHandleUrlSquadId()) {
+    //if (!checkAndHandleUrlSquadId()) {
         await fetchLeagues();
-    }
+    //}
 
     document.addEventListener('click', function (event) {
         if (event.target.classList.contains('add-button')) {

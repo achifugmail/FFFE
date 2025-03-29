@@ -12,7 +12,7 @@
 <body>
     <div id="nav-placeholder"></div>
     <div id="squadInfo"></div>
-    <div id="content" class="container">
+    <div id="content" >
         <!-- League Dropdown -->
         <div class="dropdown-container" style="display: flex; gap: 10px; margin-bottom: 10px;">
             <div>
@@ -25,14 +25,14 @@
 
         <!-- Team layout containing player grid and transfers panel -->
         <div class="team-layout">
-            <div id="playerGrid"></div>
+            <div id="playerGrid" class="container"></div>
 
             <button class="transfers-toggle" id="transfersToggle">
                 <i class="fas fa-exchange-alt"></i>
             </button>
 
-            <div id="transfersContainer">
-                <div id="transfersList"></div>
+            <div id="transfersContainer" class="container">
+                <div id="transfersList" ></div>
             </div>
         </div>
     </div>
