@@ -137,6 +137,28 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     // Function to create a team card
+    // Helper function to calculate color based on score (red to green gradient)
+    function getScoreColor(score, maxScore) {
+        if (maxScore === 0) return '#000000'; // Black if max score is 0 (to avoid division by zero)
+
+        // Calculate percentage (0 to 100)
+        const percentage = Math.min(Math.max((score / maxScore) * 100, 0), 100);
+
+        // Calculate RGB values:
+        // Red decreases as score increases
+        const r = Math.round(255 - (percentage * 2.55));
+
+        // Green increases as score increases, but capped to a softer value (180 instead of 255)
+        // This makes the green less bright at maximum value
+        const g = Math.round(percentage * 1.8); // Using 1.8 instead of 2.55 caps green at 180
+
+        // Add a tiny bit of blue to soften the color further
+        const b = 20;
+
+        return `rgb(${r}, ${g}, ${b})`;
+    }
+
+    // Update the createTeamCard function
     function createTeamCard(team) {
         const card = document.createElement('div');
         card.className = 'user-team-card';
@@ -174,6 +196,9 @@ document.addEventListener('DOMContentLoaded', async function () {
     </div>
 `;
         card.appendChild(header);
+
+        // Find max score among all players for color scaling
+        const maxPlayerScore = Math.max(...team.players.map(player => player.score || 0));
 
         // Group players by position
         const playersByPosition = {};
@@ -227,10 +252,14 @@ document.addEventListener('DOMContentLoaded', async function () {
                     name.textContent = player.webName || 'Unknown';
                     name.title = player.webName || 'Unknown';
 
-                    // Create score element with highlighting if changed
+                    // Create score element with highlighting if changed and color based on value
                     const score = document.createElement('div');
                     score.className = 'player-score';
                     score.textContent = player.score || '0';
+
+                    // Apply color based on score value
+                    const scoreValue = player.score || 0;
+                    score.style.color = getScoreColor(scoreValue, maxPlayerScore);
 
                     // Add all elements to the player row
                     playerRow.appendChild(photoContainer);
@@ -252,13 +281,13 @@ document.addEventListener('DOMContentLoaded', async function () {
         const totalScoreClass = "total-score";
 
         footer.innerHTML = `
-        
         <span class="${totalScoreClass}">${team.totalScore ? Math.round(team.totalScore) : 'N/A'}</span>
     `;
         card.appendChild(footer);
 
         return card;
     }
+
 
 
     // Function for player photo interactions (zoom and player card)
@@ -275,6 +304,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         // Add click/tap event listeners to all player photos
         document.querySelectorAll('.player-photo').forEach(photo => {
             let isZoomed = false;
+            let outsideClickHandler = null;
 
             photo.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -286,21 +316,64 @@ document.addEventListener('DOMContentLoaded', async function () {
                     isZoomed = true;
 
                     // Add click outside listener to revert zoom
-                    const handleOutsideClick = (event) => {
+                    outsideClickHandler = (event) => {
                         if (event.target !== photo) {
                             photo.style.transform = '';
                             photo.style.zIndex = '';
                             isZoomed = false;
-                            document.removeEventListener('click', handleOutsideClick);
+                            document.removeEventListener('click', outsideClickHandler);
+                            outsideClickHandler = null;
                         }
                     };
 
                     // Delay adding the outside click handler
                     setTimeout(() => {
-                        document.addEventListener('click', handleOutsideClick);
+                        document.addEventListener('click', outsideClickHandler);
                     }, 10);
                 } else {
-                    // We could add detailed player card functionality here if needed
+                    // Second click: show player card
+                    // First remove the outside click handler
+                    if (outsideClickHandler) {
+                        document.removeEventListener('click', outsideClickHandler);
+                        outsideClickHandler = null;
+                    }
+
+                    const playerRow = photo.closest('.player-row');
+
+                    // Get the full player data from the data attribute
+                    let player;
+                    try {
+                        player = JSON.parse(playerRow.getAttribute('data-player'));
+                        console.log('Player data:', player);
+                    } catch (error) {
+                        console.error('Error parsing player data:', error);
+                        return;
+                    }
+
+                    // Create overlay to darken the background
+                    const overlay = document.createElement('div');
+                    overlay.id = 'player-card-overlay';
+                    overlay.className = 'player-card-overlay';
+                    overlay.addEventListener('click', () => {
+                        overlay.remove();
+                        document.querySelector('.player-detail-card')?.remove();
+                    });
+
+                    // Create player card
+                    const playerCard = createPlayerCard(player);
+
+                    // Add the overlay and card to the document
+                    document.body.appendChild(overlay);
+                    document.body.appendChild(playerCard);
+
+                    // Position the card in the center of the screen
+                    playerCard.style.position = 'fixed';
+                    playerCard.style.top = '50%';
+                    playerCard.style.left = '50%';
+                    playerCard.style.transform = 'translate(-50%, -50%)';
+                    playerCard.style.zIndex = '1001';
+
+                    // Reset photo zoom
                     photo.style.transform = '';
                     photo.style.zIndex = '';
                     isZoomed = false;
@@ -310,6 +383,113 @@ document.addEventListener('DOMContentLoaded', async function () {
             // Make it visually clear that photos are clickable
             photo.style.cursor = 'pointer';
         });
+    }
+
+    function createPlayerCard(player) {
+        // Create container for player card
+        const playerCardContainer = document.createElement('div');
+        playerCardContainer.className = 'player-detail-card';
+
+        // Create header section with photo, name, score and close button
+        const cardHeader = document.createElement('div');
+        cardHeader.className = 'player-card-header';
+
+        // Add player photo
+        const photo = document.createElement('img');
+        photo.className = 'player-card-photo';
+        if (player.photo) {
+            photo.src = `https://resources.premierleague.com/premierleague/photos/players/110x140/p${player.photo.slice(0, -3)}png`;
+        } else {
+            photo.src = 'https://resources.premierleague.com/premierleague/photos/players/110x140/p0.png';
+        }
+        photo.alt = player.webName || 'Player';
+
+        // Add player name, position, and score
+        const nameScoreContainer = document.createElement('div');
+        nameScoreContainer.className = 'player-card-name-score';
+
+        const name = document.createElement('h3');
+        name.textContent = player.webName || 'Unknown';
+
+        // Add position
+        const positionItem = document.createElement('div');
+        positionItem.className = 'player-card-position';
+        positionItem.textContent = player.position || 'N/A';
+
+        const score = document.createElement('div');
+        score.className = 'player-card-score';
+        score.textContent = player.score || '0';
+
+        nameScoreContainer.appendChild(name);
+        nameScoreContainer.appendChild(positionItem);
+        nameScoreContainer.appendChild(score);
+
+        // Add close button
+        const closeButton = document.createElement('button');
+        closeButton.className = 'player-card-close';
+        closeButton.innerHTML = '&times;';
+        closeButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            playerCardContainer.remove();
+            document.getElementById('player-card-overlay').remove();
+        });
+
+        // Append elements to card header
+        cardHeader.appendChild(photo);
+        cardHeader.appendChild(nameScoreContainer);
+        cardHeader.appendChild(closeButton);
+
+        // Create stats container with grid layout for stats
+        const statsContainer = document.createElement('div');
+        statsContainer.className = 'player-card-stats';
+
+        // Add relevant player statistics
+        const statItems = [];
+
+        // Add goals scored
+        statItems.push({
+            iconType: 'fa',
+            iconClass: 'fa fa-futbol',
+            value: player.goalsScored || '0',
+            label: 'Goals'
+        });
+
+        // Add assists
+        statItems.push({
+            iconType: 'fa',
+            iconClass: 'fa fa-hands-helping',
+            value: player.assists || '0',
+            label: 'Assists'
+        });
+
+        // Add minutes played
+        statItems.push({
+            iconType: 'fa',
+            iconClass: 'fa fa-clock',
+            value: player.minutes || '0',
+            label: 'Minutes'
+        });
+
+        // Create each stat item
+        statItems.forEach(item => {
+            const statItem = document.createElement('div');
+            statItem.className = 'player-stat-item';
+
+            // Create icon
+            const iconElement = document.createElement('i');
+            iconElement.className = `${item.iconClass} stat-icon`;
+
+            statItem.appendChild(iconElement);
+            statItem.appendChild(document.createTextNode(` ${item.value} ${item.label}`));
+
+            statsContainer.appendChild(statItem);
+        });
+
+        // Assemble the card
+        playerCardContainer.appendChild(cardHeader);
+        playerCardContainer.appendChild(statsContainer);
+
+        return playerCardContainer;
     }
 
     // Function to handle header click interactions
