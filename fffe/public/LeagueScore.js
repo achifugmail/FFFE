@@ -132,10 +132,10 @@ document.addEventListener('DOMContentLoaded', async function () {
             const squadId = card.getAttribute('data-squad-id');
             expandedStates[squadId] = card.classList.contains('expanded');
         });
-
+        const leagueId = leagueDropdown.value;
         const gameweekId = gameweekDropdown.value;
         try {
-            const response = await fetch(`${config.backendUrl}/UserTeamPlayers/playerGameweekStatsByGameweek?gameweekId=${gameweekId}`, addAuthHeader());
+            const response = await fetch(`${config.backendUrl}/UserTeamPlayers/playerGameweekStatsByGameweekAndLeague?gameweekId=${gameweekId}&leagueId=${leagueId}`, addAuthHeader());
 
             if (!response.ok) {
                 console.error('Failed to fetch player gameweek stats on refresh:', response.status, response.statusText);
@@ -152,9 +152,10 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     async function fetchAndCreateUserTeamCards() {
+        const leagueId = leagueDropdown.value;
         const gameweekId = gameweekDropdown.value;
         try {
-            const response = await fetch(`${config.backendUrl}/UserTeamPlayers/playerGameweekStatsByGameweek?gameweekId=${gameweekId}`, addAuthHeader());
+            const response = await fetch(`${config.backendUrl}/UserTeamPlayers/playerGameweekStatsByGameweekAndLeague?gameweekId=${gameweekId}&leagueId=${leagueId}`, addAuthHeader());
 
             if (!response.ok) {
                 console.error('Failed to fetch player gameweek stats:', response.status, response.statusText);
