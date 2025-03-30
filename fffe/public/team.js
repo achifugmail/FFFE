@@ -116,11 +116,17 @@ document.addEventListener('DOMContentLoaded', async function () {
                 window.location.href = '/';
                 return;
             }
+            if (response.status === 404) {
+                // Redirect to LeagueAdmin.html if no leagues are found
+                window.location.href = 'LeagueAdmin.html';
+                return;
+            }
             if (!response.ok) {
                 console.error('Failed to fetch leagues:', response.status, response.statusText);
                 return;
             }
             const leagues = await response.json();
+
             const leagueDropdown = document.getElementById('leagueDropdown');
             leagueDropdown.innerHTML = '';
             leagues.forEach(league => {
@@ -146,6 +152,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             console.error('Error fetching leagues:', error);
         }
     }
+
 
     async function fetchDraftPeriods() {
         try {

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>League Admin</title>
+    <link rel="stylesheet" href="src/App.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div id="nav-placeholder"></div>
+
+    <h1>League Admin</h1>
+
+    <section id="currentLeaguesSection">
+        <h2>Current Leagues</h2>
+        <ul id="currentLeaguesList"></ul>
+    </section>
+
+    <section id="joinLeagueSection">
+        <h2>Join League</h2>
+        <input type="text" id="joinLeagueCode" placeholder="Enter league code">
+        <input type="text" id="squadName" placeholder="Enter squad name">
+        <button id="joinLeagueButton">Join League</button>
+    </section>
+
+    <section id="createLeagueSection">
+        <h2>Create League</h2>
+        <input type="text" id="createLeagueName" placeholder="Enter league name">
+        <input type="text" id="createSquadName" placeholder="Enter your squad name for the new league">
+        <button id="createLeagueButton">Create League</button>
+        <p id="newLeagueCode"></p>
+    </section>
+
+    <script type="module" src="leagueAdmin.js"></script>
+    <script type="module">
+        import { initializeNavigation } from './nav.js';
+        fetch('nav.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('nav-placeholder').innerHTML = data;
+                initializeNavigation();
+            });
+    </script>
+</body>
+</html>

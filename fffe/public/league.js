@@ -790,8 +790,10 @@ document.addEventListener('DOMContentLoaded', async function () {
                 if (isFirst) {
                     // Get 75 from last place
                     prizePointsPool += 75;
+                    // Get 25 from second place
+                    prizePointsPool += 25;
                     // Get 50 from each middle position
-                    prizePointsPool += 50 * (teamsCount - tiedCount - (isLast ? 0 : 1));
+                    prizePointsPool += 50 * (teamsCount - tiedCount - (isLast ? 0 : 2));
                 }
 
                 // Distribute statistics and prize points among tied teams
@@ -811,8 +813,10 @@ document.addEventListener('DOMContentLoaded', async function () {
                         stats.prizePoints += prizePointsPool / tiedCount;
                     } else if (isLast) {
                         stats.prizePoints -= 75 / tiedCount;
-                    } else if (!isSecond) {
-                        stats.prizePoints -= 50;
+                    } else if (isSecond) {
+                        stats.prizePoints -= 25 / tiedCount;
+                    } else {
+                        stats.prizePoints -= 50 / tiedCount;
                     }
                 });
 
@@ -822,6 +826,9 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         return Object.values(userStats);
     }
+
+
+
 
     function displayRankings(rankings) {
         const tbody = document.getElementById('rankingsTableBody');
