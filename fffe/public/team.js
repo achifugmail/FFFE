@@ -147,6 +147,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                 leagueId = this.value;
                 // Also fetch draft periods when league changes
                 await fetchDraftPeriods();
+                squadId = await fetchSquadId();
+                await fetchAndDisplaySquadPlayers(squadId);
             });
         } catch (error) {
             console.error('Error fetching leagues:', error);
@@ -194,6 +196,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
                 // After setting draft period, fetch the gameweeks
                 await fetchAndPopulateGameweeks(lastDraftPeriod.id);
+                
             }
 
             // Set up change event listener if not already set
