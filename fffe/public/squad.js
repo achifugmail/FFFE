@@ -358,7 +358,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     playerDiv.innerHTML = `
                     <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
                     <span class="player-name">${player.webName}</span>
-                    <span class="player-total-score" style="color: ${scoreColor};">${playerScore}</span>
+                    <span class="player-score" style="color: ${scoreColor};">${playerScore}</span>
                     ${getPlayerFormIndicator(player)}
                     ${getPlayerStatusIcon(player)}
                     <button class="remove-player-button" data-player-id="${player.id}" data-position="${position.name}">-</button>
@@ -390,9 +390,10 @@ document.addEventListener('DOMContentLoaded', async function () {
                     addButton.style.display = 'none';
                     playerList.style.display = 'none'; // Hide available players when position is filled
                 }
+                
             });
-
-
+                        
+            
         } catch (error) {
             console.error('Error fetching squad players:', error);
         }
@@ -408,6 +409,16 @@ document.addEventListener('DOMContentLoaded', async function () {
         return `hsl(${hue}, 80%, 45%)`;
     }
 
+    document.addEventListener('click', async function (event) {
+        if (event.target.classList.contains('add-button')) {
+            const position = event.target.getAttribute('data-position');
+            await fetchAndDisplayAvailablePlayers(position, leagueId, draftPeriodId);
+
+            // Scroll the section to the top of the page
+            
+        }
+    });
+
     async function fetchAndDisplayAvailablePlayers(position, leagueId, draftPeriodId) {
         try {
             const response = await fetch(`${config.backendUrl}/PlayerPositions/available-players-with-positions/${leagueId}/${draftPeriodId}`, addAuthHeader());
@@ -420,33 +431,32 @@ document.addEventListener('DOMContentLoaded', async function () {
             const filteredPlayers = players.filter(player => player.positionName === position);
             const section = document.getElementById(position);
             const playerList = section.querySelector('.player-list');
+            const addButton = section.querySelector('.add-button');
             playerList.innerHTML = '';
             filteredPlayers.forEach(player => {
                 const playerDiv = document.createElement('div');
                 playerDiv.className = 'player-grid';
                 const isPlayerInSquad = squadPlayers.some(p => p.id === player.id);
-               
+
                 playerDiv.innerHTML = `
-                <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
-                <span class="player-name">${player.webName}</span>
-                ${getPlayerFormIndicator(player)}
-                ${getPlayerStatusIcon(player)}
-                <button class="${isPlayerInSquad ? 'remove-player-button' : 'add-player-button'}" data-player-id="${player.id}" data-position="${position.name}">${isPlayerInSquad ? '-' : '+'}</button>
-            `; /*
-                playerDiv.innerHTML = `
-                <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
-                <span class="player-name">${player.webName}</span>
-                <button class="${isPlayerInSquad ? 'remove-player-button' : 'add-player-button'}" data-player-id="${player.id}" data-position="${position.name}">
-                    ${isPlayerInSquad ? '<i class="fas fa-trash-alt"></i>' : '+'}
-                </button>
-            `;*/
+            <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
+            <span class="player-name">${player.webName}</span>
+            ${getPlayerFormIndicator(player)}
+            ${getPlayerStatusIcon(player)}
+            <button class="${isPlayerInSquad ? 'remove-player-button' : 'add-player-button'}" data-player-id="${player.id}" data-position="${position.name}">${isPlayerInSquad ? '-' : '+'}</button>
+        `;
                 playerList.appendChild(playerDiv);
             });
             playerList.style.display = 'block';
+            addButton.style.display = 'none'; // Hide the Add button
+
+            
+            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
         } catch (error) {
             console.error('Error fetching available players:', error);
         }
     }
+
 
     async function addPlayerToSquad(playerId, squadId, position) {
         const now = new Date();
@@ -642,6 +652,10 @@ document.addEventListener('DOMContentLoaded', async function () {
         if (event.target.classList.contains('add-button')) {
             const position = event.target.getAttribute('data-position');
             fetchAndDisplayAvailablePlayers(position, leagueId, draftPeriodId);
+
+            // Scroll the section to the top of the page
+            const section = document.getElementById(position);
+            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     });
 
@@ -651,14 +665,26 @@ document.addEventListener('DOMContentLoaded', async function () {
             const position = event.target.getAttribute('data-position');
             addPlayerToSquad(playerId, squadId, position);
         } else if (event.target.classList.contains('remove-player-button')) {
+            const playerId = event.target.getAttribute('data-player-id');
+            const position = event.target.getAttribute('data-position');
             // Check if a swap is already pending
             if (outPlayerId) {
+                if (outPlayerId === playerId) {
+                    // Cancel the pending transfer
+                    outPlayerId = null;
+                    const section = document.getElementById(position);
+                    section.classList.remove('pending-swap');
+                    const addButton = section.querySelector('.add-button');
+                    const playerList = section.querySelector('.player-list');                    
+                    addButton.style.display = 'none';
+                    playerList.style.display = 'none';
+                    event.target.classList.remove('hover');
+                    return;
+                }                
                 alert('A player swap is pending. Please complete the swap before removing another player.');
                 return;
             }
 
-            const playerId = event.target.getAttribute('data-player-id');
-            const position = event.target.getAttribute('data-position');
             removePlayerFromSquad(playerId, squadId, position);
         }
     });
