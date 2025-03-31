@@ -660,14 +660,21 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
 
     document.addEventListener('click', function (event) {
+        const playerId = event.target.getAttribute('data-player-id');
+        const position = event.target.getAttribute('data-position');
+
         if (event.target.classList.contains('add-player-button')) {
-            const playerId = event.target.getAttribute('data-player-id');
-            const position = event.target.getAttribute('data-position');
             addPlayerToSquad(playerId, squadId, position);
         } else if (event.target.classList.contains('remove-player-button')) {
-            const playerId = event.target.getAttribute('data-player-id');
-            const position = event.target.getAttribute('data-position');
             // Check if a swap is already pending
+            if (outPlayerId) {                
+                alert('A player swap is pending. Please complete the swap before removing another player.');
+                return;
+            } 
+            event.target.classList.remove('remove-player-button');
+            event.target.classList.add('remove-player-button-pending');
+            removePlayerFromSquad(playerId, squadId, position);
+        } else if (event.target.classList.contains('remove-player-button-pending')) {
             if (outPlayerId) {
                 if (outPlayerId === playerId) {
                     // Cancel the pending transfer
@@ -675,18 +682,19 @@ document.addEventListener('DOMContentLoaded', async function () {
                     const section = document.getElementById(position);
                     section.classList.remove('pending-swap');
                     const addButton = section.querySelector('.add-button');
-                    const playerList = section.querySelector('.player-list');                    
+                    const playerList = section.querySelector('.player-list');
                     addButton.style.display = 'none';
                     playerList.style.display = 'none';
-                    event.target.classList.remove('hover');
+
+                    // Remove pending class from the button
+                    event.target.classList.remove('remove-player-button-pending');
+                    event.target.classList.add('remove-player-button');
                     return;
-                }                
+                }
                 alert('A player swap is pending. Please complete the swap before removing another player.');
                 return;
-            }
-
-            removePlayerFromSquad(playerId, squadId, position);
-        }
+            }            
+        } 
     });
 
     //if (!checkAndHandleUrlSquadId()) {

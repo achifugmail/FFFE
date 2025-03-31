@@ -42,9 +42,6 @@ button {
     font-size: 16px;
 }
 
-    button:hover {
-        background-color: #0056b3;
-    }
 
 /* Forms */
 label {
@@ -174,10 +171,23 @@ th {
     color: #dc3545;
 }
 
-    .remove-player-button:hover {
-        background-color: #f8d7da;
-        color: #bd2130;
-    }
+
+.remove-player-button-pending {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    line-height: 1;
+    margin-left: auto;
+    background-color: #bd2130;
+    color: white;
+}
 
 .add-player-button {
     background-color: #4CAF50;
@@ -189,13 +199,9 @@ th {
     color: white;
 }
 
-.add-player-button:hover {
-    background-color: #45a049;
-}
 
-.remove-player-button:hover {
-    background-color: #da190b;
-}
+
+
 
 
 
