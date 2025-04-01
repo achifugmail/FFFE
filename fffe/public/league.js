@@ -27,11 +27,16 @@ document.addEventListener('DOMContentLoaded', async function () {
             const rankingsResponse = await fetch(`${config.backendUrl}/Teams/league/${leagueId}/userteams`, addAuthHeader());
             const rankings = await rankingsResponse.json();
             const processedRankings = processRankings(rankings);
+
+            // Calculate global maximum values
+            calculateGlobalMaxValues(players);
+
             createUserTeamCards(players, processedRankings);
         } catch (error) {
             console.error('Error fetching league squad players:', error);
         }
     }
+
 
     // Function to process player stats and create user team cards
     function createUserTeamCards(players, rankings, expandedStates = {}) {
@@ -197,9 +202,6 @@ document.addEventListener('DOMContentLoaded', async function () {
 `;
         card.appendChild(header);
 
-        // Find max score among all players for color scaling
-        const maxPlayerScore = Math.max(...team.players.map(player => player.score || 0));
-
         // Group players by position
         const playersByPosition = {};
         team.players.forEach(player => {
@@ -252,19 +254,19 @@ document.addEventListener('DOMContentLoaded', async function () {
                     name.textContent = player.webName || 'Unknown';
                     name.title = player.webName || 'Unknown';
 
-                    // Create score element with highlighting if changed and color based on value
-                    const score = document.createElement('div');
-                    score.className = 'player-score';
-                    score.textContent = player.score || '0';
+                    // Create icon element
+                    const icon = document.createElement('img');
+                    icon.className = 'player-icon';
+                    icon.src = drawPieSliceIcon(player.minutes, maxMinutes);
 
-                    // Apply color based on score value
-                    const scoreValue = player.score || 0;
-                    score.style.color = getScoreColor(scoreValue, maxPlayerScore);
+                    // Calculate points per minute and apply color
+                    const pointsPerMinute = player.points / player.minutes;
+                    icon.style.borderColor = getScoreColor(pointsPerMinute, maxPointsPerMinute);
 
                     // Add all elements to the player row
                     playerRow.appendChild(photoContainer);
                     playerRow.appendChild(name);
-                    playerRow.appendChild(score);
+                    playerRow.appendChild(icon);
 
                     positionGroup.appendChild(playerRow);
                 });
@@ -287,8 +289,6 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         return card;
     }
-
-
 
     // Function for player photo interactions (zoom and player card)
     function setupPlayerPhotoInteractions() {
@@ -684,6 +684,47 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Store squad details for quick access when user clicks
     let squadsMap = {};
+
+    let maxMinutes = 0;
+    let maxPointsPerMinute = 0;
+
+    function calculateGlobalMaxValues(players) {
+        players.forEach(player => {
+            if (player.minutes > maxMinutes) {
+                maxMinutes = player.minutes;
+            }
+            const pointsPerMinute = player.points / player.minutes;
+            if (pointsPerMinute > maxPointsPerMinute) {
+                maxPointsPerMinute = pointsPerMinute;
+            }
+        });
+    }
+
+    function drawPieSliceIcon(minutes, maxMinutes) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 24;
+        canvas.height = 24;
+        const ctx = canvas.getContext('2d');
+
+        // Calculate the fill percentage
+        const fillPercentage = minutes / maxMinutes;
+
+        // Draw the background circle
+        ctx.beginPath();
+        ctx.arc(12, 12, 12, 0, 2 * Math.PI);
+        ctx.fillStyle = '#e0e0e0';
+        ctx.fill();
+
+        // Draw the pie slice
+        ctx.beginPath();
+        ctx.moveTo(12, 12);
+        ctx.arc(12, 12, 12, -Math.PI / 2, -Math.PI / 2 + 2 * Math.PI * fillPercentage);
+        ctx.lineTo(12, 12);
+        ctx.fillStyle = '#007bff';
+        ctx.fill();
+
+        return canvas.toDataURL();
+    }
 
     // Fetch squad details for the rankings
     async function fetchSquadDetails(leagueId, rankings) {
