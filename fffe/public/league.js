@@ -143,24 +143,25 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Function to create a team card
     // Helper function to calculate color based on score (red to green gradient)
-    function getScoreColor(score, maxScore) {
-        if (maxScore === 0) return '#000000'; // Black if max score is 0 (to avoid division by zero)
+    function getScoreColor(pointsPerMinute, maxPointsPerMinute) {
+        if (maxPointsPerMinute === 0) return '#000000'; // Black if max points per minute is 0 (to avoid division by zero)
 
-        // Calculate percentage (0 to 100)
-        const percentage = Math.min(Math.max((score / maxScore) * 100, 0), 100);
+        // Cap the color at 90% of the maximum
+        const cappedMax = maxPointsPerMinute * 0.9;
+        const percentage = Math.min(Math.max((pointsPerMinute / cappedMax) * 100, 0), 100);
 
-        // Calculate RGB values:
-        // Red decreases as score increases
-        const r = Math.round(255 - (percentage * 2.55));
+        // Calculate RGB values for a blue to red gradient
+        const r = Math.round(255 * (percentage / 100));
+        const g = 0;
+        const b = Math.round(255 * (1 - (percentage / 100)));
 
-        // Green increases as score increases, but capped to a softer value (180 instead of 255)
-        // This makes the green less bright at maximum value
-        const g = Math.round(percentage * 1.8); // Using 1.8 instead of 2.55 caps green at 180
+        // Apply a pastel-like shading
+        const pastelFactor = 0.7;
+        const shadedR = Math.round(r + (255 - r) * pastelFactor);
+        const shadedG = Math.round(g + (255 - g) * pastelFactor);
+        const shadedB = Math.round(b + (255 - b) * pastelFactor);
 
-        // Add a tiny bit of blue to soften the color further
-        const b = 20;
-
-        return `rgb(${r}, ${g}, ${b})`;
+        return `rgb(${shadedR}, ${shadedG}, ${shadedB})`;
     }
 
     // Update the createTeamCard function
@@ -256,6 +257,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
                     // Calculate points per minute and color
                     const pointsPerMinute = player.points / player.minutes;
+                    const maxPointsPerMinute = maxPointsPerMinuteByPosition[player.position];
                     const color = getScoreColor(pointsPerMinute, maxPointsPerMinute);
 
                     // Create icon element
@@ -686,16 +688,21 @@ document.addEventListener('DOMContentLoaded', async function () {
     let squadsMap = {};
 
     let maxMinutes = 0;
-    let maxPointsPerMinute = 0;
+    let maxPointsPerMinuteByPosition = {};
 
     function calculateGlobalMaxValues(players) {
+        maxPointsPerMinuteByPosition = {};
+
         players.forEach(player => {
             if (player.minutes > maxMinutes) {
                 maxMinutes = player.minutes;
             }
             const pointsPerMinute = player.points / player.minutes;
-            if (pointsPerMinute > maxPointsPerMinute) {
-                maxPointsPerMinute = pointsPerMinute;
+            if (!maxPointsPerMinuteByPosition[player.position]) {
+                maxPointsPerMinuteByPosition[player.position] = 0;
+            }
+            if (pointsPerMinute > maxPointsPerMinuteByPosition[player.position]) {
+                maxPointsPerMinuteByPosition[player.position] = pointsPerMinute;
             }
         });
     }
