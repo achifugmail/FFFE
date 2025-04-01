@@ -290,21 +290,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         return card;
     }
 
-    // Add card footer with total score
-        const footer = document.createElement('div');
-        footer.className = 'user-team-card-footer';
-
-        // Add total score with highlighting if changed
-        const totalScoreClass = "total-score";
-
-        footer.innerHTML = `
-        <span class="${totalScoreClass}">${team.totalScore ? Math.round(team.totalScore) : 'N/A'}</span>
-    `;
-        card.appendChild(footer);
-
-        return card;
-    }
-
     // Function for player photo interactions (zoom and player card)
     function setupPlayerPhotoInteractions() {
         // Get all player photos
