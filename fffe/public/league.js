@@ -143,6 +143,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Function to create a team card
     // Helper function to calculate color based on score (red to green gradient)
+
+    /*
     function getScoreColor(pointsPerMinute, maxPointsPerMinute) {
         if (maxPointsPerMinute === 0) return '#000000'; // Black if max points per minute is 0 (to avoid division by zero)
 
@@ -151,16 +153,43 @@ document.addEventListener('DOMContentLoaded', async function () {
         const percentage = Math.min(Math.max((pointsPerMinute / cappedMax) * 100, 0), 100);
 
         // Calculate RGB values for a blue to red gradient
-        const r = Math.round(255 * (percentage / 100));
-        const g = 0;
-        const b = Math.round(255 * (1 - (percentage / 100)));
+        const r = Math.round(210 * (percentage / 100));
+        const g = 100;
+        const b = Math.round(150 * (1 - (percentage / 100)));
 
         // Apply a pastel-like shading
-        const pastelFactor = 0.7;
+        const pastelFactor = 0.5;
         const shadedR = Math.round(r + (255 - r) * pastelFactor);
         const shadedG = Math.round(g + (255 - g) * pastelFactor);
         const shadedB = Math.round(b + (255 - b) * pastelFactor);
 
+        //return `rgb(${shadedR}, ${shadedG}, ${shadedB})`;
+        //return `rgb(${shadedR}, ${shadedG}, ${shadedB})`;
+        return `rgb(${shadedG}, ${shadedR}, ${shadedG})`;
+    }
+    */
+    function getScoreColor(pointsPerMinute, maxPointsPerMinute) {
+        if (maxPointsPerMinute === 0) return '#000000'; // Black if max points per minute is 0 (to avoid division by zero)
+
+        // Cap the color at 90% of the maximum
+        const cappedMax = maxPointsPerMinute * 0.9;
+        const percentage = Math.min(Math.max((pointsPerMinute / cappedMax) * 100, 0), 100);
+
+        // Define the start and end colors
+        const startColor = { r: 255, g: 255, b: 255 }; // #cfcfcf
+        const endColor = { r: 0, g: 128, b: 0 }; // #008000
+
+        const r = Math.round(startColor.r + (endColor.r - startColor.r) * (percentage / 100));
+        const g = Math.round(startColor.g + (endColor.g - startColor.g) * (percentage / 100));
+        const b = Math.round(startColor.b + (endColor.b - startColor.b) * (percentage / 100));
+
+        const pastelFactor = 0.2;
+        const shadedR = Math.round(r + (255 - r) * pastelFactor);
+        const shadedG = Math.round(g + (255 - g) * pastelFactor);
+        const shadedB = Math.round(b + (255 - b) * pastelFactor);
+
+        //return `rgb(${shadedR}, ${shadedG}, ${shadedB})`;
+        //return `rgb(${shadedR}, ${shadedG}, ${shadedB})`;
         return `rgb(${shadedR}, ${shadedG}, ${shadedB})`;
     }
 
@@ -264,6 +293,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     const icon = document.createElement('img');
                     icon.className = 'player-icon';
                     icon.src = drawPieSliceIcon(player.minutes, maxMinutes, color);
+                    icon.style.marginLeft = '10px'; // Move the icon 5 pixels to the right
 
                     // Add all elements to the player row
                     playerRow.appendChild(photoContainer);
@@ -291,6 +321,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         return card;
     }
+
+
 
     // Function for player photo interactions (zoom and player card)
     function setupPlayerPhotoInteractions() {
@@ -416,7 +448,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         // Add position
         const positionItem = document.createElement('div');
         positionItem.className = 'player-card-position';
-        positionItem.textContent = player.position || 'N/A';
+        positionItem.textContent = player.positionName || 'N/A';
 
         const score = document.createElement('div');
         score.className = 'player-card-score';
@@ -698,19 +730,19 @@ document.addEventListener('DOMContentLoaded', async function () {
                 maxMinutes = player.minutes;
             }
             const pointsPerMinute = player.points / player.minutes;
-            if (!maxPointsPerMinuteByPosition[player.position]) {
-                maxPointsPerMinuteByPosition[player.position] = 0;
+            if (!maxPointsPerMinuteByPosition[player.positionName]) {
+                maxPointsPerMinuteByPosition[player.positionName] = 0;
             }
-            if (pointsPerMinute > maxPointsPerMinuteByPosition[player.position]) {
-                maxPointsPerMinuteByPosition[player.position] = pointsPerMinute;
+            if (pointsPerMinute > maxPointsPerMinuteByPosition[player.positionName]) {
+                maxPointsPerMinuteByPosition[player.positionName] = pointsPerMinute;
             }
         });
     }
 
     function drawPieSliceIcon(minutes, maxMinutes, color) {
         const canvas = document.createElement('canvas');
-        canvas.width = 24;
-        canvas.height = 24;
+        canvas.width = 16;
+        canvas.height = 16;
         const ctx = canvas.getContext('2d');
 
         // Calculate the fill percentage
@@ -718,15 +750,15 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         // Draw the background circle
         ctx.beginPath();
-        ctx.arc(12, 12, 12, 0, 2 * Math.PI);
+        ctx.arc(8, 8, 8, 0, 2 * Math.PI);
         ctx.fillStyle = '#e0e0e0';
         ctx.fill();
 
         // Draw the pie slice
         ctx.beginPath();
-        ctx.moveTo(12, 12);
-        ctx.arc(12, 12, 12, -Math.PI / 2, -Math.PI / 2 + 2 * Math.PI * fillPercentage);
-        ctx.lineTo(12, 12);
+        ctx.moveTo(8, 8);
+        ctx.arc(8, 8, 8, -Math.PI / 2, -Math.PI / 2 + 2 * Math.PI * fillPercentage);
+        ctx.lineTo(8, 8);
         ctx.fillStyle = color;
         ctx.fill();
 
