@@ -254,14 +254,14 @@ document.addEventListener('DOMContentLoaded', async function () {
                     name.textContent = player.webName || 'Unknown';
                     name.title = player.webName || 'Unknown';
 
+                    // Calculate points per minute and color
+                    const pointsPerMinute = player.points / player.minutes;
+                    const color = getScoreColor(pointsPerMinute, maxPointsPerMinute);
+
                     // Create icon element
                     const icon = document.createElement('img');
                     icon.className = 'player-icon';
-                    icon.src = drawPieSliceIcon(player.minutes, maxMinutes);
-
-                    // Calculate points per minute and apply color
-                    const pointsPerMinute = player.points / player.minutes;
-                    icon.style.borderColor = getScoreColor(pointsPerMinute, maxPointsPerMinute);
+                    icon.src = drawPieSliceIcon(player.minutes, maxMinutes, color);
 
                     // Add all elements to the player row
                     playerRow.appendChild(photoContainer);
@@ -276,6 +276,21 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
 
         // Add card footer with total score
+        const footer = document.createElement('div');
+        footer.className = 'user-team-card-footer';
+
+        // Add total score with highlighting if changed
+        const totalScoreClass = "total-score";
+
+        footer.innerHTML = `
+        <span class="${totalScoreClass}">${team.totalScore ? Math.round(team.totalScore) : 'N/A'}</span>
+    `;
+        card.appendChild(footer);
+
+        return card;
+    }
+
+    // Add card footer with total score
         const footer = document.createElement('div');
         footer.className = 'user-team-card-footer';
 
@@ -700,7 +715,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     }
 
-    function drawPieSliceIcon(minutes, maxMinutes) {
+    function drawPieSliceIcon(minutes, maxMinutes, color) {
         const canvas = document.createElement('canvas');
         canvas.width = 24;
         canvas.height = 24;
@@ -720,11 +735,12 @@ document.addEventListener('DOMContentLoaded', async function () {
         ctx.moveTo(12, 12);
         ctx.arc(12, 12, 12, -Math.PI / 2, -Math.PI / 2 + 2 * Math.PI * fillPercentage);
         ctx.lineTo(12, 12);
-        ctx.fillStyle = '#007bff';
+        ctx.fillStyle = color;
         ctx.fill();
 
         return canvas.toDataURL();
     }
+
 
     // Fetch squad details for the rankings
     async function fetchSquadDetails(leagueId, rankings) {
