@@ -172,7 +172,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         if (maxPointsPerMinute === 0) return '#000000'; // Black if max points per minute is 0 (to avoid division by zero)
 
         // Cap the color at 90% of the maximum
-        const cappedMax = maxPointsPerMinute * 0.9;
+        const cappedMax = maxPointsPerMinute * 1;
         const percentage = Math.min(Math.max((pointsPerMinute / cappedMax) * 100, 0), 100);
 
         // Define the start and end colors
