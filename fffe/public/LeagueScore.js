@@ -519,7 +519,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         // Count players and identify remaining players (id === -1)
         userTeams[player.username].playerCount += 1;
-        if (player.id === -1 || player.score) {
+        if (player.id === -1) {
             userTeams[player.username].playersRemaining += 1;
         }
 
