@@ -13,7 +13,7 @@ const config = {
     backendUrl: isDevelopment
         ? 'https://localhost:44390/api'
         //: 'https://ffbe-akdrgxb2fjd6fddh.eastus2-01.azurewebsites.net/api'
-        : 'ffbe1-hjdthacef0hjc9ht.eastus2-01.azurewebsites.net'
+        : 'https://ffbe1-hjdthacef0hjc9ht.eastus2-01.azurewebsites.net/api'
 };
 
 function getToken() {
