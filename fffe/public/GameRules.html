@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Rules</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="nav-placeholder"></div>
+    <main>
+        <table id="scoringRulesTable">
+            <thead>
+                <tr>
+                    <th>Rule</th>
+                    <th>Points</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Scoring rules will be populated here -->
+            </tbody>
+        </table>
+    </main>
+
+    <script type="module" src="gameRules.js"></script>
+<script type="module">
+    import { initializeNavigation } from './nav.js';
+    fetch('nav.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('nav-placeholder').innerHTML = data;
+            initializeNavigation();
+        });
+</script>
+</body>
+</html>
