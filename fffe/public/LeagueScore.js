@@ -519,7 +519,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         // Count players and identify remaining players (id === -1)
         userTeams[player.username].playerCount += 1;
-        if (player.id === -1) {
+        if (player.id === -1 && !player.minutesPlayed) {
             userTeams[player.username].playersRemaining += 1;
         }
 
@@ -780,6 +780,9 @@ document.addEventListener('DOMContentLoaded', async function () {
                         playerRow.classList.add('null-player');
                     } else if (player.id === -1) {
                         playerRow.classList.add('pending-player');
+                        if (player.minutesPlayed) {
+                            playerRow.classList.add('flashing-gray');
+                        }
                     }
 
                     // Create player photo element with captain marker if needed

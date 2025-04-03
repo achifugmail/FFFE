@@ -2025,3 +2025,21 @@ th {
 .green-icon {
     color: green;
 }
+
+@keyframes flashingGray {
+    0% {
+        background-color: #f0f0f0;
+    }
+
+    50% {
+        background-color: #e1eae6;
+    }
+
+    100% {
+        background-color: #f0f0f0;
+    }
+}
+
+.flashing-gray {
+    animation: flashingGray 1s infinite;
+}
