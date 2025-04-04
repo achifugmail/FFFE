@@ -1392,6 +1392,16 @@ th {
     padding: 10px 5px;
     scroll-behavior: smooth;
 }
+.user-team-cards-container {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto; /* Change from 'scroll' to 'auto' */
+    gap: 1px;
+    padding: 10px 5px;
+    scroll-behavior: smooth;
+    width: 100%; /* Ensure the container takes full width */
+    box-sizing: border-box; /* Include padding in width calculation */
+}
 
 .user-team-card {
     flex: 0 0 70px; /* Make cards narrower */
@@ -2042,4 +2052,42 @@ th {
 
 .flashing-gray {
     animation: flashingGray 1s infinite;
+}
+.icon-legend-container {
+    margin-top: 10px;
+    padding: 0;
+    background-color: transparent;
+    font-size: 0.9em;
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+    margin-left: 0;
+    align-self: flex-start;
+}
+
+.legend-set {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.legend-icons {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.legend-text {
+    font-size: 0.8em;
+    font-style: italic;
+    color: #666;
+}
+
+.legend-arrow {
+    margin-top: 5px;
+}
+
+.legend-icon {
+    margin-left: 0;
 }

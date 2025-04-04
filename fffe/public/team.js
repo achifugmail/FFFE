@@ -3,13 +3,12 @@ import { addAuthHeader } from './config.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
     // Fetch draft periods for dropdown
-    let draftPeriods = [];
-
+    
     let leagueId;
     let draftPeriodId;
     let squadId;  // Remove the URL parameter assignment
     const currentUserId = localStorage.getItem('userId');
-    const currentUsername = localStorage.getItem('username');
+    
 
     const filterDraftPeriodDropdown = document.getElementById('filterDraftPeriodDropdown');
 
@@ -20,7 +19,12 @@ document.addEventListener('DOMContentLoaded', async function () {
         let gameweeks = [];
         try {
             const respGameweeks = await fetch(`${config.backendUrl}/Gameweeks/by-draft-period/${draftPeriodId}`, addAuthHeader());
-
+            if (respGameweeks.status === 401) {
+                console.error('Authentication error: Unauthorized access (401)');
+                // Redirect to the root site
+                window.location.href = '/';
+                return;
+            }
             if (!respGameweeks.ok) {
                 console.error('Failed to fetch gameweeks:', respGameweeks.status, respGameweeks.statusText);
             } else {
@@ -64,6 +68,12 @@ document.addEventListener('DOMContentLoaded', async function () {
     async function fetchAndDisplayFixtures(gameweekId) {
         try {
             const response = await fetch(`${config.backendUrl}/fixtures/gameweek/${gameweekId}`, addAuthHeader());
+            if (response.status === 401) {
+                console.error('Authentication error: Unauthorized access (401)');
+                // Redirect to the root site
+                window.location.href = '/';
+                return;
+            }
             if (!response.ok) {
                 console.error('Failed to fetch fixtures:', response.status, response.statusText);
                 return;
@@ -159,7 +169,12 @@ document.addEventListener('DOMContentLoaded', async function () {
     async function fetchDraftPeriods() {
         try {
             const response = await fetch(`${config.backendUrl}/DraftPeriods`, addAuthHeader());
-
+            if (response.status === 401) {
+                console.error('Authentication error: Unauthorized access (401)');
+                // Redirect to the root site
+                window.location.href = '/';
+                return;
+            }
             if (!response.ok) {
                 console.error('Failed to fetch draft periods:', response.status, response.statusText);
                 return;
@@ -213,7 +228,12 @@ document.addEventListener('DOMContentLoaded', async function () {
     async function fetchSquadId() {
         try {
             const response = await fetch(`${config.backendUrl}/UserSquads/ByLeagueDraftPeriodAndUser/${leagueId}/${draftPeriodId}/${currentUserId}`, addAuthHeader());
-
+            if (response.status === 401) {
+                console.error('Authentication error: Unauthorized access (401)');
+                // Redirect to the root site
+                window.location.href = '/';
+                return;
+            }
             if (!response.ok) {
                 console.error('Failed to fetch squad ID:', response.status, response.statusText);
                 return null;
@@ -224,30 +244,6 @@ document.addEventListener('DOMContentLoaded', async function () {
             console.error('Error fetching squad ID:', error);
             return null;
         }
-    }
-
-
-    // Fetch and display squad info
-    async function fetchAndDisplaySquadInfo(squadId) {
-        /*try {
-           const response = await fetch(`${config.backendUrl}/UserSquads/${squadId}`, addAuthHeader());
-
-           if (!response.ok) {
-               console.error('Failed to fetch squad info:', response.status, response.statusText);
-               return;
-           }
-          
-           const squad = await response.json();
-           const username = localStorage.getItem('username');
-           const squadInfoDiv = document.getElementById('squadInfo');
-           squadInfoDiv.innerHTML = `
-               <div style="display: flex; gap: 20px; align-items: center;">                    
-                   <span>${username}</span>
-               </div>
-           `;
-       } catch (error) {
-           console.error('Error fetching squad info:', error);
-       }*/
     }
 
     function getPlayerFormIndicator(player) {
@@ -292,7 +288,12 @@ document.addEventListener('DOMContentLoaded', async function () {
         try {
             const gameweekId = document.getElementById('gameweekDropdown').value;
             const response = await fetch(`${config.backendUrl}/PlayerPositions/user-squad-players/${squadId}`, addAuthHeader());
-
+            if (response.status === 401) {
+                console.error('Authentication error: Unauthorized access (401)');
+                // Redirect to the root site
+                window.location.href = '/';
+                return;
+            }
             if (!response.ok) {
                 console.error('Failed to fetch squad players:', response.status, response.statusText);
                 return;
@@ -445,7 +446,12 @@ ${getPlayerStatusIcon(player)}
                     },
                     body: JSON.stringify({ gameweekId: gameweekId, userSquadId: squadId, playerId: playerId })
                 }));
-
+                if (response.status === 401) {
+                    console.error('Authentication error: Unauthorized access (401)');
+                    // Redirect to the root site
+                    window.location.href = '/';
+                    return;
+                }
                 if (response.status === 400) { // BadRequest
                     // Get the error message from the response
                     const errorMessage = await response.text();
@@ -506,7 +512,12 @@ ${getPlayerStatusIcon(player)}
                 },
                 body: JSON.stringify({ gameweekId: gameweekId, userSquadId: squadId, playerId: playerId })
             }));
-
+            if (response.status === 401) {
+                console.error('Authentication error: Unauthorized access (401)');
+                // Redirect to the root site
+                window.location.href = '/';
+                return;
+            }
             if (response.status === 400) { // BadRequest
                 // Get the error message from the response
                 const errorMessage = await response.text();
@@ -545,20 +556,11 @@ ${getPlayerStatusIcon(player)}
         }
     }
 
-    // Update the team score link
-    function updateTeamScoreLink() {
-        const draftPeriodId = filterDraftPeriodDropdown.value;
-        const gameweekId = gameweekDropdown.value;
-        const teamScoreLink = document.getElementById('teamScoreLink');
-        teamScoreLink.href = `TeamScore.html?draftPeriodId=${draftPeriodId}&gameweekId=${gameweekId}&squadId=${squadId}`;
-    }
 
-    // Fetch and display squad info and players in the current squad on page load
-    const urlParams = new URLSearchParams(window.location.search);
+    // Fetch and display squad info and players in the current squad on page load    
     //const squadId = urlParams.get('SquadId');
     await fetchLeagues();
     squadId = await fetchSquadId();
-    await fetchAndDisplaySquadInfo(squadId);
     await fetchAndDisplaySquadPlayers(squadId);
     await fetchAndDisplayFixtures(gameweekDropdown.value);
 

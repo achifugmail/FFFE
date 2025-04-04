@@ -39,7 +39,12 @@ document.addEventListener('DOMContentLoaded', async function () {
     let draftPeriods = [];
     try {
         const respDrafts = await fetch(`${config.backendUrl}/DraftPeriods`, addAuthHeader());
-
+        if (respDrafts.status === 401) {
+            console.error('Authentication error: Unauthorized access (401)');
+            // Redirect to the root site
+            window.location.href = '/';
+            return;
+        }
         if (!respDrafts.ok) {
             console.error('Failed to fetch draft periods:', respDrafts.status, respDrafts.statusText);
         } else {
@@ -69,7 +74,12 @@ document.addEventListener('DOMContentLoaded', async function () {
         let gameweeks = [];
         try {
             const respGameweeks = await fetch(`${config.backendUrl}/Gameweeks/by-draft-period/${draftPeriodId}`, addAuthHeader());
-
+            if (respGameweeks.status === 401) {
+                console.error('Authentication error: Unauthorized access (401)');
+                // Redirect to the root site
+                window.location.href = '/';
+                return;
+            }
             if (!respGameweeks.ok) {
                 console.error('Failed to fetch gameweeks:', respGameweeks.status, respGameweeks.statusText);
             } else {
@@ -136,7 +146,12 @@ document.addEventListener('DOMContentLoaded', async function () {
         const gameweekId = gameweekDropdown.value;
         try {
             const response = await fetch(`${config.backendUrl}/UserTeamPlayers/playerGameweekStatsByGameweekAndLeague?gameweekId=${gameweekId}&leagueId=${leagueId}`, addAuthHeader());
-
+            if (response.status === 401) {
+                console.error('Authentication error: Unauthorized access (401)');
+                // Redirect to the root site
+                window.location.href = '/';
+                return;
+            }
             if (!response.ok) {
                 console.error('Failed to fetch player gameweek stats on refresh:', response.status, response.statusText);
                 return;
@@ -156,7 +171,12 @@ document.addEventListener('DOMContentLoaded', async function () {
         const gameweekId = gameweekDropdown.value;
         try {
             const response = await fetch(`${config.backendUrl}/UserTeamPlayers/playerGameweekStatsByGameweekAndLeague?gameweekId=${gameweekId}&leagueId=${leagueId}`, addAuthHeader());
-
+            if (response.status === 401) {
+                console.error('Authentication error: Unauthorized access (401)');
+                // Redirect to the root site
+                window.location.href = '/';
+                return;
+            }
             if (!response.ok) {
                 console.error('Failed to fetch player gameweek stats:', response.status, response.statusText);
                 return;

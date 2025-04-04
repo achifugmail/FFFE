@@ -3,11 +3,156 @@ import { addAuthHeader } from './config.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
     const currentUserId = localStorage.getItem('userId'); // Retrieve the current user ID from local storage
-    let currentLeagueId; // Track current league ID
 
     let previousPlayerScores = {};
     let previousTeamStats = {};
     let cardsExpanded = true;
+    const startColor = { r: 255, g: 255, b: 255 }; // #cfcfcf
+    const endColor = { r: 0, g: 128, b: 0 }; // #008000
+
+    function getScoreColor(pointsPerMinute, maxPointsPerMinute) {
+        if (maxPointsPerMinute === 0) return '#000000'; // Black if max points per minute is 0 (to avoid division by zero)
+
+        // Cap the color at 90% of the maximum
+        const cappedMax = maxPointsPerMinute * 1;
+        const percentage = Math.min(Math.max((pointsPerMinute / cappedMax) * 100, 0), 100);
+
+        // Define the start and end colors
+
+
+        const r = Math.round(startColor.r + (endColor.r - startColor.r) * (percentage / 100));
+        const g = Math.round(startColor.g + (endColor.g - startColor.g) * (percentage / 100));
+        const b = Math.round(startColor.b + (endColor.b - startColor.b) * (percentage / 100));
+
+        const pastelFactor = 0.2;
+        const shadedR = Math.round(r + (255 - r) * pastelFactor);
+        const shadedG = Math.round(g + (255 - g) * pastelFactor);
+        const shadedB = Math.round(b + (255 - b) * pastelFactor);
+
+        //return `rgb(${shadedR}, ${shadedG}, ${shadedB})`;
+        //return `rgb(${shadedR}, ${shadedG}, ${shadedB})`;
+        return `rgb(${shadedR}, ${shadedG}, ${shadedB})`;
+    }
+
+    function drawPieSliceIcon(minutes, maxMinutes, points, maxPointsPerMinute, border = false) {
+        // Create icon element
+        const pointsPerMinute = points / minutes;
+        const color = getScoreColor(pointsPerMinute, maxPointsPerMinute);
+
+        const icon = document.createElement('img');
+        //icon.className = 'player-icon';
+
+        // Create the canvas and draw the pie chart
+        const canvas = document.createElement('canvas');
+        canvas.width = 18;
+        canvas.height = 18;
+        const ctx = canvas.getContext('2d');
+
+        // Calculate the fill percentage
+        const fillPercentage = minutes / maxMinutes;
+
+        // Draw the background circle
+        ctx.beginPath();
+        ctx.arc(8, 8, 8, 0, 2 * Math.PI);
+        ctx.fillStyle = '#e0e0e0';
+        ctx.fill();
+
+        // Draw the pie slice
+        ctx.beginPath();
+        ctx.moveTo(8, 8);
+        ctx.arc(8, 8, 8, -Math.PI / 2, -Math.PI / 2 + 2 * Math.PI * fillPercentage);
+        ctx.lineTo(8, 8);
+        ctx.fillStyle = color;
+        ctx.fill();
+
+        // Add border around the filled area if requested
+        if (border) {
+            
+            ctx.moveTo(8, 8);
+            ctx.beginPath();
+            ctx.arc(8, 8, 8, -Math.PI / 2, -Math.PI / 2 + 2 * Math.PI * fillPercentage);
+            //ctx.lineTo(8, 8);
+            ctx.strokeStyle = '#666';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        }
+
+        // Set the icon properties
+        icon.src = canvas.toDataURL();
+        icon.style.marginLeft = '10px';
+        icon.style.filter = 'drop-shadow(1px 1px 1px lightgrey)';
+
+        return icon;
+    }
+
+    function createIconLegend() {
+        const legendContainer = document.getElementById('iconLegendContainer');
+        if (!legendContainer) return;
+
+        // Clear any existing content
+        legendContainer.innerHTML = '';
+        legendContainer.className = 'icon-legend-container';
+
+        // Function to create a legend set
+        function createLegendSet(icons, label) {
+            const container = document.createElement('div');
+            container.className = 'legend-set';
+
+            // Create container for icons
+            const iconsContainer = document.createElement('div');
+            iconsContainer.className = 'legend-icons';
+
+            // Add icons
+            icons.forEach((icon, index) => {
+                icon.className = 'legend-icon';
+                iconsContainer.appendChild(icon);
+            });
+
+            // Create arrow
+            const arrow = document.createElement('div');
+            arrow.className = 'legend-arrow';
+            arrow.innerHTML = `
+            <svg width="100" height="10" viewBox="0 0 100 10">
+                <line x1="0" y1="5" x2="95" y2="5" stroke="#666" stroke-width="1.5"/>
+                <path d="M95 5 l-4 -4 v8 z" fill="#666"/>
+            </svg>
+        `;
+
+            // Create label
+            const text = document.createElement('span');
+            text.className = 'legend-text';
+            text.textContent = label;
+
+            container.appendChild(iconsContainer);
+            container.appendChild(arrow);
+            container.appendChild(text);
+
+            return container;
+        }
+
+        // Create first set (points per minute)
+        const ppmIcons = [
+            drawPieSliceIcon(2, 3, 2, 3),
+            drawPieSliceIcon(2, 3, 4, 3),
+            drawPieSliceIcon(2, 3, 6, 3)
+        ];
+        const ppmSet = createLegendSet(ppmIcons, 'points per minute');
+
+        // Create second set (minutes played)
+        const minutesIcons = [
+            drawPieSliceIcon(1, 3, 1, 1),
+            drawPieSliceIcon(2, 3, 2, 1),
+            drawPieSliceIcon(3, 3, 3, 1)
+        ];
+        const minutesSet = createLegendSet(minutesIcons, 'minutes played');
+
+        // Add both sets to the container
+        legendContainer.appendChild(ppmSet);
+        legendContainer.appendChild(minutesSet);
+    }
+
+
+
 
     // Function to fetch and display all squad players in the league
     async function fetchAndCreateUserTeamCards() {
@@ -32,11 +177,11 @@ document.addEventListener('DOMContentLoaded', async function () {
             calculateGlobalMaxValues(players);
 
             createUserTeamCards(players, processedRankings);
+            createIconLegend();
         } catch (error) {
             console.error('Error fetching league squad players:', error);
         }
     }
-
 
     // Function to process player stats and create user team cards
     function createUserTeamCards(players, rankings, expandedStates = {}) {
@@ -141,58 +286,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         setupHeaderClickInteractions();
     }
 
-    // Function to create a team card
-    // Helper function to calculate color based on score (red to green gradient)
-
-    /*
-    function getScoreColor(pointsPerMinute, maxPointsPerMinute) {
-        if (maxPointsPerMinute === 0) return '#000000'; // Black if max points per minute is 0 (to avoid division by zero)
-
-        // Cap the color at 90% of the maximum
-        const cappedMax = maxPointsPerMinute * 0.9;
-        const percentage = Math.min(Math.max((pointsPerMinute / cappedMax) * 100, 0), 100);
-
-        // Calculate RGB values for a blue to red gradient
-        const r = Math.round(210 * (percentage / 100));
-        const g = 100;
-        const b = Math.round(150 * (1 - (percentage / 100)));
-
-        // Apply a pastel-like shading
-        const pastelFactor = 0.5;
-        const shadedR = Math.round(r + (255 - r) * pastelFactor);
-        const shadedG = Math.round(g + (255 - g) * pastelFactor);
-        const shadedB = Math.round(b + (255 - b) * pastelFactor);
-
-        //return `rgb(${shadedR}, ${shadedG}, ${shadedB})`;
-        //return `rgb(${shadedR}, ${shadedG}, ${shadedB})`;
-        return `rgb(${shadedG}, ${shadedR}, ${shadedG})`;
-    }
-    */
-    function getScoreColor(pointsPerMinute, maxPointsPerMinute) {
-        if (maxPointsPerMinute === 0) return '#000000'; // Black if max points per minute is 0 (to avoid division by zero)
-
-        // Cap the color at 90% of the maximum
-        const cappedMax = maxPointsPerMinute * 1;
-        const percentage = Math.min(Math.max((pointsPerMinute / cappedMax) * 100, 0), 100);
-
-        // Define the start and end colors
-        const startColor = { r: 255, g: 255, b: 255 }; // #cfcfcf
-        const endColor = { r: 0, g: 128, b: 0 }; // #008000
-
-        const r = Math.round(startColor.r + (endColor.r - startColor.r) * (percentage / 100));
-        const g = Math.round(startColor.g + (endColor.g - startColor.g) * (percentage / 100));
-        const b = Math.round(startColor.b + (endColor.b - startColor.b) * (percentage / 100));
-
-        const pastelFactor = 0.2;
-        const shadedR = Math.round(r + (255 - r) * pastelFactor);
-        const shadedG = Math.round(g + (255 - g) * pastelFactor);
-        const shadedB = Math.round(b + (255 - b) * pastelFactor);
-
-        //return `rgb(${shadedR}, ${shadedG}, ${shadedB})`;
-        //return `rgb(${shadedR}, ${shadedG}, ${shadedB})`;
-        return `rgb(${shadedR}, ${shadedG}, ${shadedB})`;
-    }
-
     // Update the createTeamCard function
     function createTeamCard(team) {
         const card = document.createElement('div');
@@ -284,16 +377,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                     name.textContent = player.webName || 'Unknown';
                     name.title = player.webName || 'Unknown';
 
-                    // Calculate points per minute and color
-                    const pointsPerMinute = player.points / player.minutes;
                     const maxPointsPerMinute = maxPointsPerMinuteByPosition[player.position];
-                    const color = getScoreColor(pointsPerMinute, maxPointsPerMinute);
-
-                    // Create icon element
-                    const icon = document.createElement('img');
-                    icon.className = 'player-icon';
-                    icon.src = drawPieSliceIcon(player.minutes, maxMinutes, color);
-                    icon.style.marginLeft = '10px'; // Move the icon 5 pixels to the right
+                    const icon = drawPieSliceIcon(player.minutes, maxMinutes, player.points, maxPointsPerMinute);
 
                     // Add all elements to the player row
                     playerRow.appendChild(photoContainer);
@@ -321,8 +406,6 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         return card;
     }
-
-
 
     // Function for player photo interactions (zoom and player card)
     function setupPlayerPhotoInteractions() {
@@ -587,14 +670,16 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     }
 
-
-
-
     // Function to fetch and display leagues for the current user
     async function fetchAndDisplayLeagues() {
         try {
             const response = await fetch(`${config.backendUrl}/Leagues/byUser/${currentUserId}`, addAuthHeader());
-
+            if (response.status === 401) {
+                console.error('Authentication error: Unauthorized access (401)');
+                // Redirect to the root site
+                window.location.href = '/';
+                return;
+            }
             if (!response.ok) {
                 console.error('Failed to fetch leagues:', response.status, response.statusText);
                 return;
@@ -612,91 +697,25 @@ document.addEventListener('DOMContentLoaded', async function () {
             // Set default value to the first league
             if (leagues.length > 0) {
                 leagueDropdown.value = leagues[0].id;
-                currentLeagueId = leagues[0].id;
                 fetchAndDisplayRankings(leagues[0].id);
-                //updateLeagueDetails(leagues[0].id);
             }
 
             // Update league details when the selected league changes
             leagueDropdown.addEventListener('change', function () {
-                currentLeagueId = this.value;
                 fetchAndDisplayRankings(this.value);
-                //updateLeagueDetails(this.value);
-
-                // Clear squad table when league changes
                 clearSquadTable();
             });
         } catch (error) {
             console.error('Error fetching leagues:', error);
         }
     }
-
-    // Function to update league details based on the selected league
-    async function updateLeagueDetails(leagueId) {
-        // Fetch league details
-        try {
-            const response = await fetch(`${config.backendUrl}/Leagues/${leagueId}`, addAuthHeader());
-
-            if (!response.ok) {
-                console.error('Failed to fetch league details:', response.status, response.statusText);
-                return;
-            }
-            const league = await response.json();
-            document.getElementById('leagueName').innerText = `${league.name}`;
-
-            // Don't fetch squads here anymore - we'll do it on demand
-        } catch (error) {
-            console.error('Error fetching league details:', error);
-        }
-    }
-
-    // Function to clear the squad table
     function clearSquadTable() {
         const squadTableHeader = document.getElementById('squadTableHeader');
         const squadTableRow = document.getElementById('squadTableRow');
         squadTableHeader.innerHTML = ''; // Clear existing headers
         squadTableRow.innerHTML = ''; // Clear existing row
     }
-
-    // Function to display a specific squad
-    async function displaySquad(squadId, squadName, username) {
-        // Clear existing content first
-        clearSquadTable();
-
-        const squadTableHeader = document.getElementById('squadTableHeader');
-        const squadTableRow = document.getElementById('squadTableRow');
-
-        // Create header
-        const th = document.createElement('th');
-        const squadLink = document.createElement('a');
-        squadLink.href = `Squad.html?id=${squadId}&leagueId=${currentLeagueId}`;
-        squadLink.innerText = `${squadName} - ${username}`;
-        th.appendChild(squadLink);
-        squadTableHeader.appendChild(th);
-
-        // Create iframe for the squad
-        const td = document.createElement('td');
-        const iframeContainer = document.createElement('div');
-        iframeContainer.className = 'iframe-container';
-        const iframe = document.createElement('iframe');
-        iframe.src = `Squad.html?id=${squadId}&leagueId=${currentLeagueId}`;
-        iframeContainer.appendChild(iframe);
-        td.appendChild(iframeContainer);
-        squadTableRow.appendChild(td);
-
-        // Adjust iframe height based on content
-        iframe.addEventListener('load', function () {
-            function adjustIframeHeight() {
-                const contentHeight = iframe.contentWindow.document.body.scrollHeight;
-                if (iframe.style.height !== contentHeight + 'px') {
-                    iframe.style.height = contentHeight + 'px';
-                    setTimeout(adjustIframeHeight, 1000); // Check again after 100ms
-                }
-            }
-            adjustIframeHeight();
-        });
-    }
-
+        
     async function fetchAndDisplayRankings(leagueId) {
         try {
             const response = await fetch(`${config.backendUrl}/Teams/league/${leagueId}/userteams`, addAuthHeader());
@@ -738,34 +757,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
         });
     }
-
-    function drawPieSliceIcon(minutes, maxMinutes, color) {
-        const canvas = document.createElement('canvas');
-        canvas.width = 16;
-        canvas.height = 16;
-        const ctx = canvas.getContext('2d');
-
-        // Calculate the fill percentage
-        const fillPercentage = minutes / maxMinutes;
-
-        // Draw the background circle
-        ctx.beginPath();
-        ctx.arc(8, 8, 8, 0, 2 * Math.PI);
-        ctx.fillStyle = '#e0e0e0';
-        ctx.fill();
-
-        // Draw the pie slice
-        ctx.beginPath();
-        ctx.moveTo(8, 8);
-        ctx.arc(8, 8, 8, -Math.PI / 2, -Math.PI / 2 + 2 * Math.PI * fillPercentage);
-        ctx.lineTo(8, 8);
-        ctx.fillStyle = color;
-        ctx.fill();
-
-        return canvas.toDataURL();
-    }
-
-
+        
     // Fetch squad details for the rankings
     async function fetchSquadDetails(leagueId, rankings) {
         try {
@@ -777,8 +769,6 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
 
             const squads = await respSquads.json();
-            //const selectedDraftPeriodId = document.getElementById('filterDraftPeriodDropdown').value;
-            //const filteredSquads = squads.filter(squad => squad.draftPeriodId == selectedDraftPeriodId);
 
             // Create a map of user IDs to squad details
             squadsMap = {};
@@ -908,54 +898,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         return Object.values(userStats);
     }
 
-
-
-
-    function displayRankings(rankings) {
-        const tbody = document.getElementById('rankingsTableBody');
-        tbody.innerHTML = '';
-
-        // Sort by total points descending
-        rankings.sort((a, b) => b.totalPoints - a.totalPoints);
-
-        rankings.forEach(squad => {
-            const row = tbody.insertRow();
-            row.innerHTML = `
-                <td data-label="Squad">${squad.squadName}</td>
-                <td data-label="Total Points">${squad.totalPoints}</td>
-                <td data-label="1st Places">${squad.firstPlaces}</td>
-                <td data-label="2nd Places">${squad.secondPlaces}</td>
-                <td data-label="Last Places">${squad.lastPlaces}</td>
-                <td data-label="Prize Points">${squad.prizePoints}</td>
-                <td class="chevron-cell" data-label="View"><i class="fas fa-chevron-right"></i></td>
-            `;
-
-            // Add click event to each row
-            row.style.cursor = 'pointer';
-            row.classList.add('clickable-row');
-            row.addEventListener('click', async function () {
-                // Get user details
-                const userId = squad.userId;
-
-                try {
-                    // Get the squad for this user
-                    if (squadsMap[userId] && squadsMap[userId].length > 0) {
-                        const userSquad = squadsMap[userId][0];
-                        const username = users.find(user => user.id === userId)?.username || `User ${userId}`;
-                        displaySquad(userSquad.id, squad.squadName, username);
-                    } else {
-                        console.error('No squad found for user', userId);
-                    }
-                } catch (error) {
-                    console.error('Error displaying squad:', error);
-                }
-            });
-        });
-
-        // Start with an empty squad table
-        clearSquadTable();
-    }
-
     // Fetch users for dropdown
     let users = [];
     try {
@@ -970,46 +912,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         console.error('Error fetching users:', error);
     }
 
-    // Fetch draft periods for dropdown
-    /*
-    let draftPeriods = [];
-    try {
-        const respDrafts = await fetch(`${config.backendUrl}/DraftPeriods`, addAuthHeader());
-        if (respDrafts.status === 401) {
-            console.error('Authentication error: Unauthorized access (401)');
-            // Redirect to the root site
-            window.location.href = '/';
-            return;
-        }
-        if (!respDrafts.ok) {
-            console.error('Failed to fetch draft periods:', respDrafts.status, respDrafts.statusText);
-        } else {
-            draftPeriods = await respDrafts.json();
-        }
-    } catch (error) {
-        console.error('Error fetching draft periods:', error);
-    }
-    */
-    // Populate filter draft period dropdown and set default value
-    /*
-    const filterDraftPeriodDropdown = document.getElementById('filterDraftPeriodDropdown');
-    draftPeriods.sort((a, b) => a.name.localeCompare(b.name)).forEach(draft => {
-        const option = document.createElement('option');
-        option.value = draft.id;
-        option.text = draft.name || `Draft ${draft.id}`;
-        filterDraftPeriodDropdown.appendChild(option);
-    });
-    filterDraftPeriodDropdown.value = draftPeriods[draftPeriods.length - 1].id;
-
-    // Add event listener for draft period filter changes
-    filterDraftPeriodDropdown.addEventListener('change', function () {
-        const currentLeagueId = document.getElementById('leagueDropdown').value;
-        // Clear squad table when draft period changes
-        clearSquadTable();
-        // Update rankings with new draft period
-        fetchAndDisplayRankings(currentLeagueId);
-    });
-    */
     setupCardsToggle();
 
     // Fetch and display existing leagues on page load
