@@ -99,11 +99,7 @@
 <body>
     <div id="nav-placeholder"></div>
     <div id="content">
-        <div class="create-league-container">
-            <input type="text" id="leagueName" placeholder="League Name">
-            <input type="text" id="leagueCode" placeholder="League Code">
-            <button onclick="createLeague()">Create League</button>
-        </div>
+
         <div class="draft-period-container">
             <input type="text" id="draftPeriodName" placeholder="Draft Period Name">
             <input type="date" id="draftPeriodStartDate">
@@ -128,26 +124,6 @@
         <button id="refreshInPlayPlayersButton">Refresh In-Play Players</button>
         <div id="progressIndicator">Refreshing data...</div>
 
-        <!-- New UI for creating a squad -->
-        <div>
-            <button type="button" class="collapsible">Create Squad</button>
-            <div class="content">
-                <h3>Create Squad</h3>
-                <label for="leagueDropdown">League:</label>
-                <select id="leagueDropdown"></select>
-
-                <label for="userDropdown">User:</label>
-                <select id="userDropdown"></select>
-
-                <label for="draftPeriodDropdown">Draft Period:</label>
-                <select id="draftPeriodDropdown"></select>
-
-                <label for="squadName">Squad Name:</label>
-                <input type="text" id="squadName" />
-
-                <button id="createSquadButton">Create Squad</button>
-            </div>
-        </div>
     </div>
     <script type="module">
         import { initializeNavigation } from './nav.js';

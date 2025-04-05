@@ -312,88 +312,11 @@ export async function createLeague() {
     }
 }
 
-export async function fetchLeagues() {
-    try {
-        const response = await fetch(`${config.backendUrl}/Leagues`, addAuthHeader());
-        if (!response.ok) {
-            console.error('Failed to fetch leagues:', response.status, response.statusText);
-            return;
-        }
-        const leagues = await response.json();
-        const leagueDropdown = document.getElementById('leagueDropdown');
-        if (!leagueDropdown) {
-            console.error('League dropdown not found');
-            return;
-        }
-        leagueDropdown.innerHTML = ''; // Clear existing options
-        leagues.forEach(league => {
-            const option = document.createElement('option');
-            option.value = league.id;
-            option.text = league.name;
-            leagueDropdown.appendChild(option);
-        });
-    } catch (error) {
-        console.error('Error fetching leagues:', error);
-    }
-}
-
-export async function fetchUsers() {
-    try {
-        const response = await fetch(`${config.backendUrl}/User/all`, addAuthHeader());
-        if (!response.ok) {
-            console.error('Failed to fetch users:', response.status, response.statusText);
-            return;
-        }
-        const users = await response.json();
-        const userDropdown = document.getElementById('userDropdown');
-        if (!userDropdown) {
-            console.error('User dropdown not found');
-            return;
-        }
-        userDropdown.innerHTML = ''; // Clear existing options
-        users.forEach(user => {
-            const option = document.createElement('option');
-            option.value = user.id;
-            option.text = user.username;
-            userDropdown.appendChild(option);
-        });
-    } catch (error) {
-        console.error('Error fetching users:', error);
-    }
-}
-
-export async function fetchDraftPeriods() {
-    try {
-        const response = await fetch(`${config.backendUrl}/DraftPeriods`, addAuthHeader());
-        if (!response.ok) {
-            console.error('Failed to fetch draft periods:', response.status, response.statusText);
-            return;
-        }
-        const draftPeriods = await response.json();
-        const draftPeriodDropdown = document.getElementById('draftPeriodDropdown');
-        if (!draftPeriodDropdown) {
-            console.error('Draft period dropdown not found');
-            return;
-        }
-        draftPeriodDropdown.innerHTML = ''; // Clear existing options
-        draftPeriods.forEach(draftPeriod => {
-            const option = document.createElement('option');
-            option.value = draftPeriod.id;
-            option.text = draftPeriod.name;
-            draftPeriodDropdown.appendChild(option);
-        });
-    } catch (error) {
-        console.error('Error fetching draft periods:', error);
-    }
-}
-
 // Initialize when DOM is loaded
 try {
     document.addEventListener('DOMContentLoaded', () => {
         fetchGameweeks();
-        fetchLeagues();
-        fetchUsers();
-        fetchDraftPeriods();
+
 
         // Add event listener for collapsible sections
         const collapsibles = document.querySelectorAll('.collapsible');
@@ -409,47 +332,7 @@ try {
             });
         });
 
-        // Handle Create Squad button click
-        document.getElementById('createSquadButton').addEventListener('click', async function () {
-            const userId = document.getElementById('userDropdown').value;
-            const draftPeriodId = document.getElementById('draftPeriodDropdown').value;
-            const squadName = document.getElementById('squadName').value.trim();
-            const leagueId = document.getElementById('leagueDropdown').value;
 
-            if (!userId || !leagueId || !draftPeriodId || !squadName) {
-                alert('Please fill in all fields');
-                return;
-            }
-
-            const createUrl = `${config.backendUrl}/UserSquads/Create`;
-
-            const payload = {
-                userId: parseInt(userId),
-                leagueId: parseInt(leagueId),
-                draftPeriodId: parseInt(draftPeriodId),
-                squadName: squadName
-            };
-
-            try {
-                const respCreate = await fetch(createUrl, addAuthHeader({
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                }));
-
-                if (!respCreate.ok) {
-                    console.error('Failed to create squad:', respCreate.status, respCreate.statusText);
-                    alert('Failed to create squad');
-                } else {
-                    alert('Squad created successfully!');
-                    // Optionally, refresh the list of squads or perform other actions
-                }
-            } catch (error) {
-                console.error('Error creating squad:', error);
-            }
-        });
     });
 } catch (error) {
     console.error('Error setting up DOMContentLoaded listener:', error);

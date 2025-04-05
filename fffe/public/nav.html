@@ -2,11 +2,36 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <nav id="main-nav">
     <ul>
-        <li><a href="Team.html" class="nav-link"><i class="fas fa-shirt fa-lg"></i> </a></li>
-        <li><a href="LeagueScore.html" class="nav-link"><i class="fas fa-chart-line fa-lg"></i> </a></li>
-        <li><a href="Squad.html" class="nav-link"><i class="fas fa-right-left fa-lg"></i> </a></li>
-        <li><a href="League.html" class="nav-link"><i class="fas fa-trophy fa-lg"></i> </a></li>
-        <li><a href="Settings.html" class="nav-link"><i class="fas fa-cog fa-lg"></i> </a></li>
+        <li>
+            <a href="Team.html" class="nav-link">
+                <i class="fas fa-shirt fa-lg"></i>
+                <span class="nav-text">Team</span>
+            </a>
+        </li>
+        <li>
+            <a href="LeagueScore.html" class="nav-link">
+                <i class="fas fa-chart-line fa-lg"></i>
+                <span class="nav-text">Scores</span>
+            </a>
+        </li>
+        <li>
+            <a href="Squad.html" class="nav-link">
+                <i class="fas fa-right-left fa-lg"></i>
+                <span class="nav-text">Transfers</span>
+            </a>
+        </li>
+        <li>
+            <a href="League.html" class="nav-link">
+                <i class="fas fa-trophy fa-lg"></i>
+                <span class="nav-text">League</span>
+            </a>
+        </li>
+        <li>
+            <a href="Settings.html" class="nav-link">
+                <i class="fas fa-cog fa-lg"></i>
+                <span class="nav-text">Settings</span>
+            </a>
+        </li>
     </ul>
 </nav>
 <style>
@@ -28,11 +53,16 @@
             }
 
                 nav ul li a {
-                    display: block;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
                     color: white;
                     text-align: center;
-                    padding: 18px 20px; /* Increased padding to accommodate larger icons */
+                    padding: 12px 20px 8px 20px;
                     text-decoration: none;
+                    min-width: 24px;
+                    height: 32px;
+                    justify-content: space-between;
                 }
 
                     nav ul li a:hover {
@@ -46,7 +76,16 @@
 
                     /* Add styles for the icons */
                     nav ul li a i {
-                        font-size: 1.5em; /* Make icons 150% of their original size */
+                        font-size: 1.5em;
+                        margin-bottom: 4px;
                     }
-</style>
 
+    /* Style for the text under icons */
+    .nav-text {
+        font-size: 0.7em;
+        white-space: nowrap;
+        display: block;
+        text-align: center;
+        line-height: 1;
+    }
+</style>
