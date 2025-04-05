@@ -113,15 +113,17 @@ document.addEventListener('DOMContentLoaded', async function () {
             arrow.className = 'legend-arrow';
             arrow.innerHTML = `
             <svg width="100" height="10" viewBox="0 0 100 10">
-                <line x1="0" y1="5" x2="95" y2="5" stroke="#666" stroke-width="1.5"/>
-                <path d="M95 5 l-4 -4 v8 z" fill="#666"/>
+                <line x1="10" y1="5" x2="95" y2="5" stroke="#aaa" stroke-width="1.5"/>
+                <path d="M95 5 l-4 -4 v8 z" fill="#aaa"/>
             </svg>
         `;
+            arrow.style.filter = 'drop-shadow(1px 1px 1px lightgrey)';
 
             // Create label
             const text = document.createElement('span');
             text.className = 'legend-text';
             text.textContent = label;
+            
 
             container.appendChild(iconsContainer);
             container.appendChild(arrow);
@@ -136,7 +138,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             drawPieSliceIcon(2, 3, 4, 3),
             drawPieSliceIcon(2, 3, 6, 3)
         ];
-        const ppmSet = createLegendSet(ppmIcons, 'points per minute');
+        const ppmSet = createLegendSet(ppmIcons, ' points per minute');
 
         // Create second set (minutes played)
         const minutesIcons = [
