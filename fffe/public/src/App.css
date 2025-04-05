@@ -1305,17 +1305,16 @@ th {
 }
 
 #fixturesContainer {
-    width: 200px;
+    width: 165px;
     background-color: #fff;
     border-left: 1px solid #ddd;
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
-    padding: 5px;
+    padding: 5px 0px 15px 10px;
     position: fixed;
     top: 140px; /* Adjust based on your header height */
     right: -190px; /* Start off-screen */
     bottom: 0;
-    /*height: calc(100vh - 75px);*/
-    height: 450px;
+    max-height: 750px;
     overflow-y: auto;
     transition: right 0.3s ease;
     z-index: 100;
@@ -1375,8 +1374,9 @@ th {
 @media (max-width: 768px) {
     /* Full width drawer on mobile */
     #fixturesContainer {
-        //width: 100%;
+        width: 165px;
         right: -100%;
+        height: auto;
     }
 
     .fixtures-open #playerGrid {
@@ -2090,4 +2090,52 @@ th {
 
 .legend-icon {
     margin-left: 0;
+}
+
+.fixtures-date-group {
+    margin-bottom: 20px;
+}
+
+.fixtures-date-header {
+    font-size: 0.8em;
+    color: #666;
+    padding: 5px 10px;
+    text-align: left;
+}
+
+.kickoff-time {
+    font-size: 0.6em;
+    color: #666;
+    margin-bottom: 2px;
+}
+
+.match-details {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.fixtures-table {
+    width: 100%;
+}
+
+    .fixtures-table tr {
+        border-bottom: 1px solid #eee;
+    }
+
+        .fixtures-table tr:last-child {
+            border-bottom: none;
+        }
+
+.match-cell {
+    padding: 8px;
+    width: 100%;
+}
+
+.match-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
 }
