@@ -441,6 +441,13 @@ ${getPlayerStatusIcon(player)}
 
     // // Mark a player as captain
     async function markAsCaptain(playerId) {
+        // Check if the player is selected (checkbox is checked)
+        const checkbox = document.querySelector(`.player-checkbox[data-player-id="${playerId}"]`);
+        if (!checkbox?.checked) {
+            //alert('You can only make a player captain if they are selected in your team.');
+            return;
+        }
+
         // First, remove captain status from any existing captain
         const existingCaptain = document.querySelector('.player-grid.captain');
         if (existingCaptain) {
@@ -455,7 +462,6 @@ ${getPlayerStatusIcon(player)}
         }
 
         // Call the API to update the captain
-
         const gameweekId = document.getElementById('gameweekDropdown').value;
         try {
             const response = await fetch(`${config.backendUrl}/UserTeamPlayers/updateCaptainByGameweekAndSquad`, addAuthHeader({
@@ -472,6 +478,7 @@ ${getPlayerStatusIcon(player)}
             console.error('Error updating captain:', error);
         }
     }
+
 
     // Select a player
 
