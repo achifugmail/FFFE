@@ -798,12 +798,12 @@ document.addEventListener('DOMContentLoaded', async function () {
                     // Add appropriate classes based on player status
                     if (player.id === null) {
                         playerRow.classList.add('null-player');
-                    } else if (player.id === -1) {
+                    } else if (player.played === -1) {
                         playerRow.classList.add('pending-player');
-                        if (player.minutesPlayed) {
+                    }else if (player.played === 0) {
                             playerRow.classList.add('flashing-gray');
                         }
-                    }
+                    
 
                     // Create player photo element with captain marker if needed
                     const photoContainer = document.createElement('div');
