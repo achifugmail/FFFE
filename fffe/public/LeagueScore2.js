@@ -26,22 +26,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         leagueDropdown.appendChild(option);
     });
 
-    // Fetch and display league details based on selected league
-    async function fetchAndDisplayLeagueDetails(leagueId) {
-        try {
-            const response = await fetch(`${config.backendUrl}/Leagues/${leagueId}`, addAuthHeader());
-
-            if (!response.ok) {
-                console.error('Failed to fetch league details:', response.status, response.statusText);
-                return;
-            }
-            const league = await response.json();
-            document.getElementById('leagueName').innerText = league.name;
-        } catch (error) {
-            console.error('Error fetching league details:', error);
-        }
-    }
-
     // Fetch draft periods for dropdown
     let draftPeriods = [];
     try {
@@ -153,13 +137,11 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Fetch and display league details and squads on page load
     if (leagueDropdown.value) {
-        //await fetchAndDisplayLeagueDetails(leagueDropdown.value);
         fetchAndDisplaySquads();
     }
 
     // Update league details and squads when league changes
     leagueDropdown.addEventListener('change', async function () {
-        //await fetchAndDisplayLeagueDetails(this.value);
         fetchAndDisplaySquads();
     });
 

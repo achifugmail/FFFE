@@ -862,11 +862,11 @@ document.addEventListener('DOMContentLoaded', async function () {
                 let prizePointsPool = 0;
                 if (isFirst) {
                     // Get 75 from last place
-                    prizePointsPool += 75;
+                    //prizePointsPool += 75;
                     // Get 25 from second place
-                    prizePointsPool += 25;
+                    //prizePointsPool += 25;
                     // Get 50 from each middle position
-                    prizePointsPool += 50 * (teamsCount - tiedCount - (isLast ? 0 : 2));
+                    prizePointsPool = 50 * (teamsCount - 1);
                 }
 
                 // Distribute statistics and prize points among tied teams
@@ -885,11 +885,11 @@ document.addEventListener('DOMContentLoaded', async function () {
                     if (isFirst) {
                         stats.prizePoints += prizePointsPool / tiedCount;
                     } else if (isLast) {
-                        stats.prizePoints -= 75 / tiedCount;
+                        stats.prizePoints -= (75 + (50 * (tiedCount - 1))) / tiedCount;
                     } else if (isSecond) {
-                        stats.prizePoints -= 25 / tiedCount;
+                        stats.prizePoints -= (25 + (50 * (tiedCount - 1))) / tiedCount;
                     } else {
-                        stats.prizePoints -= 50 / tiedCount;
+                        stats.prizePoints -= 50;
                     }
                 });
 
