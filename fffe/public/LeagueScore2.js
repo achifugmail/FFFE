@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     const currentUserId = localStorage.getItem('userId');
     let leagues = [];
     try {
-        const respLeagues = await fetch(`${config.backendUrl}/Leagues/byUser/${currentUserId}`, addAuthHeader());
+        const respLeagues = await fetch(`${config.backendUrl}/Leagues/byUser`, addAuthHeader());
         
         if (!respLeagues.ok) {
             console.error('Failed to fetch leagues:', respLeagues.status, respLeagues.statusText);

@@ -153,9 +153,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         legendContainer.appendChild(minutesSet);
     }
 
-
-
-
     // Function to fetch and display all squad players in the league
     async function fetchAndCreateUserTeamCards() {
         const leagueId = document.getElementById('leagueDropdown').value;
@@ -171,7 +168,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
 
             const players = await response.json();
-            const rankingsResponse = await fetch(`${config.backendUrl}/Teams/league/${leagueId}/userteams`, addAuthHeader());
+            const rankingsResponse = await fetch(`${config.backendUrl}/UserTeams/${leagueId}`, addAuthHeader());
             const rankings = await rankingsResponse.json();
             const processedRankings = processRankings(rankings);
 
@@ -208,8 +205,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             if (!userTeams[player.squadId]) {
                 // Find the user by userId
-                const user = users.find(u => u.id === player.userId);
-                const username = user ? user.username : 'User';
+                //const user = users.find(u => u.id === player.userId);
+                const username = player.squadName;
 
                 // Find the ranking for the squad
                 const ranking = rankings.find(r => r.userId === player.userId);
@@ -304,7 +301,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         header.innerHTML = `
     <div class="header-top league-header">
         <h3 title="${team.username} - ${team.squadName}">${team.username}</h3>
-        <span class="${totalPointsClass}">${Math.round(team.totalPoints)}</span>
+        <span class="${totalPointsClass}">${team.totalPoints}</span>
     </div>
     <div class="ranking-icons">
         <div class="ranking-icon">
@@ -675,7 +672,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Function to fetch and display leagues for the current user
     async function fetchAndDisplayLeagues() {
         try {
-            const response = await fetch(`${config.backendUrl}/Leagues/byUser/${currentUserId}`, addAuthHeader());
+            const response = await fetch(`${config.backendUrl}/Leagues/byUser`, addAuthHeader());
             if (response.status === 401) {
                 console.error('Authentication error: Unauthorized access (401)');
                 // Redirect to the root site
@@ -720,7 +717,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         
     async function fetchAndDisplayRankings(leagueId) {
         try {
-            const response = await fetch(`${config.backendUrl}/Teams/league/${leagueId}/userteams`, addAuthHeader());
+            const response = await fetch(`${config.backendUrl}/UserTeams/${leagueId}`, addAuthHeader());
             if (!response.ok) {
                 console.error('Failed to fetch rankings:', response.status, response.statusText);
                 return;
@@ -901,18 +898,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     // Fetch users for dropdown
-    let users = [];
-    try {
-        const respUsers = await fetch(`${config.backendUrl}/User/all`, addAuthHeader());
-
-        if (!respUsers.ok) {
-            console.error('Failed to fetch users:', respUsers.status, respUsers.statusText);
-        } else {
-            users = await respUsers.json();
-        }
-    } catch (error) {
-        console.error('Error fetching users:', error);
-    }
+       
 
     setupCardsToggle();
 

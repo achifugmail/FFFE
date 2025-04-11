@@ -36,6 +36,12 @@ document.addEventListener('DOMContentLoaded', async function () {
                 return;
             }
             players = await response.json();
+
+            // Store initial positions for each player
+            players.forEach(player => {
+                initialPlayerPositions[player.id] = player.positionName || '';
+            });
+            console.log('Initial player positions loaded');
         } catch (error) {
             console.error('Error fetching players:', error);
         }
@@ -139,46 +145,72 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Save modified rows
     async function saveAllChanges() {
-        console.log('Save button clicked'); // Add this line to check if the function is called
+        console.log('Save button clicked'); // Debugging log
         const modifiedRows = document.querySelectorAll('.position-select');
+        const changesToSave = []; // Array to store changes that need to be saved
+
         for (const select of modifiedRows) {
             const playerId = parseInt(select.getAttribute('data-player-id'), 10); // Convert playerId to integer
-            const newPositionName = select.value;
-            const newPositionId = positions.find(position => position.name === newPositionName)?.id;
-            if (!newPositionId) {
-                console.log('Skipping save for player ID:', playerId, 'due to blank position');
+            const newPositionName = select.value; // Get the current position from the dropdown
+            const initialPositionName = initialPlayerPositions[playerId] || ''; // Get the initial position from the stored data
+
+            // Skip if the position hasn't changed
+            if (newPositionName === initialPositionName) {
                 continue;
             }
 
-            const player = players.find(p => p.id === playerId);
+            // Find the new position ID
+            const newPositionId = positions.find(position => position.name === newPositionName)?.id;
+            if (!newPositionId && newPositionName !== '') {
+                console.log('Skipping save for player ID:', playerId, 'due to invalid position');
+                continue;
+            }
+
+            // Add the change to the array
+            changesToSave.push({
+                playerId,
+                newPositionId: newPositionName === '' ? null : newPositionId
+            });
+        }
+
+        if (changesToSave.length === 0) {
+            alert('No changes detected to save.');
+            return;
+        }
+
+        console.log(`Saving changes for ${changesToSave.length} players`);
+
+        // Call the API for each change
+        for (const change of changesToSave) {
+            const player = players.find(p => p.id === change.playerId);
             const plPlayerCode = player.code; // Use the code property for plPlayerCode
 
-            const initialPosition = positions.find(position => position.name === initialPlayerPositions[playerId]);
-
-            const initialPositionId = initialPosition ? initialPosition.id : -1;
-
-            // Only call the API if the position has changed
-            if (newPositionId !== initialPositionId) {
-                console.log('Saving changes for player ID:', playerId, 'with position ID:', newPositionId); // Log the data being sent
-                try {
-                    const response = await fetch(`${config.backendUrl}/PlayerPositions/upsert`, addAuthHeader({
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },                        
-                        body: JSON.stringify({ plPlayerCode: plPlayerCode, positionId: newPositionId })
-                    }));
-                    if (!response.ok) {
-                        console.error('Failed to save changes for player ID:', playerId, response.status, response.statusText);
-                        alert('Failed to save changes for player ID: ' + playerId);
-                    }
-                } catch (error) {
-                    console.error('Error saving changes for player ID:', playerId, error);
+            console.log('Saving changes for player ID:', change.playerId, 'with position ID:', change.newPositionId); // Debugging log
+            try {
+                const response = await fetch(`${config.backendUrl}/PlayerPositions/upsert`, addAuthHeader({
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ plPlayerCode: plPlayerCode, positionId: change.newPositionId })
+                }));
+                if (!response.ok) {
+                    console.error('Failed to save changes for player ID:', change.playerId, response.status, response.statusText);
+                    alert('Failed to save changes for player ID: ' + change.playerId);
+                } else {
+                    // Update the initialPlayerPositions after successful save
+                    const newPositionName = change.newPositionId ?
+                        positions.find(pos => pos.id === change.newPositionId)?.name : '';
+                    initialPlayerPositions[change.playerId] = newPositionName || '';
                 }
+            } catch (error) {
+                console.error('Error saving changes for player ID:', change.playerId, error);
             }
         }
+
         alert('Changes saved successfully!');
     }
+
 
     // Initialize the page
     async function init() {

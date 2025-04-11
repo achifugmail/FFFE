@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     const currentUserId = localStorage.getItem('userId');
     let leagues = [];
     try {
-        const respLeagues = await fetch(`${config.backendUrl}/Leagues/byUser/${currentUserId}`, addAuthHeader());
+        const respLeagues = await fetch(`${config.backendUrl}/Leagues/byUser`, addAuthHeader());
         if (respLeagues.status === 401) {
             console.error('Authentication error: Unauthorized access (401)');
             // Redirect to the root site
@@ -760,7 +760,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         header.innerHTML = `
     <h3 title="${team.username} - ${team.squadName}">${team.username}</h3>
-    <span class="${totalScoreClass}">${Math.round(team.totalScore)}</span>
+    <span class="${totalScoreClass}">${team.totalScore}</span>
     `;
         card.appendChild(header);
 

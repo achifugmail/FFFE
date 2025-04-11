@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     async function fetchLeagues() {
         try {
-            const response = await fetch(`${config.backendUrl}/Leagues/byUser/${currentUserId}`, addAuthHeader());
+            const response = await fetch(`${config.backendUrl}/Leagues/byUser`, addAuthHeader());
             if (response.status === 401) {
                 console.error('Authentication error: Unauthorized access (401)');
                 // Redirect to the root site
@@ -272,7 +272,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     async function fetchSquadId() {
         try {
-            const response = await fetch(`${config.backendUrl}/UserSquads/ByLeagueDraftPeriodAndUser/${leagueId}/${draftPeriodId}/${currentUserId}`, addAuthHeader());
+            const response = await fetch(`${config.backendUrl}/UserSquads/ByLeagueDraftPeriodAndUser/${leagueId}/${draftPeriodId}`, addAuthHeader());
             if (response.status === 401) {
                 console.error('Authentication error: Unauthorized access (401)');
                 // Redirect to the root site

@@ -11,9 +11,9 @@ const isDevelopment = window.location.hostname === 'localhost';
 
 const config = {
     backendUrl: isDevelopment
-        ? 'https://localhost:44390/api'
+        ? 'https://localhost:44390/api2'
         //: 'https://ffbe-akdrgxb2fjd6fddh.eastus2-01.azurewebsites.net/api'
-        : 'https://ffbe1-hjdthacef0hjc9ht.eastus2-01.azurewebsites.net/api'
+        : 'https://ffbe1-hjdthacef0hjc9ht.eastus2-01.azurewebsites.net/api2'
 };
 
 function getToken() {

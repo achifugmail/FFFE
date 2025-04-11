@@ -79,7 +79,7 @@ export async function refreshData() {
     progressIndicator.innerText = 'Refreshing data...';
 
     try {
-        const response = await fetch(`${config.backendUrl}/PlayerGameweekStats/PopulateAllPlayers`, addAuthHeader({
+        const response = await fetch(`${config.backendUrl}/PlayerGameweekStats/PopulateAllPlayers?daysOffset=40`, addAuthHeader({
             method: 'POST',
             headers: {
                 'Connection': 'keep-alive'

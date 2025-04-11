@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function fetchCurrentLeagues() {
         try {
-            const response = await fetch(`${config.backendUrl}/Leagues/byUser/${currentUserId}`, addAuthHeader());
+            const response = await fetch(`${config.backendUrl}/Leagues/byUser`, addAuthHeader());
             if (!response.ok) {
                 console.error('Failed to fetch leagues:', response.status, response.statusText);
                 return;

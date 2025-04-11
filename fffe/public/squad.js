@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     async function fetchLeagues() {
         try {
-            const response = await fetch(`${config.backendUrl}/Leagues/byUser/${currentUserId}`, addAuthHeader());
+            const response = await fetch(`${config.backendUrl}/Leagues/byUser`, addAuthHeader());
             if (response.status === 401) {
                 console.error('Authentication error: Unauthorized access (401)');
                 // Redirect to the root site
@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     async function fetchSquadId() {
         try {
-            const response = await fetch(`${config.backendUrl}/UserSquads/ByLeagueDraftPeriodAndUser/${leagueId}/${draftPeriodId}/${currentUserId}`, addAuthHeader());
+            const response = await fetch(`${config.backendUrl}/UserSquads/ByLeagueDraftPeriodAndUser/${leagueId}/${draftPeriodId}`, addAuthHeader());
 
             if (!response.ok) {
                 console.error('Failed to fetch squad ID:', response.status, response.statusText);
@@ -254,24 +254,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
             const squad = await response.json();
             draftPeriodId = squad.draftPeriodId;
-            /*
-            let draftPeriodName = '';
-            try {
-                const respDraft = await fetch(`${config.backendUrl}/DraftPeriods/${draftPeriodId}`, addAuthHeader());
-
-                if (!respDraft.ok) {
-                    console.error('Failed to fetch draft period details:', respDraft.status, respDraft.statusText);
-                } else {
-                    const draftPeriod = await respDraft.json();
-                    draftPeriodName = draftPeriod.name || `Draft ${draftPeriod.id}`;
-                }
-            } catch (error) {
-                console.error('Error fetching draft period details:', error);
-            }*/
-            /*
-            document.getElementById('squadInfo').innerText =
-                `${squad.userId}`;
-            */
+            
             if (currentUserId !== squad.userId.toString()) {
                 document.body.classList.add('hide-buttons');
             }
