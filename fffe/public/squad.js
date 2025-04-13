@@ -2,6 +2,10 @@
 import { addAuthHeader } from './config.js';
 let draftPeriodStartDate = null;
 let outPlayerId = null;
+let isDraftInProgress = false;
+let draftCheckInterval = null;
+let currentLeague = null;
+
 
 document.addEventListener('DOMContentLoaded', async function () {
     let leagueId;
@@ -38,6 +42,145 @@ document.addEventListener('DOMContentLoaded', async function () {
             icon.className = 'fas fa-exchange-alt'; // Exchange icon when closed
         }
     });
+
+    async function checkForActiveDraft() {
+        if (!leagueId || !draftPeriodId) return false;
+
+        try {
+            const response = await fetch(`${config.backendUrl}/Leagues/${leagueId}`, addAuthHeader());
+
+            if (!response.ok) {
+                console.error('Failed to fetch league details:', response.status, response.statusText);
+                return false;
+            }
+
+            const league = await response.json();
+            currentLeague = league;
+
+            const now = new Date();
+            const draftStart = new Date(league.draftStartDate);
+            const draftEnd = new Date(league.draftEndDate);
+
+            // Check if there is an active draft
+            isDraftInProgress = (
+                now >= draftStart &&
+                now <= draftEnd &&
+                league.nextDraftPeriodId == draftPeriodId
+            );
+
+            // Update UI based on draft status
+            updateUIForDraft(league);
+
+            return isDraftInProgress;
+        } catch (error) {
+            console.error('Error checking for active draft:', error);
+            return false;
+        }
+    }
+
+    // Function to update the UI based on draft status
+    function updateUIForDraft(league) {
+        const draftMessageContainer = document.getElementById('draftMessageContainer') || createDraftMessageContainer();
+
+        if (!isDraftInProgress) {
+            // No active draft
+            draftMessageContainer.style.display = 'none';
+            enableAllButtons();
+            if (draftCheckInterval) {
+                clearInterval(draftCheckInterval);
+                draftCheckInterval = null;
+            }
+            return;
+        }
+
+        // There is an active draft
+        draftMessageContainer.style.display = 'block';
+
+        if (league.currentDraftUserId.toString() === currentUserId) {
+            // Current user's turn in the draft
+            draftMessageContainer.innerHTML = `
+            <div class="draft-message your-turn">
+                <h3>It's your turn to draft!</h3>
+                <p>Make your selection and confirm when ready.</p>
+                <button id="confirmDraftSelectionBtn" class="confirm-draft-btn">Confirm Selections</button>
+            </div>
+        `;
+            enableAllButtons();
+
+            // Add event listener to the confirm button
+            document.getElementById('confirmDraftSelectionBtn').addEventListener('click', advanceDraft);
+        } else {
+            // Waiting for another user
+            draftMessageContainer.innerHTML = `
+            <div class="draft-message waiting">
+                <h3>Draft in progress</h3>
+                <p>Waiting for player ID: ${league.currentDraftUserId}</p>
+                <div class="loader"></div>
+            </div>
+        `;
+            disableAllButtons();
+
+            // Set up polling for draft status changes
+            if (!draftCheckInterval) {
+                draftCheckInterval = setInterval(checkForActiveDraft, 5000);
+            }
+        }
+    }
+
+    // Create a container for draft messages if it doesn't exist
+    function createDraftMessageContainer() {
+        const container = document.createElement('div');
+        container.id = 'draftMessageContainer';
+        container.className = 'draft-message-container';
+
+        // Insert after the dropdown section and before the player grid
+        const playerGrid = document.getElementById('playerGrid');
+        playerGrid.parentNode.insertBefore(container, playerGrid);
+
+        return container;
+    }
+
+    // Function to disable all buttons in the page
+    function disableAllButtons() {
+        const buttons = document.querySelectorAll('button:not(.confirm-draft-btn)');
+        buttons.forEach(button => {
+            button.disabled = true;
+            button.classList.add('disabled-during-draft');
+        });
+    }
+
+    // Function to enable all buttons in the page
+    function enableAllButtons() {
+        const buttons = document.querySelectorAll('button.disabled-during-draft');
+        buttons.forEach(button => {
+            button.disabled = false;
+            button.classList.remove('disabled-during-draft');
+        });
+    }
+
+    // Function to advance the draft
+    async function advanceDraft() {
+        if (!currentLeague || !leagueId) return;
+
+        try {
+            const response = await fetch(`${config.backendUrl}/Leagues/${leagueId}/advance-draft`, addAuthHeader({
+                method: 'POST'
+            }));
+
+            if (!response.ok) {
+                console.error('Failed to advance draft:', response.status, response.statusText);
+                alert('Failed to advance draft. Please try again.');
+                return;
+            }
+
+            // Refresh league information to get updated draft data
+            await checkForActiveDraft();
+
+        } catch (error) {
+            console.error('Error advancing draft:', error);
+            alert('An error occurred while advancing the draft.');
+        }
+    }
 
     
     function checkAndHandleUrlSquadId() {
@@ -117,17 +260,20 @@ document.addEventListener('DOMContentLoaded', async function () {
                 const lastDraftPeriod = draftPeriods[draftPeriods.length - 1];
                 draftPeriodDropdown.value = lastDraftPeriod.id;
                 draftPeriodId = lastDraftPeriod.id;
-                // Convert local time to GMT
                 draftPeriodStartDate = new Date(lastDraftPeriod.startDate).toUTCString();
                 await updateSquadId();
+                // Add this line to check for active draft after setting draft period ID
+                await checkForActiveDraft();
             }
 
             draftPeriodDropdown.addEventListener('change', async function () {
                 draftPeriodId = this.value;
                 const selectedOption = this.options[this.selectedIndex];
                 draftPeriodStartDate = new Date(selectedOption.getAttribute('data-start-date')).toUTCString();
-                outPlayerId = null; // Reset outPlayerId when changing draft period
+                outPlayerId = null;
                 await updateSquadId();
+                // Add this line to check for active draft when draft period changes
+                await checkForActiveDraft();
             });
         } catch (error) {
             console.error('Error fetching draft periods:', error);
@@ -139,7 +285,6 @@ document.addEventListener('DOMContentLoaded', async function () {
             const response = await fetch(`${config.backendUrl}/Leagues/byUser`, addAuthHeader());
             if (response.status === 401) {
                 console.error('Authentication error: Unauthorized access (401)');
-                // Redirect to the root site
                 window.location.href = '/';
                 return;
             }
@@ -161,11 +306,15 @@ document.addEventListener('DOMContentLoaded', async function () {
                 leagueDropdown.value = leagues[0].id;
                 leagueId = leagues[0].id;
                 await fetchDraftPeriods();
+                // Add this line to check for active draft after setting league ID
+                await checkForActiveDraft();
             }
 
             leagueDropdown.addEventListener('change', async function () {
                 leagueId = this.value;
                 await updateSquadId();
+                // Add this line to check for active draft when league changes
+                await checkForActiveDraft();
             });
         } catch (error) {
             console.error('Error fetching leagues:', error);
@@ -693,4 +842,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             fetchAndDisplayAvailablePlayers(position, leagueId, draftPeriodId);
         }
     });
+
+    if (leagueId && draftPeriodId) {
+        checkForActiveDraft();
+    }
 });

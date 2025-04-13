@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             'a[href="PlayerPositions.html"]',
             'a[href="Fixtures.html"]',
             'a[href="GameweekStats.html"]',
+            'a[href = "resetPassword.html"]',
             'a[href="newUser.html"]'
         ];
 

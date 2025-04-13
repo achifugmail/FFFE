@@ -389,7 +389,7 @@ ${getPlayerStatusIcon(player)}
                     gameweekPlayers.forEach(player => {
                         selectPlayer(player.playerId, false); // Pass false to indicate initial loading
                         if (player.isCaptain) {
-                            markAsCaptain(player.playerId);
+                            markCaptainVisually(player.playerId);
                         }
                     });
                 } else {
@@ -440,14 +440,8 @@ ${getPlayerStatusIcon(player)}
     }
 
     // // Mark a player as captain
-    async function markAsCaptain(playerId) {
-        // Check if the player is selected (checkbox is checked)
-        const checkbox = document.querySelector(`.player-checkbox[data-player-id="${playerId}"]`);
-        if (!checkbox?.checked) {
-            //alert('You can only make a player captain if they are selected in your team.');
-            return;
-        }
-
+    // Function to visually mark a player as captain without making API calls
+    function markCaptainVisually(playerId) {
         // First, remove captain status from any existing captain
         const existingCaptain = document.querySelector('.player-grid.captain');
         if (existingCaptain) {
@@ -460,6 +454,21 @@ ${getPlayerStatusIcon(player)}
             const playerDiv = button.closest('.player-grid');
             playerDiv.classList.add('captain');
         }
+    }
+
+    // Mark a player as captain (with API call)
+    async function markAsCaptain(playerId) {
+        // Check if the player is selected (checkbox is checked)
+        const checkbox = document.querySelector(`.player-checkbox[data-player-id="${playerId}"]`);
+        if (!checkbox?.checked) {
+            return;
+        }
+
+        // Store the current captain element before making any changes
+        const previousCaptain = document.querySelector('.player-grid.captain');
+
+        // Update the UI first
+        markCaptainVisually(playerId);
 
         // Call the API to update the captain
         const gameweekId = document.getElementById('gameweekDropdown').value;
@@ -471,14 +480,46 @@ ${getPlayerStatusIcon(player)}
                 },
                 body: JSON.stringify({ gameweekId: gameweekId, userSquadId: squadId, playerId: playerId })
             }));
+
             if (!response.ok) {
+                // If API call fails, revert the UI changes by restoring the previous captain (if any)
+                const currentCaptain = document.querySelector(`.captain-button[data-player-id="${playerId}"]`)?.closest('.player-grid');
+                if (currentCaptain) {
+                    currentCaptain.classList.remove('captain');
+                }
+
+                if (previousCaptain) {
+                    previousCaptain.classList.add('captain');
+                }
+
+                // Try to get the error message from the response
+                let errorText;
+                try {
+                    errorText = await response.text();
+                } catch (e) {
+                    errorText = response.statusText;
+                }
+
+                // Display error message
+                alert(`Failed to set captain: ${errorText}`);
                 console.error('Failed to update captain:', response.status, response.statusText);
             }
         } catch (error) {
+            // If an exception occurs, also revert the UI changes
+            const currentCaptain = document.querySelector(`.captain-button[data-player-id="${playerId}"]`)?.closest('.player-grid');
+            if (currentCaptain) {
+                currentCaptain.classList.remove('captain');
+            }
+
+            if (previousCaptain) {
+                previousCaptain.classList.add('captain');
+            }
+
+            // Display generic error message
+            alert('Error setting captain. Please try again later.');
             console.error('Error updating captain:', error);
         }
     }
-
 
     // Select a player
 
