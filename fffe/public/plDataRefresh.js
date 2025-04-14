@@ -79,7 +79,7 @@ export async function refreshData() {
     progressIndicator.innerText = 'Refreshing data...';
 
     try {
-        const response = await fetch(`${config.backendUrl}/PlayerGameweekStats/PopulateAllPlayers?daysOffset=40`, addAuthHeader({
+        const response = await fetch(`${config.backendUrl}/PlayerGameweekStats/PopulateAllPlayers?daysOffset=365`, addAuthHeader({
             method: 'POST',
             headers: {
                 'Connection': 'keep-alive'
@@ -346,7 +346,4 @@ window.createDraftPeriod = createDraftPeriod;
 window.populateFixtures = populateFixtures;
 window.populateAllPlayers = populateAllPlayers;
 window.createLeague = createLeague;
-window.fetchLeagues = fetchLeagues;
-window.fetchUsers = fetchUsers;
-window.fetchDraftPeriods = fetchDraftPeriods;
 window.populateTeams = populateTeams;

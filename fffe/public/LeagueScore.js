@@ -3,7 +3,7 @@ import { addAuthHeader } from './config.js';
 
 let previousPlayerScores = {};
 let refreshInterval;
-const REFRESH_INTERVAL = 60000; // 60 seconds
+const REFRESH_INTERVAL = 30000; // 60 seconds
 
 document.addEventListener('DOMContentLoaded', async function () {
     // Fetch leagues for dropdown
