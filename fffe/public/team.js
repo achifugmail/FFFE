@@ -203,6 +203,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 // Also fetch draft periods when league changes
                 await fetchDraftPeriods();
                 squadId = await fetchSquadId();
+                await fetchAndDisplayPendingTransfers();
                 await fetchAndDisplaySquadPlayers(squadId);
             });
         } catch (error) {
@@ -423,6 +424,167 @@ ${getPlayerStatusIcon(player)}
             });
         } catch (error) {
             console.error('Error fetching squad players:', error);
+        }
+    }
+
+    async function fetchAndDisplayPendingTransfers() {
+        const leagueId = document.getElementById('leagueDropdown').value;
+        if (!leagueId) return;
+
+        try {
+            // Create container for pending transfers if it doesn't exist
+            let pendingTransfersContainer = document.getElementById('pendingTransfersContainer');
+            if (!pendingTransfersContainer) {
+                pendingTransfersContainer = document.createElement('div');
+                pendingTransfersContainer.id = 'pendingTransfersContainer';
+                pendingTransfersContainer.className = 'pending-transfers-container';
+
+                // Insert after dropdown container
+                const dropdownContainer = document.querySelector('.dropdown-container');
+                dropdownContainer.parentNode.insertBefore(pendingTransfersContainer, dropdownContainer.nextSibling);
+            }
+
+            // Clear the container
+            pendingTransfersContainer.innerHTML = '';
+
+            // Fetch transfers to me
+            const responseTo = await fetch(`${config.backendUrl}/Transfers/pending/to-me/${leagueId}`, addAuthHeader());
+
+            // Fetch transfers from me
+            const responseFrom = await fetch(`${config.backendUrl}/Transfers/pending/from-me/${leagueId}`, addAuthHeader());
+
+            if (!responseTo.ok || !responseFrom.ok) {
+                console.error('Failed to fetch pending transfers');
+                return;
+            }
+
+            const transfersToMe = await responseTo.json();
+            const transfersFromMe = await responseFrom.json();
+
+            // Only show container if there are any pending transfers
+            if (transfersToMe.length === 0 && transfersFromMe.length === 0) {
+                pendingTransfersContainer.style.display = 'none';
+                return;
+            }
+
+            pendingTransfersContainer.style.display = 'block';
+
+            // Create header
+            const header = document.createElement('div');
+            header.className = 'pending-transfers-header';
+            header.textContent = 'Pending Transfers';
+            pendingTransfersContainer.appendChild(header);
+
+            // Display transfers to me first
+            if (transfersToMe.length > 0) {
+                transfersToMe.forEach(transfer => {
+                    const transferItem = createTransferItem(transfer, true);
+                    pendingTransfersContainer.appendChild(transferItem);
+                });
+            }
+
+            // Display transfers from me
+            if (transfersFromMe.length > 0) {
+                transfersFromMe.forEach(transfer => {
+                    const transferItem = createTransferItem(transfer, false);
+                    pendingTransfersContainer.appendChild(transferItem);
+                });
+            }
+
+        } catch (error) {
+            console.error('Error fetching pending transfers:', error);
+        }
+    }
+
+    // Function to create a transfer item
+    function createTransferItem(transfer, isToMe) {
+        const item = document.createElement('div');
+        item.className = `pending-transfer-item ${isToMe ? 'pending-transfer-to-me' : 'pending-transfer-from-me'}`;
+
+        // Create player in element
+        const playerInEl = document.createElement('div');
+        playerInEl.className = 'pending-transfer-player';
+        playerInEl.innerHTML = `
+        <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${transfer.playerIn.photo ? transfer.playerIn.photo.slice(0, -3) : '0'}png" 
+             alt="${transfer.playerIn.webName}" class="player-photo">
+        <div>
+            <span class="player-name">${transfer.playerIn.webName}</span>
+            <div class="pending-transfer-squad">${isToMe ? transfer.userSquad.squadName : transfer.fromUserSquad.squadName}</div>
+        </div>
+    `;
+
+        // Create arrow element
+        const arrowEl = document.createElement('div');
+        arrowEl.className = 'pending-transfer-arrow';
+        arrowEl.innerHTML = '<i class="fas fa-exchange-alt"></i>';
+
+        // Create player out element
+        const playerOutEl = document.createElement('div');
+        playerOutEl.className = 'pending-transfer-player';
+        playerOutEl.innerHTML = `
+        <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${transfer.playerOut.photo ? transfer.playerOut.photo.slice(0, -3) : '0'}png" 
+             alt="${transfer.playerOut.webName}" class="player-photo">
+        <div>
+            <span class="player-name">${transfer.playerOut.webName}</span>
+            <div class="pending-transfer-squad">${isToMe ? transfer.fromUserSquad.squadName : transfer.userSquad.squadName}</div>
+        </div>
+    `;
+
+        // Add elements to item
+        item.appendChild(playerInEl);
+        item.appendChild(arrowEl);
+        item.appendChild(playerOutEl);
+
+        // Add accept/reject buttons if the transfer is to me
+        if (isToMe) {
+            const buttonsEl = document.createElement('div');
+            buttonsEl.className = 'pending-transfer-buttons';
+
+            const acceptBtn = document.createElement('button');
+            acceptBtn.className = 'accept-transfer-btn';
+            acceptBtn.textContent = 'Accept';
+            acceptBtn.addEventListener('click', () => handleTransferAction(transfer.id, 'accept'));
+
+            const rejectBtn = document.createElement('button');
+            rejectBtn.className = 'reject-transfer-btn';
+            rejectBtn.textContent = 'Reject';
+            rejectBtn.addEventListener('click', () => handleTransferAction(transfer.id, 'reject'));
+
+            buttonsEl.appendChild(acceptBtn);
+            buttonsEl.appendChild(rejectBtn);
+
+            // Add buttons below player out
+            playerOutEl.appendChild(buttonsEl);
+        }
+
+        return item;
+    }
+
+    // Function to handle accept/reject actions
+    async function handleTransferAction(transferId, action) {
+        try {
+            const response = await fetch(`${config.backendUrl}/Transfers/${transferId}/${action}`, addAuthHeader({
+                method: 'POST'
+            }));
+
+            if (!response.ok) {
+                throw new Error(`Failed to ${action} transfer`);
+            }
+
+            // Refresh transfers display
+            await fetchAndDisplayPendingTransfers();
+
+            // If accepted, reload team data to reflect changes
+            if (action === 'accept') {
+                await fetchAndDisplaySquadPlayers(squadId);
+            }
+
+            // Show success message
+            alert(`Transfer ${action === 'accept' ? 'accepted' : 'rejected'} successfully!`);
+
+        } catch (error) {
+            console.error(`Error ${action}ing transfer:`, error);
+            alert(`Failed to ${action} transfer. Please try again.`);
         }
     }
 
@@ -654,6 +816,7 @@ ${getPlayerStatusIcon(player)}
     //const squadId = urlParams.get('SquadId');
     await fetchLeagues();
     squadId = await fetchSquadId();
+    fetchAndDisplayPendingTransfers();
     await fetchAndDisplaySquadPlayers(squadId);
     await fetchAndDisplayFixtures(gameweekDropdown.value);
 

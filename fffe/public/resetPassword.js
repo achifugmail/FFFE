@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     async function fetchUsers() {
         try {
-            const response = await fetch(`${config.backendUrl}/Users/GetAll`, addAuthHeader());
+            const response = await fetch(`${config.backendUrl}/User/GetAll`, addAuthHeader());
 
             if (!response.ok) {
                 console.error('Failed to fetch users:', response.status, response.statusText);

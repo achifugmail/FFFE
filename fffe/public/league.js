@@ -425,7 +425,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             photo.addEventListener('click', (e) => {
                 e.stopPropagation();
 
-                if (!isZoomed) {
+                //changed to If isZoomed to remove the intermediate click that zooms the picture before displaying the player card. Change back to revert to the tap-tap behavior
+                if (isZoomed) {
                     // First click: zoom the photo
                     photo.style.transform = 'scale(1.4)';
                     photo.style.zIndex = '100';
@@ -524,6 +525,18 @@ document.addEventListener('DOMContentLoaded', async function () {
         const nameScoreContainer = document.createElement('div');
         nameScoreContainer.className = 'player-card-name-score';
 
+        // Get current user ID from localStorage
+        const currentUserId = localStorage.getItem('userId');
+
+        // Add swap button if player is not in current user's squad
+        if (player.userId !== parseInt(currentUserId)) {
+            const swapButton = document.createElement('button');
+            swapButton.className = 'swap-player-btn';
+            swapButton.textContent = 'Request Swap';
+            swapButton.addEventListener('click', () => initiateSwap(player, playerCardContainer));
+            nameScoreContainer.appendChild(swapButton);
+        }
+
         const name = document.createElement('h3');
         name.textContent = player.webName || 'Unknown';
 
@@ -601,11 +614,147 @@ document.addEventListener('DOMContentLoaded', async function () {
             statsContainer.appendChild(statItem);
         });
 
+        // Create swap players container (initially hidden)
+        const swapPlayersContainer = document.createElement('div');
+        swapPlayersContainer.className = 'swap-players-container';
+        swapPlayersContainer.style.display = 'none';
+
         // Assemble the card
         playerCardContainer.appendChild(cardHeader);
         playerCardContainer.appendChild(statsContainer);
+        playerCardContainer.appendChild(swapPlayersContainer);
 
         return playerCardContainer;
+    }
+
+    async function initiateSwap(targetPlayer, playerCardContainer) {
+        const currentUserId = localStorage.getItem('userId');
+        const leagueId = document.getElementById('leagueDropdown').value;
+
+        // Find the swap players container
+        const swapPlayersContainer = playerCardContainer.querySelector('.swap-players-container');
+
+        // Show loading state
+        swapPlayersContainer.style.display = 'block';
+        swapPlayersContainer.innerHTML = '<div class="loading-spinner">Loading your players...</div>';
+
+        try {
+            // Instead of making a new API call, filter current players from the page
+            // Get all player data from the DOM
+            const myPlayers = [];
+            const playerRows = document.querySelectorAll('.player-row');
+
+            playerRows.forEach(row => {
+                try {
+                    const playerData = JSON.parse(row.getAttribute('data-player'));
+                    // Only include players belonging to the current user
+                    if (playerData && playerData.userId == currentUserId) {
+                        myPlayers.push(playerData);
+                    }
+                } catch (error) {
+                    console.error('Error parsing player data:', error);
+                }
+            });
+
+            // Filter players by the same position
+            const samePositionPlayers = myPlayers.filter(p => p.positionName === targetPlayer.positionName);
+
+            if (samePositionPlayers.length === 0) {
+                swapPlayersContainer.innerHTML = '<div class="no-players-message">You don\'t have any players in this position to swap.</div>';
+                return;
+            }
+
+            // Create header for swap section
+            swapPlayersContainer.innerHTML = `
+            <h4>Select one of your players to swap:</h4>
+            <div class="swap-players-list"></div>
+        `;
+
+            const swapPlayersList = swapPlayersContainer.querySelector('.swap-players-list');
+
+            // Add each of the user's players as options
+            samePositionPlayers.forEach(player => {
+                const playerOption = document.createElement('div');
+                playerOption.className = 'swap-player-option';
+
+                playerOption.innerHTML = `
+                <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo ? player.photo.slice(0, -3) : '0'}png" 
+                     alt="${player.webName}" class="player-photo">
+                <span class="player-name">${player.webName}</span>
+                <span class="player-score">${player.points || 0}</span>
+            `;
+
+                // Add click event to select this player for swap
+                playerOption.addEventListener('click', () => confirmSwap(player, targetPlayer));
+
+                swapPlayersList.appendChild(playerOption);
+            });
+
+            // Add cancel button
+            const cancelButton = document.createElement('button');
+            cancelButton.className = 'cancel-swap-btn';
+            cancelButton.textContent = 'Cancel';
+            cancelButton.addEventListener('click', () => {
+                swapPlayersContainer.style.display = 'none';
+            });
+
+            swapPlayersContainer.appendChild(cancelButton);
+
+        } catch (error) {
+            console.error('Error finding your players:', error);
+            swapPlayersContainer.innerHTML = `<div class="error-message">Error: ${error.message}</div>`;
+        }
+    }
+
+
+    function confirmSwap(playerOut, playerIn) {
+        // Create confirmation dialog
+        const confirmation = confirm(`Are you sure you want to request a trade of ${playerOut.webName} for ${playerIn.webName}?`);
+
+        if (confirmation) {
+            // User confirmed, send the swap request
+            proposeSwap(playerOut, playerIn);
+        } else {
+            // User cancelled, just hide the swap container
+            const swapPlayersContainer = document.querySelector('.swap-players-container');
+            if (swapPlayersContainer) {
+                swapPlayersContainer.style.display = 'none';
+            }
+        }
+    }
+
+    async function proposeSwap(playerOut, playerIn) {
+        try {
+            // Prepare swap request payload
+            const payload = {
+                fromUserSquadId: playerOut.squadId,
+                toUserSquadId: playerIn.squadId,
+                playerInId: playerIn.id,
+                playerOutId: playerOut.id
+            };
+
+            // Send the swap request
+            const response = await fetch(`${config.backendUrl}/Transfers/propose-swap`, addAuthHeader({
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            }));
+
+            if (!response.ok) {
+                throw new Error('Failed to propose swap');
+            }
+
+            // Display success message and close the card
+            alert('Swap request sent successfully!');
+            document.querySelector('.player-detail-card')?.remove();
+            document.getElementById('player-card-overlay')?.remove();
+
+        } catch (error) {
+            console.error('Error proposing swap:', error);
+            alert(`Error proposing swap: ${error.message}`);
+        }
     }
 
     // Function to handle header click interactions

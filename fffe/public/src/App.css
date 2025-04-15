@@ -1498,6 +1498,8 @@ th {
     font-size: 14px;
 }
 
+
+
 .user-team-card.expanded .player-name {
     display: block;
 }
@@ -2349,8 +2351,11 @@ th {
     padding: 10px;
     border-radius: 5px;
     text-align: center;
+    width: 100%; /* Ensure it spans the full width */
+    margin-bottom: 20px; /* Add space between message and grid */
 }
 
+/* Rest of your CSS stays the same */
 .draft-message {
     padding: 15px;
     border-radius: 5px;
@@ -2388,6 +2393,36 @@ th {
     opacity: 0.5;
 }
 
+.draft-message-inline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+    .draft-message-inline h3,
+    .draft-message-inline p {
+        margin: 0;
+    }
+
+/* Add styles for the your-turn layout */
+.your-turn-inline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+    .your-turn-inline h3,
+    .your-turn-inline p {
+        margin: 0;
+    }
+
+    .your-turn-inline .confirm-draft-btn {
+        margin-top: 0; /* Override the existing top margin */
+        white-space: nowrap; /* Prevent button text from wrapping */
+    }
+
 .loader {
     border: 4px solid #f3f3f3;
     border-top: 4px solid #3498db;
@@ -2395,7 +2430,6 @@ th {
     width: 20px;
     height: 20px;
     animation: spin 2s linear infinite;
-    margin: 10px auto;
 }
 
 @keyframes spin {
@@ -2406,4 +2440,191 @@ th {
     100% {
         transform: rotate(360deg);
     }
+}
+
+.swap-player-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+    .swap-player-btn:hover {
+        background-color: #45a049;
+    }
+
+.swap-players-container {
+    border-top: 1px solid #ddd;
+    padding-top: 15px;
+    margin-top: 15px;
+}
+
+.swap-player-option {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+    .swap-player-option:hover {
+        background-color: #f5f5f5;
+    }
+
+    .swap-player-option .player-photo {
+        width: 40px;
+        height: 40px;
+        margin-right: 10px;
+    }
+
+    /* Fix for player names in swap options */
+    .swap-player-option .player-name {
+        display: block !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding-left: 3px;
+        font-size: 14px;
+        max-width: 150px;
+        flex: 1;
+    }
+
+    .swap-player-option .player-score {
+        font-weight: bold;
+        margin-left: 10px;
+    }
+
+.cancel-swap-btn {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+    .cancel-swap-btn:hover {
+        background-color: #d32f2f;
+    }
+
+.loading-spinner {
+    text-align: center;
+    padding: 15px;
+}
+
+.no-players-message {
+    text-align: center;
+    color: #666;
+    padding: 15px;
+}
+
+.error-message {
+    color: #f44336;
+    padding: 15px;
+    text-align: center;
+}
+
+/* Pending Transfers Styling */
+.pending-transfers-container {
+    margin: 20px 0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.pending-transfers-header {
+    padding: 10px 15px;
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.pending-transfer-item {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    margin-bottom: 1px;
+}
+
+.pending-transfer-to-me {
+    background-color: #ffe6e6; /* Light pink */
+}
+
+.pending-transfer-from-me {
+    background-color: #ffffd6; /* Light yellow */
+}
+
+.pending-transfer-player {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+    .pending-transfer-player .player-photo {
+        width: 40px;
+        height: 40px;
+        display: block;
+    }
+
+    .pending-transfer-player .player-name {
+        display: block !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 14px;
+    }
+
+.pending-transfer-squad {
+    font-size: 12px;
+    color: #666;
+}
+
+.pending-transfer-arrow {
+    font-size: 20px;
+    text-align: center;
+    color: #333;
+}
+
+.pending-transfer-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.accept-transfer-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.reject-transfer-btn {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.no-pending-transfers {
+    padding: 15px;
+    text-align: center;
+    color: #666;
+    font-style: italic;
 }
