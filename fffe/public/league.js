@@ -532,7 +532,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         if (player.userId !== parseInt(currentUserId)) {
             const swapButton = document.createElement('button');
             swapButton.className = 'swap-player-btn';
-            swapButton.textContent = 'Request Swap';
+            swapButton.textContent = 'Propose Swap';
             swapButton.addEventListener('click', () => initiateSwap(player, playerCardContainer));
             nameScoreContainer.appendChild(swapButton);
         }
@@ -747,7 +747,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
 
             // Display success message and close the card
-            alert('Swap request sent successfully!');
+            alert('Swap proposal sent successfully!');
             document.querySelector('.player-detail-card')?.remove();
             document.getElementById('player-card-overlay')?.remove();
 

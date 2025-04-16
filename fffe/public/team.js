@@ -8,10 +8,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     let draftPeriodId;
     let squadId;  // Remove the URL parameter assignment
     const currentUserId = localStorage.getItem('userId');
-    
 
     const filterDraftPeriodDropdown = document.getElementById('filterDraftPeriodDropdown');
-
 
     // Fetch and populate gameweeks based on selected draft period
     const gameweekDropdown = document.getElementById('gameweekDropdown');
@@ -37,21 +35,26 @@ document.addEventListener('DOMContentLoaded', async function () {
         // Clear existing options
         gameweekDropdown.innerHTML = '';
 
-        // Populate gameweek dropdown
-        gameweeks.sort((a, b) => a.number - b.number).forEach(gameweek => {
+        // Get current date and time
+        const now = new Date();
+
+        // Filter to only future gameweeks 
+        const futureGameweeks = gameweeks.filter(gameweek => new Date(gameweek.startDate + 'Z') > now);
+
+        // If no future gameweeks, include all gameweeks (to prevent empty dropdown)
+        const gameweeksToDisplay = futureGameweeks.length > 0 ? futureGameweeks : gameweeks;
+
+        // Sort gameweeks by number
+        gameweeksToDisplay.sort((a, b) => a.number - b.number).forEach(gameweek => {
             const option = document.createElement('option');
             option.value = gameweek.id;
             option.text = `${gameweek.number}`;
             gameweekDropdown.appendChild(option);
         });
 
-        // Set default value to the first gameweek by start date that has a start date after the current date and time
-        const now = new Date();
-        const futureGameweeks = gameweeks.filter(gameweek => new Date(gameweek.startDate + 'Z') > now);
-        if (futureGameweeks.length > 0) {
-            gameweekDropdown.value = futureGameweeks[0].id;
-        } else if (gameweeks.length > 0) {
-            gameweekDropdown.value = gameweeks[0].id;
+        // Set default value to the first gameweek in the list
+        if (gameweeksToDisplay.length > 0) {
+            gameweekDropdown.value = gameweeksToDisplay[0].id;
         }
     }
 

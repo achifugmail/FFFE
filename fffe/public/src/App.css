@@ -2676,6 +2676,6 @@ th {
     font-size: 12px;
 }
 
-    .cancel-transfer-btn:hover {
-        background-color: #ec971f; /* Darker shade when hovered */
-    }
+.cancel-transfer-btn:hover {
+    background-color: #ec971f; /* Darker shade when hovered */
+}
