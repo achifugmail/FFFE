@@ -2628,3 +2628,41 @@ th {
     color: #666;
     font-style: italic;
 }
+.transfer-type-standard {
+    background-color: #f8f9fa;
+    border-left: 4px solid #007bff;
+}
+
+.transfer-type-swap {
+    background-color: #f0f7ff;
+    border-left: 4px solid #6f42c1;
+}
+
+.transfer-type-icon {
+    margin-left: 10px;
+    color: #666;
+}
+
+/* Transfer status styling */
+.transfer-status {
+    float: right;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
+.transfer-status-pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.transfer-status-completed {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.transfer-status-rejected {
+    background-color: #f8d7da;
+    color: #721c24;
+}

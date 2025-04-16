@@ -509,7 +509,7 @@ ${getPlayerStatusIcon(player)}
              alt="${transfer.playerIn.webName}" class="player-photo">
         <div>
             <span class="player-name">${transfer.playerIn.webName}</span>
-            <div class="pending-transfer-squad">${isToMe ? transfer.userSquad.squadName : transfer.fromUserSquad.squadName}</div>
+            <div class="pending-transfer-squad">${transfer.fromUserSquad.squadName}</div>
         </div>
     `;
 
@@ -526,7 +526,7 @@ ${getPlayerStatusIcon(player)}
              alt="${transfer.playerOut.webName}" class="player-photo">
         <div>
             <span class="player-name">${transfer.playerOut.webName}</span>
-            <div class="pending-transfer-squad">${isToMe ? transfer.fromUserSquad.squadName : transfer.userSquad.squadName}</div>
+            <div class="pending-transfer-squad">${transfer.userSquad.squadName}</div>
         </div>
     `;
 

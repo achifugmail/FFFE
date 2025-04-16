@@ -214,7 +214,7 @@ document.addEventListener('DOMContentLoaded', async function () {
              alt="${transfer.playerIn.webName}" class="player-photo">
         <div>
             <span class="player-name">${transfer.playerIn.webName}</span>
-            <div class="pending-transfer-squad">${isToMe ? 'Your squad' : transfer.userSquad.squadName}</div>
+            <div class="pending-transfer-squad">${transfer.fromUserSquad.squadName}</div>
         </div>
     `;
 
@@ -231,7 +231,7 @@ document.addEventListener('DOMContentLoaded', async function () {
              alt="${transfer.playerOut.webName}" class="player-photo">
         <div>
             <span class="player-name">${transfer.playerOut.webName}</span>
-            <div class="pending-transfer-squad">${isToMe ? transfer.fromUserSquad.squadName : 'Your squad'}</div>
+            <div class="pending-transfer-squad">${transfer.userSquad.squadName}</div>
         </div>
     `;
 
@@ -939,24 +939,49 @@ document.addEventListener('DOMContentLoaded', async function () {
                     minute: '2-digit'
                 });
 
+                // Add a CSS class based on the transfer type
+                const transferTypeClass = transfer.type ?
+                    `transfer-type-${transfer.type.toLowerCase()}` :
+                    'transfer-type-standard';
+
+                // Add an icon based on the transfer type
+                const transferTypeIcon = transfer.type === 'Swap' ?
+                    '<i class="fas fa-sync-alt transfer-type-icon" title="Swap Transfer"></i>' :
+                    '<i class="fas fa-arrow-right transfer-type-icon" title="Standard Transfer"></i>';
+
+                // Add status badge if available
+                const statusBadge = transfer.status ?
+                    `<span class="transfer-status transfer-status-${transfer.status.toLowerCase()}">${transfer.status}</span>` :
+                    '';
+
                 return `
-                <div class="transfer-item">
-                    <div class="transfer-date">${date}</div>
-                    <div class="transfer-player">
-                        <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${transfer.playerIn.photo.slice(0, -3)}png" 
-                             alt="${transfer.playerIn.webName}" 
-                             class="player-photo">
-                        <span class="player-name">${transfer.playerIn.webName}</span>
-                    </div>
-                    <div class="transfer-arrow">←</div>
-                    <div class="transfer-player">
-                        <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${transfer.playerOut.photo.slice(0, -3)}png" 
-                             alt="${transfer.playerOut.webName}" 
-                             class="player-photo">
-                        <span class="player-name">${transfer.playerOut.webName}</span>
-                    </div>
+            <div class="transfer-item ${transferTypeClass}">
+                <div class="transfer-date">
+                    ${date} 
+                    ${transferTypeIcon}
+                    ${statusBadge}
                 </div>
-            `;
+                <div class="transfer-player">
+                    <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${transfer.playerIn.photo.slice(0, -3)}png" 
+                         alt="${transfer.playerIn.webName}" 
+                         class="player-photo">
+                    <span class="player-name">${transfer.playerIn.webName}</span>
+                </div>
+                <div class="transfer-arrow">←</div>
+                <div class="transfer-player">
+                    <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${transfer.playerOut.photo.slice(0, -3)}png" 
+                         alt="${transfer.playerOut.webName}" 
+                         class="player-photo">
+                    <span class="player-name">${transfer.playerOut.webName}</span>
+                </div>
+                ${transfer.fromSquad || transfer.toSquad ?
+                        `<div class="transfer-squads">
+                        ${transfer.fromSquad ? `<span class="from-squad">From: ${transfer.fromSquad}</span>` : ''}
+                        ${transfer.toSquad ? `<span class="to-squad">To: ${transfer.toSquad}</span>` : ''}
+                    </div>` :
+                        ''}
+            </div>
+        `;
             }).join('');
 
         } catch (error) {

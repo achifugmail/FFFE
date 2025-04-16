@@ -648,7 +648,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 console.log('Photo clicked');
                 e.stopPropagation();
 
-                if (!isZoomed) {
+                if (isZoomed) {
                     console.log('Zooming photo');
                     // First click: zoom the photo by 20%
                     photo.style.transform = 'scale(1.4)';
