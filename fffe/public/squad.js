@@ -240,11 +240,12 @@ document.addEventListener('DOMContentLoaded', async function () {
         item.appendChild(arrowEl);
         item.appendChild(playerOutEl);
 
-        // Add accept/reject buttons if the transfer is to me
-        if (isToMe) {
-            const buttonsEl = document.createElement('div');
-            buttonsEl.className = 'pending-transfer-buttons';
+        // Add buttons based on whether the transfer is to me or from me
+        const buttonsEl = document.createElement('div');
+        buttonsEl.className = 'pending-transfer-buttons';
 
+        if (isToMe) {
+            // Add accept/reject buttons if the transfer is to me
             const acceptBtn = document.createElement('button');
             acceptBtn.className = 'accept-transfer-btn';
             acceptBtn.textContent = 'Accept';
@@ -257,15 +258,23 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             buttonsEl.appendChild(acceptBtn);
             buttonsEl.appendChild(rejectBtn);
+        } else {
+            // Add cancel button if the transfer is from me
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className = 'cancel-transfer-btn';
+            cancelBtn.textContent = 'Cancel';
+            cancelBtn.addEventListener('click', () => handleTransferAction(transfer.id, 'cancel'));
 
-            // Add buttons below player out
-            playerOutEl.appendChild(buttonsEl);
+            buttonsEl.appendChild(cancelBtn);
         }
+
+        // Add buttons to the player element
+        playerOutEl.appendChild(buttonsEl);
 
         return item;
     }
 
-    // Function to handle accept/reject actions
+    // Function to handle accept/reject/cancel actions
     async function handleTransferAction(transferId, action) {
         try {
             const response = await fetch(`${config.backendUrl}/Transfers/${transferId}/${action}`, addAuthHeader({
@@ -285,7 +294,9 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
 
             // Show success message
-            alert(`Transfer ${action === 'accept' ? 'accepted' : 'rejected'} successfully!`);
+            let actionText = action === 'accept' ? 'accepted' :
+                action === 'reject' ? 'rejected' : 'cancelled';
+            alert(`Transfer ${actionText} successfully!`);
 
         } catch (error) {
             console.error(`Error ${action}ing transfer:`, error);
