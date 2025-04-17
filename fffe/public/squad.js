@@ -777,11 +777,11 @@ document.addEventListener('DOMContentLoaded', async function () {
                 const isPlayerInSquad = squadPlayers.some(p => p.id === player.id);
 
                 playerDiv.innerHTML = `
+                <button class="${isPlayerInSquad ? 'remove-player-button' : 'add-player-button'}" data-player-id="${player.id}" data-position="${position.name}">${isPlayerInSquad ? '-' : '+'}</button>
             <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
-            <span class="player-name">${player.webName}</span>
-            ${getPlayerFormIndicator(player)}
+            <span class="player-name-long">${player.webName}</span>
             ${getPlayerStatusIcon(player)}
-            <button class="${isPlayerInSquad ? 'remove-player-button' : 'add-player-button'}" data-player-id="${player.id}" data-position="${position.name}">${isPlayerInSquad ? '-' : '+'}</button>
+            ${getPlayerFormIndicator(player)}
         `;
                 playerList.appendChild(playerDiv);
             });

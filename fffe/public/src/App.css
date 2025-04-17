@@ -157,8 +157,8 @@ th {
 
 
 .remove-player-button-pending {
-    width: 30px;
-    height: 30px;
+    width: 20px;
+    height: 20px;
     padding: 0;
     border: none;
     border-radius: 4px;
@@ -1079,7 +1079,7 @@ th {
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
     position: relative;
     width: auto;
-    width: 350px; 
+    width: 335px; 
     overflow: hidden;
 }
 
@@ -1490,7 +1490,6 @@ th {
 .transfer-player .player-name {
     display: block;
 }
-
 
 .player-score {
     text-align: right;
