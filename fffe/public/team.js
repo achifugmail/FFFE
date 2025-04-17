@@ -829,6 +829,234 @@ ${getPlayerFormIndicator(player)}
         }
     }
 
+    function setupViewToggle() {
+        // Remove the old toggle container from DOM if it exists
+        const oldToggleContainer = document.querySelector('.view-toggle-container');
+        if (oldToggleContainer) {
+            oldToggleContainer.remove();
+        }
+
+        const listView = document.getElementById('playerGrid');
+        const pitchView = document.getElementById('pitchView');
+
+        // Create a new round toggle button
+        const viewToggleBtn = document.createElement('button');
+        viewToggleBtn.className = 'view-toggle-round-btn';
+        viewToggleBtn.id = 'viewToggleBtn';
+        viewToggleBtn.innerHTML = '<i class="fas fa-futbol"></i>'; // Football icon for pitch view
+        viewToggleBtn.setAttribute('title', 'Switch to Pitch View');
+        viewToggleBtn.setAttribute('aria-label', 'Switch View');
+
+        // Add the button to the document
+        document.body.appendChild(viewToggleBtn);
+
+        // Track current view (start with list view)
+        let currentView = 'list';
+
+        // Add click event
+        viewToggleBtn.addEventListener('click', function () {
+            if (currentView === 'list') {
+                // Switch to pitch view
+                listView.classList.add('hidden');
+                pitchView.classList.add('active');
+                viewToggleBtn.innerHTML = '<i class="fas fa-th-list"></i>'; // List icon when in pitch view
+                viewToggleBtn.setAttribute('title', 'Switch to List View');
+                currentView = 'pitch';
+                renderPitchView();
+            } else {
+                // Switch to list view
+                listView.classList.remove('hidden');
+                pitchView.classList.remove('active');
+                viewToggleBtn.innerHTML = '<i class="fas fa-futbol"></i>'; // Football icon when in list view
+                viewToggleBtn.setAttribute('title', 'Switch to Pitch View');
+                currentView = 'list';
+            }
+        });
+    }
+    // Function to render players on the pitch
+    // Function to render players on the pitch
+    function renderPitchView() {
+        console.log("Rendering vertical pitch view..."); // Debug log
+
+        const pitchContainer = document.querySelector('.pitch-view-container');
+        if (!pitchContainer) {
+            console.error('Pitch view container not found');
+            return;
+        }
+
+        // Clear any existing players
+        const existingPlayers = pitchContainer.querySelectorAll('.pitch-player');
+        existingPlayers.forEach(player => player.remove());
+
+        // Get all selected checkboxes
+        const checkboxes = document.querySelectorAll('.player-checkbox:checked');
+        console.log(`Found ${checkboxes.length} selected players`); // Debug log
+
+        if (checkboxes.length === 0) {
+            // Add a message if no players are selected
+            const noPlayersMsg = document.createElement('div');
+            noPlayersMsg.className = 'no-players-message';
+            noPlayersMsg.textContent = 'No players selected. Please select players in the list view.';
+            noPlayersMsg.style.position = 'absolute';
+            noPlayersMsg.style.top = '50%';
+            noPlayersMsg.style.left = '50%';
+            noPlayersMsg.style.transform = 'translate(-50%, -50%)';
+            noPlayersMsg.style.color = 'white';
+            noPlayersMsg.style.background = 'rgba(0,0,0,0.7)';
+            noPlayersMsg.style.padding = '10px 20px';
+            noPlayersMsg.style.borderRadius = '5px';
+            pitchContainer.appendChild(noPlayersMsg);
+            return;
+        }
+
+        // Get players by position
+        const playersByPosition = {
+            'GK': [], 'DEF': [], 'WB': [], 'DM': [], 'MID': [], 'AM': [], 'FW': []
+        };
+
+        // Collect all players by position
+        checkboxes.forEach(checkbox => {
+            const playerId = checkbox.getAttribute('data-player-id');
+            const playerDiv = checkbox.closest('.player-grid');
+
+            if (!playerDiv) {
+                console.error(`Player div not found for checkbox with ID: ${playerId}`);
+                return;
+            }
+
+            // Extract player information
+            const playerNameElement = playerDiv.querySelector('.player-name-long');
+            if (!playerNameElement) {
+                console.error(`Player name element not found for player ID: ${playerId}`);
+                return;
+            }
+
+            const playerName = playerNameElement.textContent;
+            const photoImg = playerDiv.querySelector('.player-photo');
+
+            // Extract photo ID
+            let photoIdPart = '0'; // Default value
+            if (photoImg && photoImg.src) {
+                // Get the filename part of the URL
+                const urlParts = photoImg.src.split('/');
+                const filename = urlParts[urlParts.length - 1];
+
+                // Extract the ID part (remove the 'p' prefix and the 'png' suffix)
+                if (filename.startsWith('p') && filename.endsWith('png')) {
+                    photoIdPart = filename.slice(1, -3); // Remove 'p' and 'png'
+                }
+            }
+
+            // Determine if player is captain
+            const isCaptain = playerDiv.classList.contains('captain');
+
+            // Get the position by finding the parent section
+            const positionSection = playerDiv.closest('.position-section');
+            if (!positionSection) {
+                console.error(`Position section not found for player: ${playerName}`);
+                return;
+            }
+
+            const position = positionSection.id;
+
+            // Skip if not a valid position
+            if (!playersByPosition.hasOwnProperty(position)) {
+                console.warn(`Unknown position '${position}' for player: ${playerName}`);
+                return;
+            }
+
+            // Add to position array
+            playersByPosition[position].push({
+                id: playerId,
+                name: playerName,
+                photoId: photoIdPart,
+                isCaptain: isCaptain,
+                position: position
+            });
+        });
+
+        // Position players on the pitch
+        // First, handle GK (Goalkeeper)
+        positionPlayers(playersByPosition['GK'], 10, pitchContainer);
+
+        // Special handling for DEF and WB together on same line
+        const defPlayers = [...playersByPosition['DEF']];
+        const wbPlayers = [...playersByPosition['WB']];
+
+        // Combine DEF and WB, placing WBs at the edges
+        const defensiveLine = [];
+
+        // Add first WB to the left if available
+        if (wbPlayers.length > 0) {
+            const leftWB = wbPlayers.shift();
+            leftWB.position = 'WB';  // Ensure proper position class
+            defensiveLine.push(leftWB);
+        }
+
+        // Add all DEF players in the middle
+        defPlayers.forEach(defender => {
+            defender.position = 'DEF';  // Ensure proper position class
+            defensiveLine.push(defender);
+        });
+
+        // Add last WB to the right if available
+        if (wbPlayers.length > 0) {
+            const rightWB = wbPlayers.shift();
+            rightWB.position = 'WB';  // Ensure proper position class
+            defensiveLine.push(rightWB);
+        }
+
+        // Position the combined defensive line
+        positionPlayers(defensiveLine, 25, pitchContainer, 90);  // Use wider spread (90%)
+
+        // Handle remaining positions normally with increased spacing
+        positionPlayers(playersByPosition['DM'], 45, pitchContainer, 80);
+        positionPlayers(playersByPosition['MID'], 55, pitchContainer, 80);
+        positionPlayers(playersByPosition['AM'], 65, pitchContainer, 80);
+        positionPlayers(playersByPosition['FW'], 80, pitchContainer, 80);
+    }
+
+    // Helper function to position players horizontally with customizable spread
+    function positionPlayers(players, topPercentage, container, spreadPercentage = 60) {
+        const count = players.length;
+
+        players.forEach((player, index) => {
+            // Create player element
+            const playerElement = document.createElement('div');
+            playerElement.className = `pitch-player ${player.position} pos-${index + 1}`;
+
+            // Calculate horizontal position (centered, with spread if multiple players)
+            let leftPos = 50; // center by default
+            if (count > 1) {
+                // Distribute players horizontally with specified spread
+                const step = spreadPercentage / (count + 1);
+                leftPos = (100 - spreadPercentage) / 2 + ((index + 1) * step);
+            }
+
+            // Set positioning
+            playerElement.style.top = `${topPercentage}%`;
+            playerElement.style.left = `${leftPos}%`;
+
+            // Add captain class if player is captain
+            if (player.isCaptain) {
+                playerElement.classList.add('captain');
+            }
+
+            // Create inner elements with correctly formatted photo URL
+            playerElement.innerHTML = `
+            <div class="pitch-player-inner">
+                <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photoId}png" 
+                     alt="${player.name}" class="pitch-player-photo">
+                <div class="pitch-player-name">${player.name}</div>
+            </div>
+        `;
+
+            // Add to pitch
+            container.appendChild(playerElement);
+            console.log(`Added player to pitch: ${player.name} (${player.position}) at position ${leftPos}%`); // Debug log
+        });
+    }
+
 
     // Fetch and display squad info and players in the current squad on page load    
     //const squadId = urlParams.get('SquadId');
@@ -836,6 +1064,7 @@ ${getPlayerFormIndicator(player)}
     squadId = await fetchSquadId();
     fetchAndDisplayPendingTransfers();
     await fetchAndDisplaySquadPlayers(squadId);
+    setupViewToggle();
     await fetchAndDisplayFixtures(gameweekDropdown.value);
 
     // Initial link update
