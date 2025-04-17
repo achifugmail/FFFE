@@ -435,20 +435,11 @@ ${getPlayerFormIndicator(player)}
         if (!leagueId) return;
 
         try {
-            // Create container for pending transfers if it doesn't exist
-            let pendingTransfersContainer = document.getElementById('pendingTransfersContainer');
-            if (!pendingTransfersContainer) {
-                pendingTransfersContainer = document.createElement('div');
-                pendingTransfersContainer.id = 'pendingTransfersContainer';
-                pendingTransfersContainer.className = 'pending-transfers-container';
-
-                // Insert after dropdown container
-                const dropdownContainer = document.querySelector('.dropdown-container');
-                dropdownContainer.parentNode.insertBefore(pendingTransfersContainer, dropdownContainer.nextSibling);
+            // Remove existing container if it exists
+            const existingContainer = document.getElementById('pendingTransfersContainer');
+            if (existingContainer) {
+                existingContainer.remove();
             }
-
-            // Clear the container
-            pendingTransfersContainer.innerHTML = '';
 
             // Fetch transfers to me
             const responseTo = await fetch(`${config.backendUrl}/Transfers/pending/to-me/${leagueId}`, addAuthHeader());
@@ -464,13 +455,19 @@ ${getPlayerFormIndicator(player)}
             const transfersToMe = await responseTo.json();
             const transfersFromMe = await responseFrom.json();
 
-            // Only show container if there are any pending transfers
+            // Only create and display the container if there are any pending transfers
             if (transfersToMe.length === 0 && transfersFromMe.length === 0) {
-                pendingTransfersContainer.style.display = 'none';
-                return;
+                return; // No transfers, so don't create the container
             }
 
-            pendingTransfersContainer.style.display = 'block';
+            // Create container for pending transfers since we have some to display
+            const pendingTransfersContainer = document.createElement('div');
+            pendingTransfersContainer.id = 'pendingTransfersContainer';
+            pendingTransfersContainer.className = 'pending-transfers-container';
+
+            // Insert after dropdown container
+            const dropdownContainer = document.querySelector('.dropdown-container');
+            dropdownContainer.parentNode.insertBefore(pendingTransfersContainer, dropdownContainer.nextSibling);
 
             // Create header
             const header = document.createElement('div');
@@ -498,6 +495,7 @@ ${getPlayerFormIndicator(player)}
             console.error('Error fetching pending transfers:', error);
         }
     }
+
 
     // Function to create a transfer item
     // Function to create a transfer item
@@ -873,8 +871,8 @@ ${getPlayerFormIndicator(player)}
             }
         });
     }
-    // Function to render players on the pitch
-    // Function to render players on the pitch
+
+
     function renderPitchView() {
         console.log("Rendering vertical pitch view..."); // Debug log
 
@@ -1007,17 +1005,17 @@ ${getPlayerFormIndicator(player)}
         }
 
         // Position the combined defensive line
-        positionPlayers(defensiveLine, 25, pitchContainer, 90);  // Use wider spread (90%)
+        positionPlayers(defensiveLine, 25, pitchContainer, 100);  // Use wider spread (90%)
 
         // Handle remaining positions normally with increased spacing
-        positionPlayers(playersByPosition['DM'], 45, pitchContainer, 80);
-        positionPlayers(playersByPosition['MID'], 55, pitchContainer, 80);
-        positionPlayers(playersByPosition['AM'], 65, pitchContainer, 80);
-        positionPlayers(playersByPosition['FW'], 80, pitchContainer, 80);
+        positionPlayers(playersByPosition['DM'], 45, pitchContainer, 100);
+        positionPlayers(playersByPosition['MID'], 55, pitchContainer, 100);
+        positionPlayers(playersByPosition['AM'], 65, pitchContainer, 100);
+        positionPlayers(playersByPosition['FW'], 80, pitchContainer, 100);
     }
 
     // Helper function to position players horizontally with customizable spread
-    function positionPlayers(players, topPercentage, container, spreadPercentage = 60) {
+    function positionPlayers(players, topPercentage, container, spreadPercentage = 80) {
         const count = players.length;
 
         players.forEach((player, index) => {

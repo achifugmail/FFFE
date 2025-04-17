@@ -2693,8 +2693,9 @@ th {
 
 .pitch-view-container {
     position: relative;
+    
     width: 100%;
-    max-width: 500px;
+   
     margin: 0 auto;
     background-color: #4CAF50; /* Green background for the pitch */
     background-image: linear-gradient(to right, rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.2) 1px, transparent 1px);
