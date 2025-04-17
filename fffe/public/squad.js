@@ -136,22 +136,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         if (!leagueId) return;
 
         try {
-            // Create container for pending transfers if it doesn't exist
-            let pendingTransfersContainer = document.getElementById('pendingTransfersContainer');
-            if (!pendingTransfersContainer) {
-                pendingTransfersContainer = document.createElement('div');
-                pendingTransfersContainer.id = 'pendingTransfersContainer';
-                pendingTransfersContainer.className = 'pending-transfers-container';
-
-                // Insert after dropdown container and before team layout
-                const dropdownContainer = document.querySelector('.dropdown-container');
-                const teamLayout = document.querySelector('.team-layout');
-                dropdownContainer.parentNode.insertBefore(pendingTransfersContainer, teamLayout);
-            }
-
-            // Clear the container
-            pendingTransfersContainer.innerHTML = '';
-
+            // First fetch the pending transfers data
             // Fetch transfers to me
             const responseTo = await fetch(`${config.backendUrl}/Transfers/pending/to-me/${leagueId}`, addAuthHeader());
 
@@ -166,13 +151,32 @@ document.addEventListener('DOMContentLoaded', async function () {
             const transfersToMe = await responseTo.json();
             const transfersFromMe = await responseFrom.json();
 
-            // Only show container if there are any pending transfers
+            // Check if there are any pending transfers before creating container
             if (transfersToMe.length === 0 && transfersFromMe.length === 0) {
-                pendingTransfersContainer.style.display = 'none';
+                // No pending transfers - remove the container if it exists
+                const existingContainer = document.getElementById('pendingTransfersContainer');
+                if (existingContainer) {
+                    existingContainer.remove();
+                }
                 return;
             }
 
-            pendingTransfersContainer.style.display = 'block';
+            // Only create container if there are pending transfers
+            let pendingTransfersContainer = document.getElementById('pendingTransfersContainer');
+
+            if (!pendingTransfersContainer) {
+                pendingTransfersContainer = document.createElement('div');
+                pendingTransfersContainer.id = 'pendingTransfersContainer';
+                pendingTransfersContainer.className = 'pending-transfers-container';
+
+                // Insert after dropdown container and before team layout
+                const dropdownContainer = document.querySelector('.dropdown-container');
+                const teamLayout = document.querySelector('.team-layout');
+                dropdownContainer.parentNode.insertBefore(pendingTransfersContainer, teamLayout);
+            }
+
+            // Clear the container
+            pendingTransfersContainer.innerHTML = '';
 
             // Create header
             const header = document.createElement('div');
@@ -200,6 +204,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             console.error('Error fetching pending transfers:', error);
         }
     }
+
 
     // Function to create a transfer item
     function createTransferItem(transfer, isToMe) {
@@ -675,29 +680,36 @@ document.addEventListener('DOMContentLoaded', async function () {
                     // Get the score for this player (default to 0 if undefined)
                     const playerScore = player.points || 0;
 
+                    // Format the score to display decimal only if needed
+                    let formattedScore;
+                    if (Number.isInteger(playerScore)) {
+                        // If it's a whole number, don't show decimal
+                        formattedScore = playerScore.toString();
+                    } else {
+                        // If it has a decimal, format to one decimal place
+                        formattedScore = playerScore.toFixed(1);
+                    }
+
+                    // Check if the score has a decimal point and add appropriate class
+                    const hasDecimal = formattedScore.includes(".");
+                    const scoreClass = hasDecimal ? "player-score decimal" : "player-score";
+
                     // Calculate color based on the score (from red to green)
                     const colorPercent = maxScore > 0 ? (playerScore / maxScore) * 100 : 0;
                     const scoreColor = getScoreColor(colorPercent);
 
                     const playerDiv = document.createElement('div');
                     playerDiv.className = 'player-grid';
-                    
+
                     playerDiv.innerHTML = `
-                    <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
-                    <span class="player-name">${player.webName}</span>
-                    <span class="player-score" style="color: ${scoreColor};">${playerScore}</span>
-                    ${getPlayerFormIndicator(player)}
-                    ${getPlayerStatusIcon(player)}
                     <button class="remove-player-button" data-player-id="${player.id}" data-position="${position.name}">-</button>
-                `;/*
-                    playerDiv.innerHTML = `
                     <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
-                    <span class="player-name">${player.webName}</span>
-                    <span class="player-total-score" style="color: ${scoreColor};">${playerScore}</span>
-                    ${getPlayerFormIndicator(player)}
-                    ${getPlayerStatusIcon(player)}
-                    <button class="remove-player-button" data-player-id="${player.id}" data-position="${position.name}"><i class="fas fa-trash-alt"></i></button>
-                `;*/
+                <span class="player-name-long">${player.webName}</span>
+                ${getPlayerStatusIcon(player)}
+                <span class="${scoreClass}" style="color: ${scoreColor};">${formattedScore}</span>                                        
+                ${getPlayerFormIndicator(player)}
+                
+            `;
                     playersDiv.appendChild(playerDiv);
                 });
 
@@ -717,14 +729,13 @@ document.addEventListener('DOMContentLoaded', async function () {
                     addButton.style.display = 'none';
                     playerList.style.display = 'none'; // Hide available players when position is filled
                 }
-                
             });
-                        
-            
         } catch (error) {
             console.error('Error fetching squad players:', error);
         }
     }
+
+
 
     // Helper function to calculate color based on score percentage
     function getScoreColor(percentage) {

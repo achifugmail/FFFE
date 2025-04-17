@@ -13,50 +13,50 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Fetch and populate gameweeks based on selected draft period
     const gameweekDropdown = document.getElementById('gameweekDropdown');
-    async function fetchAndPopulateGameweeks(draftPeriodId) {
-        let gameweeks = [];
-        try {
-            const respGameweeks = await fetch(`${config.backendUrl}/Gameweeks/by-draft-period/${draftPeriodId}`, addAuthHeader());
-            if (respGameweeks.status === 401) {
-                console.error('Authentication error: Unauthorized access (401)');
-                // Redirect to the root site
-                window.location.href = '/';
-                return;
-            }
-            if (!respGameweeks.ok) {
-                console.error('Failed to fetch gameweeks:', respGameweeks.status, respGameweeks.statusText);
-            } else {
-                gameweeks = await respGameweeks.json();
-            }
-        } catch (error) {
-            console.error('Error fetching gameweeks:', error);
+async function fetchAndPopulateGameweeks(draftPeriodId) {
+    let gameweeks = [];
+    try {
+        const respGameweeks = await fetch(`${config.backendUrl}/Gameweeks/by-draft-period/${draftPeriodId}`, addAuthHeader());
+        if (respGameweeks.status === 401) {
+            console.error('Authentication error: Unauthorized access (401)');
+            // Redirect to the root site
+            window.location.href = '/';
+            return;
         }
-
-        // Clear existing options
-        gameweekDropdown.innerHTML = '';
-
-        // Get current date and time
-        const now = new Date();
-
-        // Filter to only future gameweeks 
-        const futureGameweeks = gameweeks.filter(gameweek => new Date(gameweek.startDate + 'Z') > now);
-
-        // If no future gameweeks, include all gameweeks (to prevent empty dropdown)
-        const gameweeksToDisplay = futureGameweeks.length > 0 ? futureGameweeks : gameweeks;
-
-        // Sort gameweeks by number
-        gameweeksToDisplay.sort((a, b) => a.number - b.number).forEach(gameweek => {
-            const option = document.createElement('option');
-            option.value = gameweek.id;
-            option.text = `${gameweek.number}`;
-            gameweekDropdown.appendChild(option);
-        });
-
-        // Set default value to the first gameweek in the list
-        if (gameweeksToDisplay.length > 0) {
-            gameweekDropdown.value = gameweeksToDisplay[0].id;
+        if (!respGameweeks.ok) {
+            console.error('Failed to fetch gameweeks:', respGameweeks.status, respGameweeks.statusText);
+        } else {
+            gameweeks = await respGameweeks.json();
         }
+    } catch (error) {
+        console.error('Error fetching gameweeks:', error);
     }
+
+    // Clear existing options
+    gameweekDropdown.innerHTML = '';
+
+    // Get current date and time
+    const now = new Date();
+    
+    // Filter to only future gameweeks 
+    const futureGameweeks = gameweeks.filter(gameweek => new Date(gameweek.startDate + 'Z') > now);
+    
+    // If no future gameweeks, include all gameweeks (to prevent empty dropdown)
+    const gameweeksToDisplay = futureGameweeks.length > 0 ? futureGameweeks : gameweeks;
+    
+    // Sort gameweeks by number
+    gameweeksToDisplay.sort((a, b) => a.number - b.number).forEach(gameweek => {
+        const option = document.createElement('option');
+        option.value = gameweek.id;
+        option.text = `${gameweek.number}`;
+        gameweekDropdown.appendChild(option);
+    });
+
+    // Set default value to the first gameweek in the list
+    if (gameweeksToDisplay.length > 0) {
+        gameweekDropdown.value = gameweeksToDisplay[0].id;
+    }
+}
 
     // Initial population of gameweeks
     //await fetchAndPopulateGameweeks(filterDraftPeriodDropdown.value);
@@ -374,9 +374,9 @@ document.addEventListener('DOMContentLoaded', async function () {
 <input type="checkbox" class="player-checkbox" data-player-id="${player.id}">
 <button class="captain-button" data-player-id="${player.id}"><i class="fas fa-crown"></i></button>
 <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
-<span class="player-name">${player.webName}</span>
-${getPlayerFormIndicator(player)}
+<span class="player-name-long">${player.webName}</span>
 ${getPlayerStatusIcon(player)}
+${getPlayerFormIndicator(player)}
 `;
                     playersDiv.appendChild(playerDiv);
                 });

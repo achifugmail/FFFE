@@ -3,7 +3,7 @@ import { addAuthHeader } from './config.js';
 
 let previousPlayerScores = {};
 let refreshInterval;
-const REFRESH_INTERVAL = 30000; // 60 seconds
+const REFRESH_INTERVAL = 25000; // 60 seconds
 
 document.addEventListener('DOMContentLoaded', async function () {
     // Fetch leagues for dropdown
@@ -685,7 +685,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                         console.error('Error parsing player data:', error);
                         // Fallback to simplified player object if JSON parsing fails
                         const playerName = playerRow.querySelector('.player-name').textContent;
-                        const playerScore = playerRow.querySelector('.player-score').textContent;
+                        const playerScore = playerRow.querySelector('.player-score-narrow').textContent;
                         const position = playerRow.closest('.position-group').querySelector('.position-label').textContent;
 
                         player = {

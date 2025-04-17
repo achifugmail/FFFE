@@ -1,13 +1,5 @@
 ﻿.player-grid /* styles.css */
 /* General styles */
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #ffffff;
-    color: #333;
-}
-
 h1, h2, h3, h4, h5, h6 {
     color: #444;
     margin: 20px 0;
@@ -23,13 +15,7 @@ a {
     }
 
 /* Layout */
-.container {
-    width: 80%;
-    margin: 0 auto;
-    padding: 1px;
-    background-color: #fff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
+
 
 /* Buttons */
 button {
@@ -84,13 +70,11 @@ th {
 }
 
 /* Add styles for the player grid */
-.section {
-    margin-bottom: 20px;
-}
 
 .players {
     display: flex;
     flex-wrap: wrap;
+    width:auto;
 }
 
 .selected {
@@ -149,14 +133,14 @@ th {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: 110px; /* Limit width to ensure truncation */
+    
     display: inline-block; /* Needed for ellipsis to work */
 }
 
 .add-player-button,
 .remove-player-button {
-    width: 30px;
-    height: 30px;
+    width: 20px;
+    height: 20px;
     padding: 0;
     border: none;
     border-radius: 4px;
@@ -168,7 +152,7 @@ th {
     line-height: 1;
     margin-left: auto;
     background-color: transparent;
-    color: #dc3545;
+    color: #dc8735;
 }
 
 
@@ -243,16 +227,6 @@ th {
     width:24px;
 }
 
-.player-grid {
-    display: flex;
-    align-items: center;
-    padding: 7px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    margin: 7px;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-    position: relative;
-}
 
 .section.pending-swap {
     position: relative;
@@ -333,13 +307,6 @@ iframe {
     box-sizing: border-box; /* Include padding in width calculation */
 }
 
-.container {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1px;
-    width: 100%; /* Ensure container takes full width */
-    max-width: 100%; /* Prevent container from exceeding viewport */
-}
 .league-rankings {
     margin-top: 2rem;
     background-color: white;
@@ -502,32 +469,11 @@ a {
 
 }
 
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-}
-
-header {
-    background-color: #4CAF50;
-    color: white;
-    padding: 1rem;
-    text-align: center;
-}
-
 #content {
     padding: 0.5rem;
     flex: 1;
 }
 
-.container {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1px;
-}
 
 .collapsible {
     cursor: pointer;
@@ -575,20 +521,6 @@ header {
 
 iframe {
     min-height: 800px;
-}
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
-    margin: 0;
-    padding: 0;
-    font-size: 16px; /* Base font size */
-}
-
-header {
-    background-color: #4CAF50;
-    color: white;
-    padding: 1rem;
-    text-align: center;
 }
 
 #content {
@@ -645,7 +577,14 @@ li {
 .container {
     display: flex;
     flex-wrap: wrap;
+    padding: 1px;
+    grid-template-columns: 1fr;
     gap: 1px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin: 0 auto;
+    width: 100%; /* Ensure container takes full width */
+    max-width: 100%; /* Prevent container from exceeding viewport */
 }
 
 .dropdown-container {
@@ -745,8 +684,12 @@ input:checked + .slider {
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f9;
+    color: #333;
+    display: flex;
+    font-size: 16px; /* Base font size */
     margin: 0;
     padding: 0;
+    flex-direction: column;
 }
 
 header {
@@ -1024,6 +967,21 @@ th {
     margin-bottom: 5px;
     margin-top: 10px; 
 }
+.position-section {
+    position: relative;
+    border: 1px solid #ccc;
+    padding: 5px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    margin-top: 10px;
+    /* Reserve space for the pending-swap notification to prevent layout shifts */
+    min-height: 50px; /* Ensure a minimum height */
+    /* Pre-allocate space for content */
+    
+    /* Use a flex layout for more stable positioning */
+    display: flex;
+    flex-direction: column;
+}
 
     .position-section::before {
         content: attr(data-position);
@@ -1039,6 +997,31 @@ th {
         box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         z-index: 1010;
     }
+
+@media (min-width: 1080px) {
+    .position-section {
+        width: calc(720px + 30px); /* 2 * 350px + 20px for margins/padding */
+    }
+}
+
+@media (min-width: 1440px) {
+    .position-section {
+        width: calc(1080px + 45px); /* 3 * 350px + 30px for margins/padding */
+    }
+}
+
+@media (min-width: 1800px) {
+    .position-section {
+        width: calc(1440px + 60px); /* 4 * 350px + 40px for margins/padding */
+    }
+}
+
+/* For mobile and smaller screens */
+@media (max-width: 1079px) {
+    .position-section {
+        width: calc(360px); /* 1 * 350px + 10px for margins/padding */
+    }
+}
 
 /* Styling for teamScoreLink */
 .link-container {
@@ -1089,14 +1072,14 @@ th {
 .player-grid {
     display: flex;
     align-items: center;
-    margin: 7px;
-    padding: 7px;
-    padding-right: 7px;
-    border: 1px solid #ddd;
+    margin: 5px;
+    padding: 5px;
+    padding-right: 7px;    
     border-radius: 5px;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
     position: relative;
-    width: 280px; 
+    width: auto;
+    width: 350px; 
     overflow: hidden;
 }
 
@@ -1153,17 +1136,6 @@ th {
     font-size: 10px;
     font-weight: bold;
     flex-shrink: 0; /* Prevent shrinking */
-}
-
-
-
-.player-name {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 80px; 
-    min-width: 0; 
-    flex: 1; 
 }
 
 /* Form icons using arrows */
@@ -1496,8 +1468,20 @@ th {
     display: none;
     padding-left: 3px;
     font-size: 14px;
+    width: 80px;
+    flex: 1;
 }
 
+.player-name-long {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: none;
+    padding-left: 3px;
+    font-size: 14px;
+    width: 120px;
+    flex: 1;
+}
 
 
 .user-team-card.expanded .player-name {
@@ -1507,11 +1491,27 @@ th {
     display: block;
 }
 
+
 .player-score {
-    text-align: -webkit-right;
+    text-align: right;
     font-size: 12px;
+    width: 35px;
+
+    /* Add consistent padding to align with decimal point */
+    padding-right: 0.75em; /* Adjust this value for proper decimal alignment */
+    position: relative;
 }
 
+    /* For numbers with decimal points, create specific styling */
+    .player-score.decimal {
+        /* Remove the right padding for decimal numbers */
+        padding-right: 0;
+    }
+
+.player-row .player-score {
+    width: 25px;
+}    
+    
 .captain-marker {
     position: relative;
 }
