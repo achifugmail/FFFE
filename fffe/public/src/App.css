@@ -2746,9 +2746,9 @@ th {
 /* Goal areas */
 .goal-area-left, .goal-area-right {
     position: absolute;
-    left: 30%;
-    width: 40%;
-    height: 10%;
+    left: 40%;
+    width: 20%;
+    height: 6%;
     border: 2px solid rgba(255, 255, 255, 0.7);
 }
 
