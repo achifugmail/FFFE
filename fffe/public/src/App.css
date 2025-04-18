@@ -82,7 +82,7 @@ th {
 }
 
 .captain {
-    border: 2px solid blue;
+    
     background-color: #cce5ff;
     position: relative;
     z-index: 1;
@@ -2819,8 +2819,8 @@ th {
 }
 
 .pitch-player-photo {
-    width: 40px !important;
-    height: 40px !important;
+    width: 50px !important;
+    height: 50px !important;
     border-radius: 50% !important;
     border: 2px solid white;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
@@ -2829,6 +2829,7 @@ th {
     align-items: center;
     justify-content: center;
     object-fit: cover;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .pitch-player-name {
@@ -2840,7 +2841,7 @@ th {
     color: white;
     padding: 2px 5px;
     border-radius: 3px;
-    font-size: 10px;
+    font-size: 12px;
     white-space: nowrap;
     max-width: 80px;
     overflow: hidden;
@@ -2850,6 +2851,11 @@ th {
 /* Captain indicator */
 .pitch-player.captain .pitch-player-photo {
     border: 2px solid gold;
+    
+}
+
+.pitch-player.captain {
+    background-color: transparent !important; /* Remove background color for pitch view */
 }
 
 .pitch-player.captain::after {
@@ -3024,21 +3030,21 @@ th {
     background-color: #d1e7dd;
 }
 
-.pitch-player-list-item.captain {
-    border: 2px solid blue;
-    background-color: #cce5ff;
-}
+    .pitch-player-list-item.captain {
+        
+    }
 
 .pitch-player-list-item .player-checkbox {
     margin-right: 5px;
 }
 
-.pitch-player-list-item .captain-button {
-    width: 25px;
-    height: 25px;
-    padding: 0;
-    margin-right: 5px;
-}
+    .pitch-player-list-item .captain-button {
+        width: 25px;
+        height: 25px;
+        padding: 0;
+        margin-right: 5px;
+        
+    }
 
 .pitch-player-list-item .player-photo {
     width: 25px;
@@ -3090,4 +3096,54 @@ th {
 /* Hide old toggle container */
 .view-toggle-container {
     display: none;
+}
+body.pitch-view-active #content.container {
+    background-color: #4CAF50; /* Light green background when in pitch view */
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+body.pitch-view-active .dropdown-container {    
+    background-color: rgba(76, 175, 80, 0.1);
+    border-radius: 8px;    
+    transition: all 0.3s ease;
+}
+
+body.pitch-view-active select {
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: #2e7d32;
+    font-weight: 500;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+    body.pitch-view-active select:hover,
+    body.pitch-view-active select:focus {
+        background-color: white;
+        border-color: #4CAF50;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+    }
+
+body.pitch-view-active label {
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    font-weight: 500;
+}
+
+/* Make dropdown container transparent when in pitch view */
+body.pitch-view-active #content.container {
+    background-color: transparent;
+    transition: background-color 0.3s ease;
+}
+
+/* Improved styles for the pitch view container */
+body.pitch-view-active .pitch-view-container {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    border: 5px solid rgba(255, 255, 255, 0.8);
+}
+
+/* Background for the entire page when in pitch view */
+body.pitch-view-active {
+    background: linear-gradient(to bottom, #4CAF50, #2E7D32);
+    color: white;
 }

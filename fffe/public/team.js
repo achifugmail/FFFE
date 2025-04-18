@@ -860,6 +860,7 @@ ${getPlayerFormIndicator(player)}
                 viewToggleBtn.innerHTML = '<i class="fas fa-th-list"></i>'; // List icon when in pitch view
                 viewToggleBtn.setAttribute('title', 'Switch to List View');
                 currentView = 'pitch';
+                document.body.classList.add('pitch-view-active'); // Add class to body
                 renderPitchView();
             } else {
                 // Switch to list view
@@ -868,6 +869,7 @@ ${getPlayerFormIndicator(player)}
                 viewToggleBtn.innerHTML = '<i class="fas fa-futbol"></i>'; // Football icon when in list view
                 viewToggleBtn.setAttribute('title', 'Switch to Pitch View');
                 currentView = 'list';
+                document.body.classList.remove('pitch-view-active'); // Remove class from body
             }
         });
     }
@@ -1005,13 +1007,13 @@ ${getPlayerFormIndicator(player)}
         }
 
         // Position the combined defensive line
-        positionPlayers(defensiveLine, 25, pitchContainer, 100);  // Use wider spread (90%)
+        positionPlayers(defensiveLine, 25, pitchContainer, 120);  // Use wider spread (90%)
 
         // Handle remaining positions normally with increased spacing
-        positionPlayers(playersByPosition['DM'], 45, pitchContainer, 100);
-        positionPlayers(playersByPosition['MID'], 55, pitchContainer, 100);
-        positionPlayers(playersByPosition['AM'], 65, pitchContainer, 100);
-        positionPlayers(playersByPosition['FW'], 80, pitchContainer, 100);
+        positionPlayers(playersByPosition['DM'], 45, pitchContainer, 120);
+        positionPlayers(playersByPosition['MID'], 55, pitchContainer, 120);
+        positionPlayers(playersByPosition['AM'], 65, pitchContainer, 120);
+        positionPlayers(playersByPosition['FW'], 80, pitchContainer, 120);
     }
 
     // Helper function to position players horizontally with customizable spread
