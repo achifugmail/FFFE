@@ -2697,7 +2697,7 @@ th {
 
 .pitch-view-container {
     position: relative;
-    min-height: 650px;
+    min-height: 550px;
     max-width: 100%;
     margin: 0 auto;
     /* Remove the old solid background color and grid lines */
