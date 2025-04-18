@@ -1000,26 +1000,31 @@ th {
 
 @media (min-width: 1080px) {
     .position-section {
-        width: calc(720px + 30px); /* 2 * 350px + 20px for margins/padding */
+        width: calc(720px); /* 2 * 350px + 20px for margins/padding */
     }
 }
 
 @media (min-width: 1440px) {
     .position-section {
-        width: calc(1080px + 45px); /* 3 * 350px + 30px for margins/padding */
+        width: calc(1080px); /* 3 * 350px + 30px for margins/padding */
     }
 }
 
 @media (min-width: 1800px) {
     .position-section {
-        width: calc(1440px + 60px); /* 4 * 350px + 40px for margins/padding */
+        width: calc(1440px); /* 4 * 350px + 40px for margins/padding */
     }
 }
 
 /* For mobile and smaller screens */
 @media (max-width: 1079px) {
     .position-section {
-        width: calc(360px); /* 1 * 350px + 10px for margins/padding */
+        width: 95%; /* 1 * 350px + 10px for margins/padding */
+    }
+
+    .player-grid {
+        width: -webkit-fill-available !important;
+        
     }
 }
 
@@ -1074,12 +1079,11 @@ th {
     align-items: center;
     margin: 5px;
     padding: 5px;
-    padding-right: 7px;    
+    padding-right: 7px;
     border-radius: 5px;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
     position: relative;
-    width: auto;
-    width: 335px; 
+    width: 335px;
     overflow: hidden;
 }
 
