@@ -2693,19 +2693,18 @@ th {
 
 .pitch-view-container {
     position: relative;
-    
-    width: 100%;
-   
+    min-height: 650px;
+    max-width: 100%;
     margin: 0 auto;
-    background-color: #4CAF50; /* Green background for the pitch */
-    background-image: linear-gradient(to right, rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.2) 1px, transparent 1px);
-    background-size: 20px 20px;
+    /* Remove the old solid background color and grid lines */
+    background: repeating-linear-gradient( to bottom, #4CAF50 0px, #4CAF50 50px, #3c9f40 50px, #3c9f40 100px );
     border: 4px solid white;
     border-radius: 10px;
-    padding-top: 140%; /* Taller aspect ratio for vertical pitch */
+    
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     overflow: hidden;
 }
+
 
 /* Field markings for vertical pitch */
 .pitch-markings {
@@ -3055,6 +3054,7 @@ th {
 .pitch-player-list-item.captain .captain-button i {
     color: gold;
 }
+
 .view-toggle-round-btn {
     position: fixed;
     right: 10px;
