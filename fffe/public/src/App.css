@@ -3233,7 +3233,7 @@ body.pitch-view-active {
     color: #4CAF50;
     box-shadow: 0px -2px 6px rgba(0,0,0,0.1);
     cursor: pointer;
-    z-index: 1000;
+    z-index: 4000;
     padding: 0 10px; /* Change padding to left/right instead of top/bottom */
     opacity: 0.8;
     transition: opacity 0.1s ease;
@@ -3262,7 +3262,7 @@ body.pitch-view-active {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    z-index: 101;
+    z-index: 2001;
     background-color: rgba(255, 255, 255, 0.95); /* translucent white */
     color: #4CAF50;
     box-shadow: 0px -2px 6px rgba(0,0,0,0.1);
@@ -3293,7 +3293,7 @@ body.pitch-view-active {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    z-index: 101; /* Increased z-index to ensure button stays above other elements */
+    z-index: 2001; /* Increased z-index to ensure button stays above other elements */
     background-color: rgba(255, 255, 255, 0.95); /* translucent white */
     color: #4CAF50;
     box-shadow: 0px -2px 6px rgba(0,0,0,0.1);
