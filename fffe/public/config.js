@@ -23,11 +23,19 @@ function getToken() {
 // Helper function to add the Authorization header
 export function addAuthHeader(options = {}) {
     const token = getToken();
-    if (!options.headers) {
-        options.headers = {};
+    if (!token) {
+        console.error('No authentication token found when adding auth header');
+        // Instead of redirecting here (which could cause redirect loops),
+        // let the calling code handle the 401 response
     }
-    options.headers['Authorization'] = `Bearer ${token}`;
-    return options;
+
+    const headers = options.headers || {};
+    headers['Authorization'] = `Bearer ${token}`;
+
+    return {
+        ...options,
+        headers
+    };
 }
 
 export default config;

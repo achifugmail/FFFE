@@ -3,12 +3,34 @@ import { addAuthHeader } from './config.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
     // Fetch draft periods for dropdown
-    
+    let leagueId = localStorage.getItem('leagueId');
+
+    console.log('Team.js loaded. Device info:', {
+        userAgent: navigator.userAgent,
+        platform: navigator.platform,
+        localStorage: !!window.localStorage,
+        hasToken: !!localStorage.getItem('token'),
+        hasLeagueId: !!localStorage.getItem('leagueId')
+    });
+
+    // Add this near the top of your team.js file, right after getting leagueId
+    // This will check if the token exists and redirect to login if not
+    const token = localStorage.getItem('token');
+    if (!token) {
+        console.error('No authentication token found');
+        window.location.href = '/'; // Redirect to login page
+        throw new Error('Authentication required'); // Stop execution
+    }
+
+    // Add debug logging to track what's happening
+    console.log('Authentication token present:', !!token);
+    console.log('League ID:', leagueId);
+
     
     let draftPeriodId;
     let squadId;  // Remove the URL parameter assignment
     const currentUserId = localStorage.getItem('userId');
-    let leagueId = localStorage.getItem('leagueId');
+    
     if (!leagueId) {
         try {
             const response = await fetch(`${config.backendUrl}/Leagues/byUser`, addAuthHeader());
@@ -281,6 +303,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     async function fetchDraftPeriods() {
         try {
+
             const response = await fetch(`${config.backendUrl}/DraftPeriods`, addAuthHeader());
             if (response.status === 401) {
                 console.error('Authentication error: Unauthorized access (401)');
