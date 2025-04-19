@@ -157,16 +157,15 @@ function showLeagueMenu(linkElement) {
     const parentLi = linkElement.closest('li');
 
     if (parentLi) {
-        // Add the dropdown to the parent li for proper alignment
+        // Add the dropdown to the parent li element (not document.body)
         parentLi.appendChild(dropdownMenu);
 
         // Position the dropdown below the nav link
         const rect = linkElement.getBoundingClientRect();
         dropdownMenu.style.top = `${rect.height}px`;
 
-        // Remove any inline left/right positioning to let CSS classes handle alignment
-        dropdownMenu.style.left = '';
-        dropdownMenu.style.right = '';
+        // Don't set width - let CSS determine it instead
+        // dropdownMenu.style.width = `${rect.width}px`; // REMOVE THIS LINE
 
         // Keep track of active menu
         activeLeagueMenu = dropdownMenu;
