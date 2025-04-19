@@ -8,19 +8,15 @@ let currentLeague = null;
 
 
 document.addEventListener('DOMContentLoaded', async function () {
-    let leagueId;
+   
     let draftPeriodId;
     let squadId;  // Remove the URL parameter assignment
     let squadPlayers = [];
     const currentUserId = localStorage.getItem('userId');
+    const leagueId = localStorage.getItem('leagueId');
 
     // Add this near the top of your DOMContentLoaded function, after the variable declarations
-    const urlParams = new URLSearchParams(window.location.search);
-    const urlLeagueId = urlParams.get('leagueId');
-    if (urlLeagueId) {
-        leagueId = urlLeagueId;
-    }
-
+    
     let transfersLoaded = false;
 
     // Later in the code, add the event listener for the toggle button
@@ -132,8 +128,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     async function fetchAndDisplayPendingTransfers() {
-        const leagueId = document.getElementById('leagueDropdown').value;
-        if (!leagueId) return;
 
         try {
             // First fetch the pending transfers data
@@ -592,33 +586,32 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-    async function fetchSquadDetails(leagueId) {
-        try {
-            const respSquads = await fetch(`${config.backendUrl}/UserSquads/ByLeague/${leagueId}`, addAuthHeader());
 
-            if (!respSquads.ok) {
-                console.error('Failed to fetch squads:', respSquads.status, respSquads.statusText);
-                return [];
+
+    async function fetchSquadDetails() {
+        try {
+            const response = await fetch(`${config.backendUrl}/UserSquads/${squadId}`, addAuthHeader());
+
+            if (!response.ok) {
+                console.error('Failed to fetch squad details:', response.status, response.statusText);
+                return;
+            }
+            const squad = await response.json();
+            draftPeriodId = squad.draftPeriodId;
+            
+            if (currentUserId !== squad.userId.toString()) {
+                document.body.classList.add('hide-buttons');
             }
 
-            const squads = await respSquads.json();
-
-            // Create a map of user IDs to squad details
-            squadsMap = {};
-            squads.forEach(squad => {
-                if (!squadsMap[squad.userId]) {
-                    squadsMap[squad.userId] = [];
-                }
-                squadsMap[squad.userId].push(squad);
-            });
-
-            return squads; // Return the fetched squads
+            // Update draft period dropdown if it exists
+            const draftPeriodDropdown = document.getElementById('draftPeriodDropdown');
+            if (draftPeriodDropdown) {
+                draftPeriodDropdown.value = draftPeriodId;
+            }
         } catch (error) {
             console.error('Error fetching squad details:', error);
-            return [];
         }
     }
-
     function getPlayerFormIndicator(player) {
         if (!player.form && player.form !== 0) return '';
 
@@ -780,7 +773,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 playerDiv.innerHTML = `
                 <button class="${isPlayerInSquad ? 'remove-player-button' : 'add-player-button'}" data-player-id="${player.id}" data-position="${position.name}">${isPlayerInSquad ? '-' : '+'}</button>
             <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
-            <span class="player-name-long">${player.webName}</span>
+            <span class="player-name">${player.webName}</span>
             ${getPlayerStatusIcon(player)}
             ${getPlayerFormIndicator(player)}
         `;
@@ -1062,7 +1055,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
 
     //if (!checkAndHandleUrlSquadId()) {
-    await fetchLeagues();
+    //await fetchLeagues();
+    await fetchDraftPeriods();
     //}
 
     document.addEventListener('click', function (event) {

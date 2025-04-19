@@ -4,59 +4,102 @@ import { addAuthHeader } from './config.js';
 document.addEventListener('DOMContentLoaded', async function () {
     // Fetch draft periods for dropdown
     
-    let leagueId;
+    
     let draftPeriodId;
     let squadId;  // Remove the URL parameter assignment
     const currentUserId = localStorage.getItem('userId');
+    const leagueId = localStorage.getItem('leagueId');
 
     const filterDraftPeriodDropdown = document.getElementById('filterDraftPeriodDropdown');
 
     // Fetch and populate gameweeks based on selected draft period
     const gameweekDropdown = document.getElementById('gameweekDropdown');
-async function fetchAndPopulateGameweeks(draftPeriodId) {
-    let gameweeks = [];
-    try {
-        const respGameweeks = await fetch(`${config.backendUrl}/Gameweeks/by-draft-period/${draftPeriodId}`, addAuthHeader());
-        if (respGameweeks.status === 401) {
-            console.error('Authentication error: Unauthorized access (401)');
-            // Redirect to the root site
-            window.location.href = '/';
-            return;
+    const gameweekCaption = document.getElementById('gameweekCaption');
+    const gameweekLeftArrow = document.getElementById('gameweekLeftArrow');
+    const gameweekRightArrow = document.getElementById('gameweekRightArrow');
+
+    // Function to update the gameweek caption and dropdown value
+    function updateGameweek(newIndex) {
+        const options = Array.from(gameweekDropdown.options);
+        if (newIndex >= 0 && newIndex < options.length) {
+            gameweekDropdown.selectedIndex = newIndex;
+            gameweekCaption.textContent = options[newIndex].text; // Update the caption
+            fetchAndDisplayFixtures(options[newIndex].value); // Fetch fixtures for the new gameweek
+            fetchAndDisplaySquadPlayers(squadId); // Fetch squad players for the new gameweek
         }
-        if (!respGameweeks.ok) {
-            console.error('Failed to fetch gameweeks:', respGameweeks.status, respGameweeks.statusText);
-        } else {
-            gameweeks = await respGameweeks.json();
-        }
-    } catch (error) {
-        console.error('Error fetching gameweeks:', error);
     }
 
-    // Clear existing options
-    gameweekDropdown.innerHTML = '';
+    // Event listener for the up arrow (previous gameweek)
+    gameweekLeftArrow.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent triggering the button click
+        const currentIndex = gameweekDropdown.selectedIndex;
+        updateGameweek(currentIndex - 1); // Move to the previous gameweek
 
-    // Get current date and time
-    const now = new Date();
-    
-    // Filter to only future gameweeks 
-    const futureGameweeks = gameweeks.filter(gameweek => new Date(gameweek.startDate + 'Z') > now);
-    
-    // If no future gameweeks, include all gameweeks (to prevent empty dropdown)
-    const gameweeksToDisplay = futureGameweeks.length > 0 ? futureGameweeks : gameweeks;
-    
-    // Sort gameweeks by number
-    gameweeksToDisplay.sort((a, b) => a.number - b.number).forEach(gameweek => {
-        const option = document.createElement('option');
-        option.value = gameweek.id;
-        option.text = `${gameweek.number}`;
-        gameweekDropdown.appendChild(option);
+
     });
 
-    // Set default value to the first gameweek in the list
-    if (gameweeksToDisplay.length > 0) {
-        gameweekDropdown.value = gameweeksToDisplay[0].id;
+    // Event listener for the right arrow (next gameweek)
+    gameweekRightArrow.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent triggering the button click
+        const currentIndex = gameweekDropdown.selectedIndex;
+        updateGameweek(currentIndex + 1); // Move to the next gameweek
+
+
+    });
+
+    async function fetchAndPopulateGameweeks(draftPeriodId) {
+        let gameweeks = [];
+        try {
+            const respGameweeks = await fetch(`${config.backendUrl}/Gameweeks/by-draft-period/${draftPeriodId}`, addAuthHeader());
+            if (respGameweeks.status === 401) {
+                console.error('Authentication error: Unauthorized access (401)');
+                // Redirect to the root site
+                window.location.href = '/';
+                return;
+            }
+            if (!respGameweeks.ok) {
+                console.error('Failed to fetch gameweeks:', respGameweeks.status, respGameweeks.statusText);
+            } else {
+                gameweeks = await respGameweeks.json();
+            }
+        } catch (error) {
+            console.error('Error fetching gameweeks:', error);
+        }
+
+        // Clear existing options
+        gameweekDropdown.innerHTML = '';
+
+        // Get current date and time
+        const now = new Date();
+
+        // Filter to only future gameweeks 
+        const futureGameweeks = gameweeks.filter(gameweek => new Date(gameweek.startDate + 'Z') > now);
+
+        // If no future gameweeks, include all gameweeks (to prevent empty dropdown)
+        const gameweeksToDisplay = futureGameweeks.length > 0 ? futureGameweeks : gameweeks;
+
+        // Sort gameweeks by number
+        gameweeksToDisplay.sort((a, b) => a.number - b.number).forEach(gameweek => {
+            const option = document.createElement('option');
+            option.value = gameweek.id;
+            option.text = `${gameweek.number}`;
+            gameweekDropdown.appendChild(option);
+        });
+
+        // Set default value to the first gameweek in the list
+        if (gameweeksToDisplay.length > 0) {
+            gameweekDropdown.value = gameweeksToDisplay[0].id;
+
+            // Update the caption of the gameweek-btn
+            const gameweekCaption = document.getElementById('gameweekCaption');
+            if (gameweekCaption) {
+                gameweekCaption.textContent = `${gameweeksToDisplay[0].number}`; // Set only the gameweek number
+            }
+        }
     }
-}
+
+
+
 
     // Initial population of gameweeks
     //await fetchAndPopulateGameweeks(filterDraftPeriodDropdown.value);
@@ -196,7 +239,7 @@ async function fetchAndPopulateGameweeks(draftPeriodId) {
 
             if (leagues.length > 0) {
                 leagueDropdown.value = leagues[0].id;
-                leagueId = leagues[0].id;
+                //leagueId = leagues[0].id;
                 // Fix: Remove the hyphen that was breaking the call
                 await fetchDraftPeriods();
             }
@@ -431,15 +474,16 @@ ${getPlayerFormIndicator(player)}
     }
 
     async function fetchAndDisplayPendingTransfers() {
-        const leagueId = document.getElementById('leagueDropdown').value;
         if (!leagueId) return;
 
         try {
-            // Remove existing container if it exists
-            const existingContainer = document.getElementById('pendingTransfersContainer');
-            if (existingContainer) {
-                existingContainer.remove();
-            }
+            // Get the existing container
+            const pendingTransfersContainer = document.getElementById('pendingTransfersContainer');
+
+            // Clear existing content except the header
+            const header = pendingTransfersContainer.querySelector('.pending-transfers-header');
+            pendingTransfersContainer.innerHTML = '';
+            pendingTransfersContainer.appendChild(header);
 
             // Fetch transfers to me
             const responseTo = await fetch(`${config.backendUrl}/Transfers/pending/to-me/${leagueId}`, addAuthHeader());
@@ -449,31 +493,21 @@ ${getPlayerFormIndicator(player)}
 
             if (!responseTo.ok || !responseFrom.ok) {
                 console.error('Failed to fetch pending transfers');
+                pendingTransfersContainer.style.display = 'none';
                 return;
             }
 
             const transfersToMe = await responseTo.json();
             const transfersFromMe = await responseFrom.json();
 
-            // Only create and display the container if there are any pending transfers
+            // Only display the container if there are any pending transfers
             if (transfersToMe.length === 0 && transfersFromMe.length === 0) {
-                return; // No transfers, so don't create the container
+                pendingTransfersContainer.style.display = 'none';
+                return;
             }
 
-            // Create container for pending transfers since we have some to display
-            const pendingTransfersContainer = document.createElement('div');
-            pendingTransfersContainer.id = 'pendingTransfersContainer';
-            pendingTransfersContainer.className = 'pending-transfers-container';
-
-            // Insert after dropdown container
-            const dropdownContainer = document.querySelector('.dropdown-container');
-            dropdownContainer.parentNode.insertBefore(pendingTransfersContainer, dropdownContainer.nextSibling);
-
-            // Create header
-            const header = document.createElement('div');
-            header.className = 'pending-transfers-header';
-            header.textContent = 'Pending Transfers';
-            pendingTransfersContainer.appendChild(header);
+            // Show the container since we have transfers to display
+            pendingTransfersContainer.style.display = 'block';
 
             // Display transfers to me first
             if (transfersToMe.length > 0) {
@@ -491,10 +525,23 @@ ${getPlayerFormIndicator(player)}
                 });
             }
 
+            // Calculate the total number of pending transfers
+            const totalTransfers = transfersToMe.length + transfersFromMe.length;
+
+            // Set the height based on the formula: 75px + (150px * number of transfers)
+            const containerHeight = 75 + (150 * totalTransfers);
+            pendingTransfersContainer.style.height = `${containerHeight}px`;
+
+            // Make sure there's enough space for the content
+            pendingTransfersContainer.style.minHeight = '75px';
+            pendingTransfersContainer.style.overflow = 'visible';
+
         } catch (error) {
             console.error('Error fetching pending transfers:', error);
+            document.getElementById('pendingTransfersContainer').style.display = 'none';
         }
     }
+
 
 
     // Function to create a transfer item
@@ -1060,9 +1107,12 @@ ${getPlayerFormIndicator(player)}
 
     // Fetch and display squad info and players in the current squad on page load    
     //const squadId = urlParams.get('SquadId');
-    await fetchLeagues();
-    squadId = await fetchSquadId();
+    //await fetchLeagues();
     fetchAndDisplayPendingTransfers();
+    await fetchDraftPeriods();
+
+    squadId = await fetchSquadId();
+    
     await fetchAndDisplaySquadPlayers(squadId);
     setupViewToggle();
     await fetchAndDisplayFixtures(gameweekDropdown.value);

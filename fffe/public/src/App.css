@@ -305,6 +305,7 @@ iframe {
     flex: 1;
     width: 100%;
     box-sizing: border-box; /* Include padding in width calculation */
+
 }
 
 .league-rankings {
@@ -573,19 +574,65 @@ li {
         height: 100%;
         border: none;
     }
-
-.container {
+.team-container {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     padding: 1px;
-    grid-template-columns: 1fr;
-    gap: 1px;
     background-color: #fff;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     margin: 0 auto;
-    width: 100%; /* Ensure container takes full width */
-    max-width: 100%; /* Prevent container from exceeding viewport */
+    width: 100%;
+    max-width: 100%;
+    height: calc(100vh - 130px);
+    position: relative;
+    /* Remove overflow-y: auto from here - this is key */
 }
+
+/* Fix for pendingTransfersContainer */
+#pendingTransfersContainer {
+    position: relative;
+    width: 100%;
+    z-index: 900;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    margin: 0 0 10px 0;
+    border-radius: 8px;
+    height:auto;
+}
+
+/* Fix for team-layout to ensure it scrolls properly with parent */
+.team-layout {
+    flex: 1;
+    display: flex;
+    position: relative;
+    width: 100%;
+    overflow-y: auto !important; /* Add scrolling at this level */
+    -webkit-overflow-scrolling: touch;
+}
+
+
+/* Ensure #content.team-container consistently scrolls */
+#content.team-container {
+    height: calc(100vh - 130px) !important;
+    max-height: calc(100vh - 130px) !important;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow-y: auto !important; /* Force scrolling */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+/* Position #playerGrid correctly */
+#playerGrid {
+    width: 100%;
+    padding-bottom: 80px; /* Add extra space at bottom to ensure scroll reaches all content */
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.gameweek-btn, .view-toggle-round-btn, .fixtures-toggle {
+    position: fixed;
+    z-index: 1000;
+}
+
 
 .dropdown-container {
     display: flex;
@@ -626,11 +673,7 @@ li {
     width: 100%; /* Make squadTableRow occupy the entire width of the page */
 }
 
-.toggle-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
+
 
 .switch {
     position: relative;
@@ -1280,6 +1323,8 @@ th {
     transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
+
+
 #fixturesContainer {
     width: 165px;
     background-color: #fff;
@@ -1287,7 +1332,7 @@ th {
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
     padding: 5px 0px 15px 10px;
     position: fixed;
-    top: 140px; /* Adjust based on your header height */
+    top: 60px; /* Adjust based on your header height */
     right: -190px; /* Start off-screen */
     bottom: 0;
     max-height: 750px;
@@ -1295,31 +1340,14 @@ th {
     transition: right 0.3s ease;
     z-index: 100;
 }
-
-
-
-/* Fixtures drawer toggle button */
-.fixtures-toggle {
-    position: fixed;
-    right: 10px;
-    bottom: 20px; 
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
+.toggle-container {
     display: flex;
     align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 101; /* Increased z-index to ensure button stays above other elements */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    gap: 10px;
 }
 
-    .fixtures-toggle i {
-        font-size: 18px;
-    }
+
+
 
 /* When fixtures drawer is open */
 .fixtures-open #playerGrid {
@@ -2948,6 +2976,7 @@ th {
     font-size: 14px;
     transition: all 0.3s ease;
     margin: 0 5px;
+
 }
 
     .view-toggle-btn:first-child {
@@ -3065,38 +3094,7 @@ th {
     color: gold;
 }
 
-.view-toggle-round-btn {
-    position: fixed;
-    right: 10px;
-    bottom: 80px; /* Position above fixtures toggle */
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 101;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s ease, background-color 0.3s ease;
-}
 
-    .view-toggle-round-btn:hover {
-        transform: scale(1.1);
-        background-color: #45a049;
-    }
-
-    .view-toggle-round-btn i {
-        font-size: 18px;
-    }
-
-/* Hide old toggle container */
-.view-toggle-container {
-    display: none;
-}
 body.pitch-view-active #content.container {
     background-color: #4CAF50; /* Light green background when in pitch view */
     transition: background-color 0.3s ease; /* Smooth transition */
@@ -3147,3 +3145,156 @@ body.pitch-view-active {
     background: linear-gradient(to bottom, #4CAF50, #2E7D32);
     color: white;
 }
+/* League submenu styles - Add to App.css */
+.league-submenu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #333;
+    min-width: 200px;
+    z-index: 1000;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.league-submenu-item {
+    color: white;
+    padding: 12px 15px;
+    border-top: 1px solid #444;
+    cursor: pointer;
+    text-align: left;
+}
+
+    .league-submenu-item:hover {
+        background-color: #111;
+    }
+
+#main-nav ul li {
+    position: relative;
+}
+
+/* Styles for the league dropdown menu */
+.league-dropdown-menu {
+    position: absolute;
+    background-color: #333;
+    min-width: 250px; /* Increased width to fit longer league names */
+    z-index: 1000;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    z-index: 20001;
+}
+
+/* Styles for individual league dropdown items */
+.league-dropdown-item {
+    display: block;
+    padding: 10px 15px;
+    color: white;
+    text-decoration: none;
+    border-top: 1px solid #444;
+    font-size: 0.9em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left !important; /* Force left alignment */
+    z-index:20001;
+}
+
+    .league-dropdown-item:hover {
+        background-color: #111;
+    }
+.gameweek-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 10px;
+    /* Update width and height for horizontal layout */
+    width: 120px; /* Increased width to accommodate horizontal layout */
+    height: 40px; /* Reduced height since we no longer stack vertically */
+    border-radius: 10px;
+    border: none;
+    display: flex;
+    /* Change from column to row for horizontal layout */
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    background-color: rgba(255, 255, 255, 0.95);
+    color: #4CAF50;
+    box-shadow: 0px -2px 6px rgba(0,0,0,0.1);
+    cursor: pointer;
+    z-index: 1000;
+    padding: 0 10px; /* Change padding to left/right instead of top/bottom */
+    opacity: 0.8;
+    transition: opacity 0.1s ease;
+}
+
+    .gameweek-btn i {
+        font-size: 12px;
+        color: white;
+    }
+
+#gameweekCaption {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.view-toggle-round-btn {
+    position: fixed;
+    right: 150px;
+    bottom: 20px; /* Position above fixtures toggle */
+    //background-color: #4CAF50;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 101;
+    background-color: rgba(255, 255, 255, 0.95); /* translucent white */
+    color: #4CAF50;
+    box-shadow: 0px -2px 6px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    opacity: 0.8;
+}
+
+    .view-toggle-round-btn:hover {
+        transform: scale(1.1);
+        background-color: #45a049;
+    }
+
+    .view-toggle-round-btn i {
+        font-size: 18px;
+    }
+
+/* Hide old toggle container */
+.view-toggle-container {
+    display: none;
+}
+.fixtures-toggle {
+    position: fixed;
+    right: 200px;
+    bottom: 20px;
+
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 101; /* Increased z-index to ensure button stays above other elements */
+    background-color: rgba(255, 255, 255, 0.95); /* translucent white */
+    color: #4CAF50;
+    box-shadow: 0px -2px 6px rgba(0,0,0,0.1);
+    opacity: 0.8; /* Set transparency to 50% */
+}
+
+    .fixtures-toggle i {
+        font-size: 18px;
+    }
+#gameweekButton i {
+    color: #4CAF50; /* Match the caption color */
+}
+
