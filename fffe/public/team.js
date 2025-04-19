@@ -4,6 +4,9 @@ import { addAuthHeader } from './config.js';
 document.addEventListener('DOMContentLoaded', async function () {
     // Fetch draft periods for dropdown
     let leagueId = localStorage.getItem('leagueId');
+    let vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+    
 
     console.log('Team.js loaded. Device info:', {
         userAgent: navigator.userAgent,

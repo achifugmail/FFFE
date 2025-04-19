@@ -586,6 +586,7 @@ li {
     width: 100%;
     max-width: 100%;
     /*height: calc(100vh - 130px);*/
+    height: calc(var(--vh, 1vh) * 100 - 130px);
     position: relative;
     /* Remove overflow-y: auto from here - this is key */
 }
@@ -593,6 +594,8 @@ li {
 #content.team-container {
     /*height: calc(100vh - 130px) !important;
     //max-height: calc(100vh - 130px) !important;*/
+    height: calc(var(--vh, 1vh) * 100 - 130px);
+    max-height: calc(var(--vh, 1vh) * 100 - 130px);
     display: flex;
     flex-direction: column;
     position: relative;
