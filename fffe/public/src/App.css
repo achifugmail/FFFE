@@ -1281,6 +1281,7 @@ th {
     vertical-align: middle;
     line-height: 20px; /* Reduced from 25px to match new logo size */
     font-size: 0.9em; /* Added slightly smaller font size */
+    color: black;
 }
 
 .team-logo {
@@ -1299,6 +1300,7 @@ th {
     font-weight: bold;
     border: none;
     vertical-align: middle;
+    color: black;
 }
 
 .fixtures-table {
@@ -2984,7 +2986,7 @@ th {
     padding: 8px 15px;
     cursor: pointer;
     font-size: 14px;
-    transition: all 0.3s ease;
+
     margin: 0 5px;
 
 }
@@ -3264,7 +3266,7 @@ body.pitch-view-active {
     background-color: rgba(255, 255, 255, 0.95); /* translucent white */
     color: #4CAF50;
     box-shadow: 0px -2px 6px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease, background-color 0.3s ease;
+    
     opacity: 0.8;
 }
 
