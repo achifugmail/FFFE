@@ -8,7 +8,28 @@ document.addEventListener('DOMContentLoaded', async function () {
     let draftPeriodId;
     let squadId;  // Remove the URL parameter assignment
     const currentUserId = localStorage.getItem('userId');
-    const leagueId = localStorage.getItem('leagueId');
+    let leagueId = localStorage.getItem('leagueId');
+    if (!leagueId) {
+        try {
+            const response = await fetch(`${config.backendUrl}/Leagues/byUser`, addAuthHeader());
+            if (response.ok) {
+                const leagues = await response.json();
+                if (leagues && leagues.length > 0) {
+                    leagueId = leagues[0].id;
+                    localStorage.setItem('leagueId', leagueId);
+                    console.log(`LeagueId not found in localStorage. Using first league from API: ${leagueId}`);
+                } else {
+                    console.log('No leagues found for user.');
+                    window.location.href = 'LeagueAdmin.html';
+                    return;
+                }
+            }  else {
+                console.error('Failed to fetch leagues:', response.status, response.statusText);
+            }
+        } catch (error) {
+            console.error('Error fetching leagues:', error);
+        }
+    }
 
     const filterDraftPeriodDropdown = document.getElementById('filterDraftPeriodDropdown');
 

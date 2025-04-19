@@ -153,19 +153,43 @@ function showLeagueMenu(linkElement) {
         dropdownMenu.appendChild(leagueItem);
     });
 
-    // Get parent li element and position dropdown below it
+    // Get parent li element
     const parentLi = linkElement.closest('li');
 
     if (parentLi) {
-        // Add the dropdown to the parent li element (not document.body)
-        parentLi.appendChild(dropdownMenu);
+        // Get the position and dimensions
+        const rect = parentLi.getBoundingClientRect();
 
-        // Position the dropdown below the nav link
-        const rect = linkElement.getBoundingClientRect();
-        dropdownMenu.style.top = `${rect.height}px`;
+        // Add the dropdown to the document body (better for absolute positioning)
+        document.body.appendChild(dropdownMenu);
 
-        // Don't set width - let CSS determine it instead
-        // dropdownMenu.style.width = `${rect.width}px`; // REMOVE THIS LINE
+        // Position dropdown based on parent li's position
+        const isMobile = window.innerWidth <= 1079;
+
+        if (isMobile) {
+            // Full-width positioning for mobile
+            dropdownMenu.style.position = 'fixed';
+            dropdownMenu.style.top = '56px';
+            dropdownMenu.style.left = '0';
+            dropdownMenu.style.right = '0';
+            dropdownMenu.style.width = '100vw';
+        } else {
+            // Desktop positioning with left/right alignment
+            dropdownMenu.style.position = 'absolute';
+            dropdownMenu.style.top = `${rect.bottom}px`;
+
+            // Position based on li alignment class
+            if (parentLi.classList.contains('left-align')) {
+                dropdownMenu.style.left = `${rect.left}px`;
+                dropdownMenu.style.right = 'auto';
+            } else if (parentLi.classList.contains('right-align')) {
+                dropdownMenu.style.right = `${window.innerWidth - rect.right}px`;
+                dropdownMenu.style.left = 'auto';
+            } else {
+                // Default centering if no alignment class
+                dropdownMenu.style.left = `${rect.left}px`;
+            }
+        }
 
         // Keep track of active menu
         activeLeagueMenu = dropdownMenu;
