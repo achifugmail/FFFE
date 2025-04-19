@@ -592,32 +592,33 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-
-
-    async function fetchSquadDetails() {
+    async function fetchSquadDetails(leagueId) {
         try {
-            const response = await fetch(`${config.backendUrl}/UserSquads/${squadId}`, addAuthHeader());
+            const respSquads = await fetch(`${config.backendUrl}/UserSquads/ByLeague/${leagueId}`, addAuthHeader());
 
-            if (!response.ok) {
-                console.error('Failed to fetch squad details:', response.status, response.statusText);
-                return;
-            }
-            const squad = await response.json();
-            draftPeriodId = squad.draftPeriodId;
-            
-            if (currentUserId !== squad.userId.toString()) {
-                document.body.classList.add('hide-buttons');
+            if (!respSquads.ok) {
+                console.error('Failed to fetch squads:', respSquads.status, respSquads.statusText);
+                return [];
             }
 
-            // Update draft period dropdown if it exists
-            const draftPeriodDropdown = document.getElementById('draftPeriodDropdown');
-            if (draftPeriodDropdown) {
-                draftPeriodDropdown.value = draftPeriodId;
-            }
+            const squads = await respSquads.json();
+
+            // Create a map of user IDs to squad details
+            squadsMap = {};
+            squads.forEach(squad => {
+                if (!squadsMap[squad.userId]) {
+                    squadsMap[squad.userId] = [];
+                }
+                squadsMap[squad.userId].push(squad);
+            });
+
+            return squads; // Return the fetched squads
         } catch (error) {
             console.error('Error fetching squad details:', error);
+            return [];
         }
     }
+
     function getPlayerFormIndicator(player) {
         if (!player.form && player.form !== 0) return '';
 

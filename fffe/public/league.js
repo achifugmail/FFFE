@@ -159,28 +159,91 @@ document.addEventListener('DOMContentLoaded', async function () {
         if (!leagueId) return;
 
         try {
-            // Call the new endpoint
-            const response = await fetch(`${config.backendUrl}/PlayerPositions/league-user-squad-players/${leagueId}`, addAuthHeader());
+            // Fetch squad details from the new API endpoint
+            const response = await fetch(`${config.backendUrl}/UserSquads/ByLeague/${leagueId}`, addAuthHeader());
 
             if (!response.ok) {
                 console.error('Failed to fetch league squad players:', response.status, response.statusText);
                 return;
             }
 
-            const players = await response.json();
-            const rankingsResponse = await fetch(`${config.backendUrl}/UserTeams/${leagueId}`, addAuthHeader());
-            const rankings = await rankingsResponse.json();
-            const processedRankings = processRankings(rankings);
+            const squads = await response.json();
+
+            // Calculate prize points for each squad
+            const processedRankings = calculatePrizePoints(squads);
+
+            // Fetch player details for the league
+            const playersResponse = await fetch(`${config.backendUrl}/PlayerPositions/league-user-squad-players/${leagueId}`, addAuthHeader());
+            if (!playersResponse.ok) {
+                console.error('Failed to fetch league squad players:', playersResponse.status, playersResponse.statusText);
+                return;
+            }
+
+            const players = await playersResponse.json();
 
             // Calculate global maximum values
             calculateGlobalMaxValues(players);
 
+            // Create user team cards using the squads and players
             createUserTeamCards(players, processedRankings);
             createIconLegend();
         } catch (error) {
             console.error('Error fetching league squad players:', error);
         }
     }
+
+    function calculatePrizePoints(squads) {
+        // Calculate total gameweeks by summing firstPlaces across all squads
+        // Since each gameweek must have exactly one first place
+        const totalGameweeks = squads.reduce((sum, squad) => sum + squad.firstPlaces, 0);
+
+        // Initialize total prize points to track zero-sum property
+        let totalPrizePoints = 0;
+
+        // First pass: calculate prize points based on placement statistics
+        squads.forEach(squad => {
+            // Initialize prize points
+            squad.prizePoints = 0;
+
+            // Calculate points from first places
+            // Each first place earns 50 points from each other team in that gameweek
+            const averageTeamsPerGameweek = squads.length - 1; // Exclude self
+            squad.prizePoints += squad.firstPlaces * 50 * averageTeamsPerGameweek;
+
+            // Calculate points deducted for second places
+            // Each second place costs 25 points
+            squad.prizePoints -= squad.secondPlaces * 25;
+
+            // Calculate points deducted for last places
+            // Each last place costs 75 points
+            squad.prizePoints -= squad.lastPlaces * 75;
+
+            // Calculate middle positions (non first, second, or last)
+            // We need to determine how many gameweeks each team participated in
+            // For simplicity, assume each team participated in the same number of gameweeks
+            const gamesPerTeam = totalGameweeks / squads.length;
+            const middlePositionCount = gamesPerTeam - (squad.firstPlaces + squad.secondPlaces + squad.lastPlaces);
+
+            // Each middle position costs 50 points
+            squad.prizePoints -= middlePositionCount * 50;
+
+            // Keep track of the total for zero-sum adjustment
+            totalPrizePoints += squad.prizePoints;
+        });
+
+        // Second pass: adjust to ensure zero-sum
+        if (Math.abs(totalPrizePoints) > 0.001) { // Account for small floating point errors
+            // Distribute the imbalance equally among all teams
+            const adjustment = totalPrizePoints / squads.length;
+            squads.forEach(squad => {
+                squad.prizePoints -= adjustment;
+            });
+        }
+
+        return squads;
+    }
+
+
 
     // Function to process player stats and create user team cards
     function createUserTeamCards(players, rankings, expandedStates = {}) {
@@ -845,18 +908,19 @@ document.addEventListener('DOMContentLoaded', async function () {
             // Set default value to the first league
             if (leagues.length > 0) {
                 leagueDropdown.value = leagues[0].id;
-                fetchAndDisplayRankings(leagues[0].id);
+                fetchAndCreateUserTeamCards(); // Fetch and display user team cards
             }
 
             // Update league details when the selected league changes
             leagueDropdown.addEventListener('change', function () {
-                fetchAndDisplayRankings(this.value);
+                fetchAndCreateUserTeamCards(); // Fetch and display user team cards
                 clearSquadTable();
             });
         } catch (error) {
             console.error('Error fetching leagues:', error);
         }
     }
+
     function clearSquadTable() {
         const squadTableHeader = document.getElementById('squadTableHeader');
         const squadTableRow = document.getElementById('squadTableRow');
@@ -864,25 +928,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         squadTableRow.innerHTML = ''; // Clear existing row
     }
         
-    async function fetchAndDisplayRankings(leagueId) {
-        try {
-            const response = await fetch(`${config.backendUrl}/UserTeams/${leagueId}`, addAuthHeader());
-            if (!response.ok) {
-                console.error('Failed to fetch rankings:', response.status, response.statusText);
-                return;
-            }
-
-            const userTeams = await response.json();
-            const rankings = processRankings(userTeams);
-            //displayRankings(rankings);
-
-            // Fetch squad details to have them ready when user clicks on a row
-            fetchSquadDetails(leagueId, rankings);
-        } catch (error) {
-            console.error('Error fetching rankings:', error);
-        }
-    }
-
     // Store squad details for quick access when user clicks
     let squadsMap = {};
 
@@ -905,149 +950,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
         });
     }
-        
-    // Fetch squad details for the rankings
-    async function fetchSquadDetails(leagueId, rankings) {
-        try {
-            const respSquads = await fetch(`${config.backendUrl}/UserSquads/ByLeague/${leagueId}`, addAuthHeader());
 
-            if (!respSquads.ok) {
-                console.error('Failed to fetch squads:', respSquads.status, respSquads.statusText);
-                return;
-            }
-
-            const squads = await respSquads.json();
-
-            // Create a map of user IDs to squad details
-            squadsMap = {};
-            squads.forEach(squad => {
-                if (!squadsMap[squad.userId]) {
-                    squadsMap[squad.userId] = [];
-                }
-                squadsMap[squad.userId].push(squad);
-            });
-        } catch (error) {
-            console.error('Error fetching squad details:', error);
-        }
-    }
-
-    function processRankings(userTeams) {
-        // First, group all entries by userId to get unique users
-        const uniqueUsers = {};
-        userTeams.forEach(team => {
-            if (!uniqueUsers[team.userId]) {
-                uniqueUsers[team.userId] = {
-                    userId: team.userId,
-                    squadName: team.squadName,
-                    entries: []
-                };
-            }
-            uniqueUsers[team.userId].entries.push(team);
-        });
-
-        // Group teams by gameweek
-        const gameweeks = {};
-        userTeams.forEach(team => {
-            if (!gameweeks[team.gameweekNumber]) {
-                gameweeks[team.gameweekNumber] = [];
-            }
-            gameweeks[team.gameweekNumber].push(team);
-        });
-
-        // Initialize statistics for each unique user
-        const userStats = {};
-        Object.values(uniqueUsers).forEach(user => {
-            userStats[user.userId] = {
-                userId: user.userId, // Add userId to the stats object
-                squadName: user.squadName,
-                totalPoints: 0,
-                firstPlaces: 0,
-                secondPlaces: 0,
-                lastPlaces: 0,
-                prizePoints: 0
-            };
-        });
-
-        // Process each gameweek
-        Object.entries(gameweeks).forEach(([gameweekNumber, gameweekTeams]) => {
-            // Check if all users have 0 points for this gameweek
-            const allZeroPoints = gameweekTeams.every(team => team.points === 0);
-            if (allZeroPoints) {
-                console.log(`Skipping gameweek ${gameweekNumber} - all users have 0 points`);
-                return; // Skip this gameweek
-            }
-
-            // Sort teams by points for this gameweek
-            const sortedTeams = gameweekTeams.sort((a, b) => b.points - a.points);
-            const teamsCount = sortedTeams.length;
-
-            // Group teams by points to handle ties
-            const pointsGroups = {};
-            sortedTeams.forEach(team => {
-                if (!pointsGroups[team.points]) {
-                    pointsGroups[team.points] = [];
-                }
-                pointsGroups[team.points].push(team);
-            });
-
-            // Sort points in descending order
-            const sortedPoints = Object.keys(pointsGroups).map(Number).sort((a, b) => b - a);
-
-            let currentPosition = 0;
-            sortedPoints.forEach(points => {
-                const tiedTeams = pointsGroups[points];
-                const tiedCount = tiedTeams.length;
-                const positionsSpanned = tiedCount;
-
-                // Calculate what positions these teams are splitting
-                const isFirst = currentPosition === 0;
-                const isSecond = currentPosition === 1 || (currentPosition === 0 && positionsSpanned > 1);
-                const isLast = currentPosition + tiedCount === teamsCount;
-
-                // Calculate prize points for this group
-                let prizePointsPool = 0;
-                if (isFirst) {
-                    // Get 75 from last place
-                    //prizePointsPool += 75;
-                    // Get 25 from second place
-                    //prizePointsPool += 25;
-                    // Get 50 from each middle position
-                    prizePointsPool = 50 * (teamsCount - 1);
-                }
-
-                // Distribute statistics and prize points among tied teams
-                tiedTeams.forEach(team => {
-                    const stats = userStats[team.userId];
-                    if (!stats) return;
-
-                    stats.totalPoints += team.points;
-
-                    // Split placement counts
-                    if (isFirst) stats.firstPlaces += 1 / tiedCount;
-                    if (isSecond && !isFirst) stats.secondPlaces += 1 / tiedCount;
-                    if (isLast) stats.lastPlaces += 1 / tiedCount;
-
-                    // Split prize points
-                    if (isFirst) {
-                        stats.prizePoints += prizePointsPool / tiedCount;
-                    } else if (isLast) {
-                        stats.prizePoints -= (75 + (50 * (tiedCount - 1))) / tiedCount;
-                    } else if (isSecond) {
-                        stats.prizePoints -= (25 + (50 * (tiedCount - 1))) / tiedCount;
-                    } else {
-                        stats.prizePoints -= 50;
-                    }
-                });
-
-                currentPosition += tiedCount;
-            });
-        });
-
-        return Object.values(userStats);
-    }
-
-    // Fetch users for dropdown
-       
+    
 
     setupCardsToggle();
 
@@ -1062,7 +966,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         // Now that we know leagues are loaded, we can safely check and use the value
         if (leagueDropdown.value) {
             // Initial fetch for the selected league
-            fetchAndCreateUserTeamCards();
+            //fetchAndCreateUserTeamCards();
         }
     }
 
