@@ -583,8 +583,9 @@ li {
     background-color: #fff;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     margin: 0 auto;
-    width: 100%;
-    max-width: 100%;
+    max-height: 90%;
+    height: 90%;
+    /*height: calc(100vh - 130px);
     /*height: calc(100vh - 130px);
     height: calc(var(--vh, 1vh) * 100 - 130px);*/
     position: relative;
@@ -596,6 +597,8 @@ li {
     //max-height: calc(100vh - 130px) !important;
     height: calc(var(--vh, 1vh) * 100 - 130px);
     max-height: calc(var(--vh, 1vh) * 100 - 130px);*/
+    height: 90% !important;
+    max-height: 90% !important;
     display: flex;
     flex-direction: column;
     position: relative;
@@ -3265,10 +3268,7 @@ body.pitch-view-active {
     opacity: 0.8;
 }
 
-    .view-toggle-round-btn:hover {
-        transform: scale(1.1);
-        background-color: #45a049;
-    }
+
 
     .view-toggle-round-btn i {
         font-size: 18px;
