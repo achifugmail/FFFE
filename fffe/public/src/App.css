@@ -574,6 +574,8 @@ li {
         height: 100%;
         border: none;
     }
+
+
 .team-container {
     display: flex;
     flex-direction: column;
@@ -583,9 +585,19 @@ li {
     margin: 0 auto;
     width: 100%;
     max-width: 100%;
-    height: calc(100vh - 130px);
+    //height: calc(100vh - 130px);
     position: relative;
     /* Remove overflow-y: auto from here - this is key */
+}
+
+#content.team-container {
+    //height: calc(100vh - 130px) !important;
+    //max-height: calc(100vh - 130px) !important;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow-y: auto !important; /* Force scrolling */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }
 
 /* Fix for pendingTransfersContainer */
@@ -611,15 +623,7 @@ li {
 
 
 /* Ensure #content.team-container consistently scrolls */
-#content.team-container {
-    height: calc(100vh - 130px) !important;
-    max-height: calc(100vh - 130px) !important;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    overflow-y: auto !important; /* Force scrolling */
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-}
+
 
 /* Position #playerGrid correctly */
 #playerGrid {
