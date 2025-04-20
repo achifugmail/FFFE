@@ -93,6 +93,12 @@ function attachNavLinkHandlers() {
         if (link.getAttribute('href').toLowerCase() === 'settings.html') {
             return;
         }
+        if (link.getAttribute('href').toLowerCase() === 'team.html') {
+            return;
+        }
+        if (link.getAttribute('href').toLowerCase() === 'leaguescore.html') {
+            return;
+        }
 
         link.addEventListener('click', function (event) {
             event.preventDefault();

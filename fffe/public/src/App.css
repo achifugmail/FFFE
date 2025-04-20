@@ -634,7 +634,7 @@ li {
 /* Position #playerGrid correctly */
 #playerGrid {
     width: 100%;
-    padding-bottom: 80px; /* Add extra space at bottom to ensure scroll reaches all content */
+    padding-bottom: 10px; /* Add extra space at bottom to ensure scroll reaches all content */
     transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
@@ -1344,7 +1344,7 @@ th {
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
     padding: 5px 0px 15px 10px;
     position: fixed;
-    top: 60px; /* Adjust based on your header height */
+    top: 120px; /* Adjust based on your header height */
     right: -190px; /* Start off-screen */
     bottom: 0;
     max-height: 750px;
@@ -3219,9 +3219,9 @@ body.pitch-view-active {
         background-color: #111;
     }
 .gameweek-btn {
-    position: fixed;
-    bottom: 20px;
-    right: 10px;
+    
+    top: 67px;
+    right: 15px;
     /* Update width and height for horizontal layout */
     width: 120px; /* Increased width to accommodate horizontal layout */
     height: 40px; /* Reduced height since we no longer stack vertically */
@@ -3247,6 +3247,52 @@ body.pitch-view-active {
         color: white;
     }
 
+#leagueDropdown {
+    top: 60px;
+    right: 150px;
+    width: 230px; /* Match the width of the gameweek button */
+    height: 40px; /* Match the height of the gameweek button */
+    border-radius: 10px;
+    border: none;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    background-color: rgba(255, 255, 255, 0.95); /* Same translucent white background */
+    color: #4CAF50; /* Match the green color */
+    box-shadow: 0px -2px 6px rgba(0, 0, 0, 0.1); /* Same shadow */
+    cursor: pointer;
+    z-index: 4000;
+    padding: 0 10px; /* Match padding */
+    opacity: 0.8;
+    transition: opacity 0.1s ease;
+    font-size: 14px; /* Match font size */
+    font-weight: bold; /* Match font weight */
+}
+#gameweekDropdown {
+    top: 60px;
+    right: 150px;
+    width: 80px; /* Match the width of the gameweek button */
+    height: 40px; /* Match the height of the gameweek button */
+    border-radius: 10px;
+    border: none;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    background-color: rgba(255, 255, 255, 0.95); /* Same translucent white background */
+    color: #4CAF50; /* Match the green color */
+    box-shadow: 0px -2px 6px rgba(0, 0, 0, 0.1); /* Same shadow */
+    cursor: pointer;
+    z-index: 4000;
+    padding: 0 10px; /* Match padding */
+    opacity: 0.8;
+    transition: opacity 0.1s ease;
+    font-size: 14px; /* Match font size */
+    font-weight: bold; /* Match font weight */
+}
+
+
 #gameweekCaption {
     font-size: 14px;
     font-weight: bold;
@@ -3254,7 +3300,7 @@ body.pitch-view-active {
 
 .view-toggle-round-btn {
     position: fixed;
-    right: 150px;
+    right: 20px;
     bottom: 20px; /* Position above fixtures toggle */
     //background-color: #4CAF50;
     border: none;
@@ -3270,7 +3316,7 @@ body.pitch-view-active {
     color: #4CAF50;
     box-shadow: 0px -2px 6px rgba(0,0,0,0.1);
     
-    opacity: 0.8;
+    opacity: 0.5;
 }
 
 
@@ -3285,8 +3331,8 @@ body.pitch-view-active {
 }
 .fixtures-toggle {
     position: fixed;
-    right: 200px;
-    bottom: 20px;
+    right: 20px;
+    bottom: 70px;
 
     border: none;
     border-radius: 50%;
@@ -3300,7 +3346,7 @@ body.pitch-view-active {
     background-color: rgba(255, 255, 255, 0.95); /* translucent white */
     color: #4CAF50;
     box-shadow: 0px -2px 6px rgba(0,0,0,0.1);
-    opacity: 0.8; /* Set transparency to 50% */
+    opacity: 0.5; /* Set transparency to 50% */
 }
 
     .fixtures-toggle i {

@@ -8,33 +8,17 @@ const REFRESH_INTERVAL = 25000; // 60 seconds
 document.addEventListener('DOMContentLoaded', async function () {
     // Fetch leagues for dropdown
     const currentUserId = localStorage.getItem('userId');
-    let leagues = [];
-    try {
-        const respLeagues = await fetch(`${config.backendUrl}/Leagues/byUser`, addAuthHeader());
-        if (respLeagues.status === 401) {
-            console.error('Authentication error: Unauthorized access (401)');
-            // Redirect to the root site
-            window.location.href = '/';
-            return;
-        }
-        if (!respLeagues.ok) {
-            console.error('Failed to fetch leagues:', respLeagues.status, respLeagues.statusText);
-        } else {
-            leagues = await respLeagues.json();
-        }
-    } catch (error) {
-        console.error('Error fetching leagues:', error);
+    let leagueId = localStorage.getItem('leagueId');
+
+    if (!leagueId) {
+        console.log('No leagueId found, waiting for league fetch');
+        await fetchLeagues();
+    } else {
+        // If leagueId exists, call fetchLeagues but don't wait
+        console.log('Using existing leagueId:', leagueId);
+        await fetchLeagues(); // Asynchronous call, don't await // changed to wait
     }
-
-    // Populate league dropdown
-    const leagueDropdown = document.getElementById('leagueDropdown');
-    leagues.sort((a, b) => a.name.localeCompare(b.name)).forEach(league => {
-        const option = document.createElement('option');
-        option.value = league.id;
-        option.text = league.name || `League ${league.id}`;
-        leagueDropdown.appendChild(option);
-    });
-
+    
     // Fetch draft periods for dropdown
     let draftPeriods = [];
     try {
@@ -66,6 +50,60 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Set default value to the last draft period alphabetically
     if (draftPeriods.length > 0) {
         draftPeriodDropdown.value = draftPeriods[draftPeriods.length - 1].id;
+    }
+
+    async function fetchLeagues() {
+        try {
+            const response = await fetch(`${config.backendUrl}/Leagues/byUser`, addAuthHeader());
+            if (response.status === 401) {
+                console.error('Authentication error: Unauthorized access (401)');
+                // Redirect to the root site
+                window.location.href = '/';
+                return;
+            }
+            if (response.status === 404) {
+                // Redirect to LeagueAdmin.html if no leagues are found
+                window.location.href = 'LeagueAdmin.html';
+                return;
+            }
+            if (!response.ok) {
+                console.error('Failed to fetch leagues:', response.status, response.statusText);
+                return;
+            }
+            const leagues = await response.json();
+
+            const leagueDropdown = document.getElementById('leagueDropdown');
+            leagueDropdown.innerHTML = '';
+            leagues.forEach(league => {
+                const option = document.createElement('option');
+                option.value = league.id;
+                option.text = league.name;
+                leagueDropdown.appendChild(option);
+            });
+
+            if (leagues.length > 0) {
+                leagueDropdown.value = leagues[0].id;
+                //leagueId = leagues[0].id;
+                // Fix: Remove the hyphen that was breaking the call
+                if (!leagueId) {
+                    leagueId = leagues[0].id;
+                    localStorage.setItem('leagueId', leagueId);
+                    console.log(`LeagueId not found in localStorage. Using first league from API: ${leagueId}`);
+                } else {
+                    // If leagueId exists, set the dropdown to that value
+                    leagueDropdown.value = leagueId;
+                }
+            }
+
+            leagueDropdown.addEventListener('change', async function () {
+                leagueId = this.value;
+                fetchAndCreateUserTeamCards();
+                localStorage.setItem('leagueId', leagueId);
+
+            });
+        } catch (error) {
+            console.error('Error fetching leagues:', error);
+        }
     }
 
     // Fetch and populate gameweeks based on selected draft period
@@ -127,13 +165,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     // Update league details and squads when league changes
-    leagueDropdown.addEventListener('change', async function () {
-        //await fetchAndDisplayLeagueDetails(this.value);
-        //fetchAndDisplaySquads();
-        //fetchAndDisplayRankings().then(() => {
-            fetchAndCreateUserTeamCards();
-        //});
-    });
 
     async function refreshUserTeamCards() {
         // Store the expanded state of each card

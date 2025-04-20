@@ -6,7 +6,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     let leagueId = localStorage.getItem('leagueId');
     let vh = window.innerHeight * 0.01;
     document.documentElement.style.setProperty('--vh', `${vh}px`);
-    
+    const squadPlayersCache = new Map();
+    const positionsCache = { positions: null }    
 
     console.log('Team.js loaded. Device info:', {
         userAgent: navigator.userAgent,
@@ -24,37 +25,12 @@ document.addEventListener('DOMContentLoaded', async function () {
         window.location.href = '/'; // Redirect to login page
         throw new Error('Authentication required'); // Stop execution
     }
-
-    // Add debug logging to track what's happening
-    console.log('Authentication token present:', !!token);
-    console.log('League ID:', leagueId);
-
-    
+        
     let draftPeriodId;
     let squadId;  // Remove the URL parameter assignment
     const currentUserId = localStorage.getItem('userId');
     
-    if (!leagueId) {
-        try {
-            const response = await fetch(`${config.backendUrl}/Leagues/byUser`, addAuthHeader());
-            if (response.ok) {
-                const leagues = await response.json();
-                if (leagues && leagues.length > 0) {
-                    leagueId = leagues[0].id;
-                    localStorage.setItem('leagueId', leagueId);
-                    console.log(`LeagueId not found in localStorage. Using first league from API: ${leagueId}`);
-                } else {
-                    console.log('No leagues found for user.');
-                    window.location.href = 'LeagueAdmin.html';
-                    return;
-                }
-            }  else {
-                console.error('Failed to fetch leagues:', response.status, response.statusText);
-            }
-        } catch (error) {
-            console.error('Error fetching leagues:', error);
-        }
-    }
+    
 
     const filterDraftPeriodDropdown = document.getElementById('filterDraftPeriodDropdown');
 
@@ -65,13 +41,15 @@ document.addEventListener('DOMContentLoaded', async function () {
     const gameweekRightArrow = document.getElementById('gameweekRightArrow');
 
     // Function to update the gameweek caption and dropdown value
-    function updateGameweek(newIndex) {
+    async function updateGameweek(newIndex) {
         const options = Array.from(gameweekDropdown.options);
         if (newIndex >= 0 && newIndex < options.length) {
             gameweekDropdown.selectedIndex = newIndex;
             gameweekCaption.textContent = options[newIndex].text; // Update the caption
             fetchAndDisplayFixtures(options[newIndex].value); // Fetch fixtures for the new gameweek
-            fetchAndDisplaySquadPlayers(squadId); // Fetch squad players for the new gameweek
+            await fetchAndDisplaySquadPlayers(squadId); // Fetch squad players for the new gameweek
+
+
         }
     }
 
@@ -143,9 +121,6 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
         }
     }
-
-
-
 
     // Initial population of gameweeks
     //await fetchAndPopulateGameweeks(filterDraftPeriodDropdown.value);
@@ -287,22 +262,33 @@ document.addEventListener('DOMContentLoaded', async function () {
                 leagueDropdown.value = leagues[0].id;
                 //leagueId = leagues[0].id;
                 // Fix: Remove the hyphen that was breaking the call
-                await fetchDraftPeriods();
+                if (!leagueId) {
+                    leagueId = leagues[0].id;
+                    localStorage.setItem('leagueId', leagueId);
+                    console.log(`LeagueId not found in localStorage. Using first league from API: ${leagueId}`);
+                } else {
+                    // If leagueId exists, set the dropdown to that value
+                    leagueDropdown.value = leagueId;
+                }
             }
 
             leagueDropdown.addEventListener('change', async function () {
                 leagueId = this.value;
+                
+                localStorage.setItem('leagueId', leagueId);
                 // Also fetch draft periods when league changes
-                await fetchDraftPeriods();
+                fetchAndDisplayPendingTransfers();
+                //await fetchDraftPeriods();
+                fetchAndDisplayFixtures(gameweekDropdown.value);
                 squadId = await fetchSquadId();
-                await fetchAndDisplayPendingTransfers();
                 await fetchAndDisplaySquadPlayers(squadId);
+                setupViewToggle();
+                
             });
         } catch (error) {
             console.error('Error fetching leagues:', error);
         }
     }
-
 
     async function fetchDraftPeriods() {
         try {
@@ -426,19 +412,42 @@ document.addEventListener('DOMContentLoaded', async function () {
     async function fetchAndDisplaySquadPlayers(squadId) {
         try {
             const gameweekId = document.getElementById('gameweekDropdown').value;
-            const response = await fetch(`${config.backendUrl}/PlayerPositions/user-squad-players/${squadId}`, addAuthHeader());
-            if (response.status === 401) {
-                console.error('Authentication error: Unauthorized access (401)');
-                // Redirect to the root site
-                window.location.href = '/';
-                return;
+
+            // Check if we already have the data for this squad in cache
+            let squadPlayers;
+            if (squadPlayersCache.has(squadId)) {
+                console.log(`Using cached squad players for squad ID: ${squadId}`);
+                squadPlayers = squadPlayersCache.get(squadId);
+            } else {
+                // Only fetch from API if not in cache
+                console.log(`Fetching squad players for squad ID: ${squadId}`);
+                const response = await fetch(`${config.backendUrl}/PlayerPositions/user-squad-players/${squadId}`, addAuthHeader());
+                if (response.status === 401) {
+                    console.error('Authentication error: Unauthorized access (401)');
+                    // Redirect to the root site
+                    window.location.href = '/';
+                    return;
+                }
+                if (!response.ok) {
+                    console.error('Failed to fetch squad players:', response.status, response.statusText);
+                    return;
+                }
+                squadPlayers = await response.json();
+
+                // Store in cache for future use
+                squadPlayersCache.set(squadId, squadPlayers);
             }
-            if (!response.ok) {
-                console.error('Failed to fetch squad players:', response.status, response.statusText);
-                return;
+
+            let positions;
+            if (positionsCache.positions) {
+                console.log('Using cached positions data');
+                positions = positionsCache.positions;
+            } else {
+                console.log('Fetching positions data');
+                positions = await fetch(`${config.backendUrl}/PlayerPositions/positions`, addAuthHeader()).then(res => res.json());
+                // Store in cache for future use
+                positionsCache.positions = positions;
             }
-            const squadPlayers = await response.json();
-            const positions = await fetch(`${config.backendUrl}/PlayerPositions/positions`, addAuthHeader()).then(res => res.json());
 
             const playerGrid = document.getElementById('playerGrid');
             playerGrid.innerHTML = ''; // Clear existing sections
@@ -448,9 +457,6 @@ document.addEventListener('DOMContentLoaded', async function () {
                 section.className = 'section position-section';
                 section.id = position.name;
                 section.setAttribute('data-position', position.name);
-
-                // Remove the header and use a data attribute instead
-                // No need for the h3 element anymore
 
                 const playersDiv = document.createElement('div');
                 playersDiv.className = 'players';
@@ -512,11 +518,23 @@ ${getPlayerFormIndicator(player)}
                 button.addEventListener('click', function () {
                     const playerId = button.getAttribute('data-player-id');
                     markAsCaptain(playerId);
-                    //selectPlayer(playerId, true); // Pass true to indicate user interaction
                 });
             });
+
+            if (document.body.classList.contains('pitch-view-active')) {
+                renderPitchView();
+            }
         } catch (error) {
             console.error('Error fetching squad players:', error);
+        }
+    }
+
+    // Add a function to clear the cache when needed (e.g., after transfers)
+    function clearSquadPlayersCache(squadId) {
+        if (squadId) {
+            squadPlayersCache.delete(squadId);
+        } else {
+            squadPlayersCache.clear(); // Clear entire cache if no squadId specified
         }
     }
 
@@ -681,8 +699,9 @@ ${getPlayerFormIndicator(player)}
             // Refresh transfers display
             await fetchAndDisplayPendingTransfers();
 
-            // If accepted, reload team data to reflect changes
+            // If accepted, clear cache and reload team data
             if (action === 'accept') {
+                clearSquadPlayersCache(squadId); // Clear cache for this squad
                 await fetchAndDisplaySquadPlayers(squadId);
             }
 
@@ -696,7 +715,6 @@ ${getPlayerFormIndicator(player)}
             alert(`Failed to ${action} transfer. Please try again.`);
         }
     }
-
 
     // Update player selection highlighting
     function updatePlayerSelection() {
@@ -978,6 +996,11 @@ ${getPlayerFormIndicator(player)}
             return;
         }
 
+        const existingNoPlayersMsg = pitchContainer.querySelector('.no-players-message');
+        if (existingNoPlayersMsg) {
+            existingNoPlayersMsg.remove();
+        }
+
         // Clear any existing players
         const existingPlayers = pitchContainer.querySelectorAll('.pitch-player');
         existingPlayers.forEach(player => player.remove());
@@ -1152,18 +1175,31 @@ ${getPlayerFormIndicator(player)}
     }
 
 
-    // Fetch and display squad info and players in the current squad on page load    
-    //const squadId = urlParams.get('SquadId');
-    //await fetchLeagues();
-    fetchAndDisplayPendingTransfers();
-    await fetchDraftPeriods();
+    async function initializePage() {
+        console.log('Initializing page with leagueId:', leagueId);
 
-    squadId = await fetchSquadId();
-    
-    await fetchAndDisplaySquadPlayers(squadId);
-    setupViewToggle();
-    await fetchAndDisplayFixtures(gameweekDropdown.value);
+        // If leagueId is null, wait for fetchLeagues to populate it
+        if (!leagueId) {
+            console.log('No leagueId found, waiting for league fetch');
+            await fetchLeagues();
+        } else {
+            // If leagueId exists, call fetchLeagues but don't wait
+            console.log('Using existing leagueId:', leagueId);
+            fetchLeagues(); // Asynchronous call, don't await
+        }
 
+        fetchAndDisplayPendingTransfers();
+        await fetchDraftPeriods();
+        fetchAndDisplayFixtures(gameweekDropdown.value);        
+        squadId = await fetchSquadId();
+        await fetchAndDisplaySquadPlayers(squadId);
+        setupViewToggle();
+        
+
+        // Initial check for screen width
+        //checkScreenWidth();
+    }
+    await initializePage();
     // Initial link update
     //updateTeamScoreLink();
 
