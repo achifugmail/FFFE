@@ -16,6 +16,11 @@
             <div>
                 <select id="leagueDropdown"></select>
             </div>
+            <button class="gameweek-btn" id="gameweekButton" title="Gameweek Button" aria-label="Gameweek Button">
+                <i class="fas fa-chevron-left" id="gameweekLeftArrow"></i>
+                <span id="gameweekCaption"></span>
+                <i class="fas fa-chevron-right" id="gameweekRightArrow"></i>
+            </button>
             <div>
                 <select id="filterDraftPeriodDropdown" style="display:none">
                     <!-- Options will be populated by JavaScript -->
@@ -25,7 +30,9 @@
                 <select id="gameweekDropdown" style="display:none">
                     <!-- Options will be populated by JavaScript -->
                 </select>
+
             </div>
+
         </div>
 
         <!-- Add pendingTransfersContainer here, hidden by default -->
@@ -55,11 +62,7 @@
                     <!-- Player positions will be added dynamically by JavaScript -->
                 </div>
             </div>
-            <button class="gameweek-btn" id="gameweekButton" title="Gameweek Button" aria-label="Gameweek Button">
-                <i class="fas fa-chevron-left" id="gameweekLeftArrow"></i>
-                <span id="gameweekCaption"></span>
-                <i class="fas fa-chevron-right" id="gameweekRightArrow"></i>
-            </button>
+
             <button class="view-toggle-round-btn" id="viewToggleBtn" title="Switch to Pitch View" aria-label="Switch View">
                 <i class="fas fa-futbol"></i>
             </button>

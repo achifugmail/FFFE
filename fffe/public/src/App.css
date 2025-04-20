@@ -638,7 +638,7 @@ li {
     transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-.gameweek-btn, .view-toggle-round-btn, .fixtures-toggle {
+.view-toggle-round-btn, .fixtures-toggle {
     position: fixed;
     z-index: 1000;
 }
@@ -3219,9 +3219,9 @@ body.pitch-view-active {
         background-color: #111;
     }
 .gameweek-btn {
-    
-    top: 67px;
-    right: 15px;
+    position:relative;
+    top: -1px;
+    left: 1px;
     /* Update width and height for horizontal layout */
     width: 120px; /* Increased width to accommodate horizontal layout */
     height: 40px; /* Reduced height since we no longer stack vertically */
@@ -3234,7 +3234,7 @@ body.pitch-view-active {
     justify-content: space-between;
     background-color: rgba(255, 255, 255, 0.95);
     color: #4CAF50;
-    box-shadow: 0px -2px 6px rgba(0,0,0,0.1);
+    box-shadow: 0px -2px 6px rgba(0,0,0,0.2);
     cursor: pointer;
     z-index: 4000;
     padding: 0 10px; /* Change padding to left/right instead of top/bottom */
@@ -3242,14 +3242,26 @@ body.pitch-view-active {
     transition: opacity 0.1s ease;
 }
 
+
+
     .gameweek-btn i {
-        font-size: 12px;
-        color: white;
+        font-size: 16px; /* Increase font size for better visibility */
+        color: #4CAF50;
+        padding: 10px; /* Add padding to increase the clickable area */
+        cursor: pointer; /* Ensure it looks clickable */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px; /* Set a larger width for the chevron area */
+        height: 30px; /* Set a larger height for the chevron area */
+        border-radius: 50%; /* Optional: make the area circular */
+        transition: background-color 0.2s ease; /* Add a hover effect */
     }
 
 #leagueDropdown {
-    top: 60px;
-    right: 150px;
+    position:relative;
+    top: 1px;
+    left: 1px;
     width: 230px; /* Match the width of the gameweek button */
     height: 40px; /* Match the height of the gameweek button */
     border-radius: 10px;
@@ -3260,7 +3272,7 @@ body.pitch-view-active {
     justify-content: space-between;
     background-color: rgba(255, 255, 255, 0.95); /* Same translucent white background */
     color: #4CAF50; /* Match the green color */
-    box-shadow: 0px -2px 6px rgba(0, 0, 0, 0.1); /* Same shadow */
+    box-shadow: 0px -2px 6px rgba(0, 0, 0, 0.2); /* Same shadow */
     cursor: pointer;
     z-index: 4000;
     padding: 0 10px; /* Match padding */

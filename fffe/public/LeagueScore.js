@@ -16,8 +16,10 @@ document.addEventListener('DOMContentLoaded', async function () {
     } else {
         // If leagueId exists, call fetchLeagues but don't wait
         console.log('Using existing leagueId:', leagueId);
-        await fetchLeagues(); // Asynchronous call, don't await // changed to wait
+        fetchLeagues(); // Asynchronous call, don't await // changed to wait
     }
+
+    //fetchAndCreateUserTeamCards();
     
     // Fetch draft periods for dropdown
     let draftPeriods = [];
@@ -96,10 +98,9 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
 
             leagueDropdown.addEventListener('change', async function () {
-                leagueId = this.value;
-                fetchAndCreateUserTeamCards();
+                leagueId = this.value;                
                 localStorage.setItem('leagueId', leagueId);
-
+                fetchAndCreateUserTeamCards();
             });
         } catch (error) {
             console.error('Error fetching leagues:', error);
@@ -158,12 +159,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     //gameweekDropdown.addEventListener('change', fetchAndDisplaySquads);
 
     
-    // Fetch and display league details and squads on page load
-    if (leagueDropdown.value) {
-        //await fetchAndDisplayLeagueDetails(leagueDropdown.value);
-        //fetchAndDisplaySquads();
-    }
-
     // Update league details and squads when league changes
 
     async function refreshUserTeamCards() {
@@ -173,7 +168,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             const squadId = card.getAttribute('data-squad-id');
             expandedStates[squadId] = card.classList.contains('expanded');
         });
-        const leagueId = leagueDropdown.value;
+        
         const gameweekId = gameweekDropdown.value;
         try {
             const response = await fetch(`${config.backendUrl}/UserTeamPlayers/playerGameweekStatsByGameweekAndLeague?gameweekId=${gameweekId}&leagueId=${leagueId}`, addAuthHeader());
@@ -198,7 +193,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     async function fetchAndCreateUserTeamCards() {
-        const leagueId = leagueDropdown.value;
         const gameweekId = gameweekDropdown.value;
         try {
             const response = await fetch(`${config.backendUrl}/UserTeamPlayers/playerGameweekStatsByGameweekAndLeague?gameweekId=${gameweekId}&leagueId=${leagueId}`, addAuthHeader());
