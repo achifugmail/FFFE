@@ -3243,8 +3243,6 @@ body.pitch-view-active {
     border-color: darkgrey;
 }
 
-
-
     .gameweek-btn i {
         font-size: 16px; /* Increase font size for better visibility */
         color: black;
@@ -3255,7 +3253,7 @@ body.pitch-view-active {
         justify-content: center;
         width: 30px; /* Set a larger width for the chevron area */
         height: 30px; /* Set a larger height for the chevron area */
-        border-radius: 50%; /* Optional: make the area circular */
+        
         transition: background-color 0.2s ease; /* Add a hover effect */
     }
 .gameweek-btn {
