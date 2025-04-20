@@ -133,68 +133,72 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
 
     async function fetchAndDisplayFixtures(gameweekId) {
-    try {
-        const response = await fetch(`${config.backendUrl}/fixtures/gameweek/${gameweekId}`, addAuthHeader());
-        if (response.status === 401) {
-            console.error('Authentication error: Unauthorized access (401)');
-            window.location.href = '/';
-            return;
-        }
-        if (!response.ok) {
-            console.error('Failed to fetch fixtures:', response.status, response.statusText);
-            return;
-        }
-
-        const fixtures = await response.json();
-        const fixturesContainer = document.getElementById('fixturesContainer');
-        fixturesContainer.innerHTML = '';
-
-        // Group fixtures by date
-        const fixturesByDate = {};
-        fixtures.forEach(fixture => {
-            // Convert UTC to local date
-            const localDate = new Date(fixture.date + 'Z');
-            const dateKey = localDate.toLocaleDateString();
-            if (!fixturesByDate[dateKey]) {
-                fixturesByDate[dateKey] = [];
+        try {
+            const response = await fetch(`${config.backendUrl}/fixtures/gameweek/${gameweekId}`, addAuthHeader());
+            if (response.status === 401) {
+                console.error('Authentication error: Unauthorized access (401)');
+                window.location.href = '/';
+                return;
             }
-            fixturesByDate[dateKey].push({
-                ...fixture,
-                localKickoff: localDate
+            if (!response.ok) {
+                console.error('Failed to fetch fixtures:', response.status, response.statusText);
+                return;
+            }
+
+            const fixtures = await response.json();
+            const fixturesContainer = document.getElementById('fixturesContainer');
+            fixturesContainer.innerHTML = '';
+
+            // Group fixtures by date
+            const fixturesByDate = {};
+            fixtures.forEach(fixture => {
+                // Convert UTC to local date
+                const localDate = new Date(fixture.date + 'Z');
+                const dateKey = localDate.toLocaleDateString();
+                if (!fixturesByDate[dateKey]) {
+                    fixturesByDate[dateKey] = [];
+                }
+                fixturesByDate[dateKey].push({
+                    ...fixture,
+                    localKickoff: localDate
+                });
             });
-        });
 
-        // Create a container for each date group
-        Object.entries(fixturesByDate).forEach(([date, dateFixtures]) => {
-            const dateGroup = document.createElement('div');
-            dateGroup.className = 'fixtures-date-group';
+            // Sort the date groups by date
+            const sortedDates = Object.keys(fixturesByDate).sort((a, b) => new Date(a) - new Date(b));
 
-            // Add date header
-            const dateHeader = document.createElement('div');
-            dateHeader.className = 'fixtures-date-header';
-            const firstFixture = dateFixtures[0].localKickoff;
-            dateHeader.textContent = firstFixture.toLocaleDateString(undefined, {
-                weekday: 'short',
-                month: 'short',
-                day: 'numeric'
-            });
-            dateGroup.appendChild(dateHeader);
+            // Create a container for each date group
+            sortedDates.forEach(date => {
+                const dateFixtures = fixturesByDate[date];
+                const dateGroup = document.createElement('div');
+                dateGroup.className = 'fixtures-date-group';
 
-            // Create fixtures table for this date
-            const table = document.createElement('table');
-            table.className = 'fixtures-table';
+                // Add date header
+                const dateHeader = document.createElement('div');
+                dateHeader.className = 'fixtures-date-header';
+                const firstFixture = dateFixtures[0].localKickoff;
+                dateHeader.textContent = firstFixture.toLocaleDateString(undefined, {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric'
+                });
+                dateGroup.appendChild(dateHeader);
 
-            dateFixtures.forEach(fixture => {
-                const row = document.createElement('tr');
+                // Create fixtures table for this date
+                const table = document.createElement('table');
+                table.className = 'fixtures-table';
 
-                const matchCell = document.createElement('td');
-                matchCell.className = 'match-cell';
-                matchCell.innerHTML = `
+                dateFixtures.forEach(fixture => {
+                    const row = document.createElement('tr');
+
+                    const matchCell = document.createElement('td');
+                    matchCell.className = 'match-cell';
+                    matchCell.innerHTML = `
         <div class="match-container">
             <div class="kickoff-time">${fixture.localKickoff.toLocaleTimeString(undefined, {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                })}</div>
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })}</div>
             <div class="match-details">
                 <div class="team-cell home-team-cell">
                     <img src="https://resources.premierleague.com/premierleague/badges/70/t${fixture.homeTeam.code}.png" class="team-logo" alt="${fixture.homeTeam.name}">
@@ -209,18 +213,19 @@ document.addEventListener('DOMContentLoaded', async function () {
         </div>
     `;
 
-                row.appendChild(matchCell);
-                table.appendChild(row);
+                    row.appendChild(matchCell);
+                    table.appendChild(row);
+                });
+
+                dateGroup.appendChild(table);
+                fixturesContainer.appendChild(dateGroup);
             });
 
-            dateGroup.appendChild(table);
-            fixturesContainer.appendChild(dateGroup);
-        });
-
-    } catch (error) {
-        console.error('Error fetching fixtures:', error);
+        } catch (error) {
+            console.error('Error fetching fixtures:', error);
+        }
     }
-}
+
 
 
     gameweekDropdown.addEventListener('change', function () {
