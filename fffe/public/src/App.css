@@ -3218,14 +3218,12 @@ body.pitch-view-active {
     .league-dropdown-item:hover {
         background-color: #111;
     }
-.gameweek-btn {
-    position:relative;
-    top: -1px;
+.gameweek-btn, #leagueDropdown, #gameweekDropdown {
+    position: relative;
+    
     left: 1px;
-    /* Update width and height for horizontal layout */
-    width: 120px; /* Increased width to accommodate horizontal layout */
     height: 40px; /* Reduced height since we no longer stack vertically */
-    border-radius: 10px;
+    border-radius: 15px;
     border: none;
     display: flex;
     /* Change from column to row for horizontal layout */
@@ -3233,20 +3231,23 @@ body.pitch-view-active {
     align-items: center;
     justify-content: space-between;
     background-color: rgba(255, 255, 255, 0.95);
-    color: #4CAF50;
+    color: black;
     box-shadow: 0px -2px 6px rgba(0,0,0,0.2);
     cursor: pointer;
     z-index: 4000;
     padding: 0 10px; /* Change padding to left/right instead of top/bottom */
     opacity: 0.8;
     transition: opacity 0.1s ease;
+    border-style: solid;
+    border-width: 1px;
+    border-color: darkgrey;
 }
 
 
 
     .gameweek-btn i {
         font-size: 16px; /* Increase font size for better visibility */
-        color: #4CAF50;
+        color: black;
         padding: 10px; /* Add padding to increase the clickable area */
         cursor: pointer; /* Ensure it looks clickable */
         display: flex;
@@ -3257,43 +3258,26 @@ body.pitch-view-active {
         border-radius: 50%; /* Optional: make the area circular */
         transition: background-color 0.2s ease; /* Add a hover effect */
     }
-
-#leagueDropdown {
-    position:relative;
-    top: 1px;
-    left: 1px;
-    width: 230px; /* Match the width of the gameweek button */
-    height: 40px; /* Match the height of the gameweek button */
-    border-radius: 10px;
-    border: none;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    background-color: rgba(255, 255, 255, 0.95); /* Same translucent white background */
-    color: #4CAF50; /* Match the green color */
-    box-shadow: 0px -2px 6px rgba(0, 0, 0, 0.2); /* Same shadow */
-    cursor: pointer;
-    z-index: 4000;
-    padding: 0 10px; /* Match padding */
-    opacity: 0.8;
-    transition: opacity 0.1s ease;
-    font-size: 14px; /* Match font size */
-    font-weight: bold; /* Match font weight */
+.gameweek-btn {
+    width: 120px; /* Increased width to accommodate horizontal layout */
+    top: -2px;
 }
+
+    #leagueDropdown {
+        width: 230px; /* Match the width of the gameweek button */
+        font-size: 14px; /* Match font size */
+
+    }
 #gameweekDropdown {
-    top: 60px;
-    right: 150px;
     width: 80px; /* Match the width of the gameweek button */
     height: 40px; /* Match the height of the gameweek button */
-    border-radius: 10px;
-    border: none;
+    
+
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
     background-color: rgba(255, 255, 255, 0.95); /* Same translucent white background */
-    color: #4CAF50; /* Match the green color */
     box-shadow: 0px -2px 6px rgba(0, 0, 0, 0.1); /* Same shadow */
     cursor: pointer;
     z-index: 4000;
@@ -3301,13 +3285,15 @@ body.pitch-view-active {
     opacity: 0.8;
     transition: opacity 0.1s ease;
     font-size: 14px; /* Match font size */
-    font-weight: bold; /* Match font weight */
+    
+    
 }
 
 
 #gameweekCaption {
     font-size: 14px;
-    font-weight: bold;
+    
+    
 }
 
 .view-toggle-round-btn {
@@ -3364,7 +3350,5 @@ body.pitch-view-active {
     .fixtures-toggle i {
         font-size: 18px;
     }
-#gameweekButton i {
-    color: #4CAF50; /* Match the caption color */
-}
+
 
