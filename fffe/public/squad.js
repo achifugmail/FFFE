@@ -694,6 +694,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
                     const playerDiv = document.createElement('div');
                     playerDiv.className = 'player-grid';
+                    playerDiv.setAttribute('data-player', JSON.stringify(player));
 
                     playerDiv.innerHTML = `
                     <button class="remove-player-button" data-player-id="${player.id}" data-position="${position.name}">-</button>
@@ -769,6 +770,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 const playerDiv = document.createElement('div');
                 playerDiv.className = 'player-grid';
                 const isPlayerInSquad = squadPlayers.some(p => p.id === player.id);
+                playerDiv.setAttribute('data-player', JSON.stringify(player));
 
                 playerDiv.innerHTML = `
                 <button class="${isPlayerInSquad ? 'remove-player-button' : 'add-player-button'}" data-player-id="${player.id}" data-position="${position.name}">${isPlayerInSquad ? '-' : '+'}</button>

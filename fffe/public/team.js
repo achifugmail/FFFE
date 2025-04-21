@@ -1,3 +1,4 @@
+import { setupPlayerPhotoInteractions } from './common.js';
 import config from './config.js';
 import { addAuthHeader } from './config.js';
 
@@ -471,6 +472,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 filteredPlayers.forEach(player => {
                     const playerDiv = document.createElement('div');
                     playerDiv.className = 'player-grid';
+                    playerDiv.setAttribute('data-player', JSON.stringify(player));
                     playerDiv.innerHTML = `
 <input type="checkbox" class="player-checkbox" data-player-id="${player.id}">
 <button class="captain-button" data-player-id="${player.id}"><i class="fas fa-crown"></i></button>
@@ -529,6 +531,9 @@ ${getPlayerFormIndicator(player)}
             if (document.body.classList.contains('pitch-view-active')) {
                 renderPitchView();
             }
+
+            setupPlayerPhotoInteractions();
+
         } catch (error) {
             console.error('Error fetching squad players:', error);
         }
