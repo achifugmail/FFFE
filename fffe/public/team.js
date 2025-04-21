@@ -10,16 +10,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     const squadPlayersCache = new Map();
     const positionsCache = { positions: null }    
 
-    console.log('Team.js loaded. Device info:', {
-        userAgent: navigator.userAgent,
-        platform: navigator.platform,
-        localStorage: !!window.localStorage,
-        hasToken: !!localStorage.getItem('token'),
-        hasLeagueId: !!localStorage.getItem('leagueId')
-    });
-
-    // Add this near the top of your team.js file, right after getting leagueId
-    // This will check if the token exists and redirect to login if not
     const token = localStorage.getItem('token');
     if (!token) {
         console.error('No authentication token found');
@@ -30,8 +20,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     let draftPeriodId;
     let squadId;  // Remove the URL parameter assignment
     const currentUserId = localStorage.getItem('userId');
-    
-    
 
     const filterDraftPeriodDropdown = document.getElementById('filterDraftPeriodDropdown');
 
@@ -266,8 +254,6 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             if (leagues.length > 0) {
                 leagueDropdown.value = leagues[0].id;
-                //leagueId = leagues[0].id;
-                // Fix: Remove the hyphen that was breaking the call
                 if (!leagueId) {
                     leagueId = leagues[0].id;
                     localStorage.setItem('leagueId', leagueId);

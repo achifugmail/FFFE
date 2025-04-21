@@ -3,7 +3,14 @@ import { addAuthHeader } from './config.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
     const currentUserId = localStorage.getItem('userId'); // Retrieve the current user ID from local storage
-    const leagueId = localStorage.getItem('leagueId');
+    let leagueId = localStorage.getItem('leagueId');
+    if (!leagueId) {
+        console.log('No leagueId found, waiting for league fetch');
+        await fetchLeagues();
+    }
+    else {
+        fetchLeagues();
+    }
 
     let previousPlayerScores = {};
     let previousTeamStats = {};
@@ -765,7 +772,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-
     function confirmSwap(playerOut, playerIn) {
         // Create confirmation dialog
         const confirmation = confirm(`Are you sure you want to request a trade of ${playerOut.webName} for ${playerIn.webName}?`);
@@ -883,6 +889,45 @@ document.addEventListener('DOMContentLoaded', async function () {
         const squadTableRow = document.getElementById('squadTableRow');
         squadTableHeader.innerHTML = ''; // Clear existing headers
         squadTableRow.innerHTML = ''; // Clear existing row
+    }
+
+    async function fetchLeagues() {
+        try {
+            const response = await fetch(`${config.backendUrl}/Leagues/byUser`, addAuthHeader());
+            if (response.status === 401) {
+                console.error('Authentication error: Unauthorized access (401)');
+                window.location.href = '/';
+                return;
+            }
+            if (!response.ok) {
+                console.error('Failed to fetch leagues:', response.status, response.statusText);
+                return;
+            }
+            const leagues = await response.json();
+            const leagueDropdown = document.getElementById('leagueDropdown');
+            leagueDropdown.innerHTML = '';
+            leagues.forEach(league => {
+                const option = document.createElement('option');
+                option.value = league.id;
+                option.text = league.name;
+                leagueDropdown.appendChild(option);
+            });
+
+            if (!leagueId) {
+                leagueId = leagues[0].id;
+                localStorage.setItem('leagueId', leagueId);
+                console.log(`LeagueId not found in localStorage. Using first league from API: ${leagueId}`);
+            } else {
+                leagueDropdown.value = leagueId;
+            }
+
+            leagueDropdown.addEventListener('change', async function () {
+                leagueId = this.value;
+                localStorage.setItem('leagueId', leagueId);
+            });
+        } catch (error) {
+            console.error('Error fetching leagues:', error);
+        }
     }
         
     // Store squad details for quick access when user clicks

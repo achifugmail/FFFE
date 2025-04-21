@@ -124,6 +124,7 @@ export function setupPlayerPhotoInteractions() {
     });
 }
 
+
 function handlePlayerCardClick(event, element) {
     console.log('Player element clicked');
     event.stopPropagation();

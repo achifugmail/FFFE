@@ -35,7 +35,7 @@ label {
     margin: 10px 0 5px;
 }
 
-input[type="text"], select {
+input[type="text"] {
     width: 100%;
     padding: 10px;
     margin: 5px 0 20px;
@@ -579,7 +579,7 @@ li {
 .team-container {
     display: flex;
     flex-direction: column;
-    padding: 1px;
+    
     background-color: #fff;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     margin: 0 auto;
@@ -621,7 +621,7 @@ li {
 .team-layout {
     flex: 1;
     display: flex;
-    position: relative;
+    flex-direction: column;
     width: 100%;
     overflow-y: auto !important; /* Add scrolling at this level */
     -webkit-overflow-scrolling: touch;
@@ -1111,7 +1111,7 @@ th {
 .dropdown-container.full-width {
     display: flex;
     justify-content: flex-start; /* Changed from space-between to flex-start */
-    align-items: center;
+    align-items: start;
     padding: 0;
     width: 100%; /* Ensure full width */
 }
@@ -1407,27 +1407,21 @@ th {
     gap: 1px;
     padding: 10px 5px;
     scroll-behavior: smooth;
-}
-.user-team-cards-container {
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto; /* Change from 'scroll' to 'auto' */
-    gap: 1px;
-    padding: 10px 5px;
-    scroll-behavior: smooth;
     width: 100%; /* Ensure the container takes full width */
     box-sizing: border-box; /* Include padding in width calculation */
+    
 }
 
 .user-team-card {
     flex: 0 0 70px; /* Make cards narrower */
     background-color: white;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 5px rgba(0,0,0,0.1);
     padding: 8px;
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    border: 1px solid #eee thin;
 }
 
     .user-team-card.expanded {
@@ -3223,7 +3217,7 @@ body.pitch-view-active {
     
     left: 1px;
     height: 40px; /* Reduced height since we no longer stack vertically */
-    border-radius: 15px;
+    border-radius: 10px;
     border: none;
     display: flex;
     /* Change from column to row for horizontal layout */
@@ -3235,7 +3229,7 @@ body.pitch-view-active {
     box-shadow: 0px -2px 6px rgba(0,0,0,0.2);
     cursor: pointer;
     z-index: 4000;
-    padding: 0 10px; /* Change padding to left/right instead of top/bottom */
+    padding: 0 10px; 
     opacity: 0.8;
     transition: opacity 0.1s ease;
     border-style: solid;
@@ -3258,7 +3252,7 @@ body.pitch-view-active {
     }
 .gameweek-btn {
     width: 120px; /* Increased width to accommodate horizontal layout */
-    top: -2px;
+    
 }
 
     #leagueDropdown {

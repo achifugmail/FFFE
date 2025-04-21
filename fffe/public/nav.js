@@ -45,10 +45,10 @@ export async function initializeNavigation() {
     }
 
     // Fetch leagues for the current user
-    await fetchUserLeagues();
+    //await fetchUserLeagues();
 
     // Attach click event handlers to navigation links
-    attachNavLinkHandlers();
+    //attachNavLinkHandlers();
 
     // Add global click handler to close open menus when clicking elsewhere
     document.addEventListener('click', (event) => {
@@ -97,6 +97,9 @@ function attachNavLinkHandlers() {
             return;
         }
         if (link.getAttribute('href').toLowerCase() === 'leaguescore.html') {
+            return;
+        }
+        if (link.getAttribute('href').toLowerCase() === 'squad.html') {
             return;
         }
 

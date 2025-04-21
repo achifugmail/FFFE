@@ -13,7 +13,15 @@ document.addEventListener('DOMContentLoaded', async function () {
     let squadId;  // Remove the URL parameter assignment
     let squadPlayers = [];
     const currentUserId = localStorage.getItem('userId');
-    const leagueId = localStorage.getItem('leagueId');
+    let leagueId = localStorage.getItem('leagueId');
+
+    if (!leagueId) {
+        console.log('No leagueId found, waiting for league fetch');
+        await fetchLeagues();
+    }
+    else {
+        fetchLeagues();
+    }
 
     // Add this near the top of your DOMContentLoaded function, after the variable declarations
     
@@ -427,7 +435,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-
     async function fetchDraftPeriods() {
         try {
             const response = await fetch(`${config.backendUrl}/DraftPeriods`, addAuthHeader());
@@ -496,18 +503,19 @@ document.addEventListener('DOMContentLoaded', async function () {
                 leagueDropdown.appendChild(option);
             });
 
-            if (leagues.length > 0) {
-                leagueDropdown.value = leagues[0].id;
+            if (!leagueId) {
                 leagueId = leagues[0].id;
-                await fetchDraftPeriods();
-                // Add this line to check for active draft after setting league ID
-                await checkForActiveDraft();
+                localStorage.setItem('leagueId', leagueId);
+                console.log(`LeagueId not found in localStorage. Using first league from API: ${leagueId}`);
+            } else {
+                leagueDropdown.value = leagueId;
             }
 
             leagueDropdown.addEventListener('change', async function () {
                 leagueId = this.value;
+                localStorage.setItem('leagueId', leagueId);
+
                 await updateSquadId();
-                // Add this line to check for active draft when league changes
                 fetchAndDisplayPendingTransfers();
                 await checkForActiveDraft();
             });
@@ -532,7 +540,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-
     async function fetchAndCreateSections() {
         try {
             const response = await fetch(`${config.backendUrl}/PlayerPositions/positions`, addAuthHeader());
@@ -552,12 +559,6 @@ document.addEventListener('DOMContentLoaded', async function () {
                 section.id = position.name;
                 // Add data-position attribute for the decorative label
                 section.setAttribute('data-position', position.name);
-
-                // No need for h3 header anymore since position-section uses a ::before pseudo-element
-                // Remove this line:
-                // const header = document.createElement('h3');
-                // header.innerText = position.name;
-                // section.appendChild(header);
 
                 const squadPlayersDiv = document.createElement('div');
                 squadPlayersDiv.className = 'players';
@@ -585,8 +586,6 @@ document.addEventListener('DOMContentLoaded', async function () {
             console.error('Error fetching positions:', error);
         }
     }
-
-
 
     async function fetchSquadDetails() {
         try {
