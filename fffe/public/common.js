@@ -20,7 +20,7 @@ export function createPlayerCard(player) {
 
     const positionItem = document.createElement('div');
     positionItem.className = 'player-card-position';
-    positionItem.textContent = player.position || 'N/A';
+    positionItem.textContent = player.position || player.positionName || 'N/A';
 
     const score = document.createElement('div');
     score.className = 'player-card-score';
@@ -45,6 +45,8 @@ export function createPlayerCard(player) {
 
     const statsContainer = document.createElement('div');
     statsContainer.className = 'player-card-stats';
+
+    if (!player.position) player.position = player.positionName;
 
     if (player.position === 'GK') {
         const goalsConcededItem = document.createElement('div');
