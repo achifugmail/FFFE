@@ -751,6 +751,22 @@ ${getPlayerFormIndicator(player)}
         }
     }
 
+    function disableAllControls() {
+        const controls = document.querySelectorAll('button, input, select, textarea, a');
+        controls.forEach(control => {
+            control.disabled = true;
+            control.classList.add('disabled'); // Optional: Add a class for styling
+        });
+    }
+
+    function enableAllControls() {
+        const controls = document.querySelectorAll('button, input, select, textarea, a');
+        controls.forEach(control => {
+            control.disabled = false;
+            control.classList.remove('disabled'); // Optional: Remove the class for styling
+        });
+    }
+
     // Mark a player as captain (with API call)
     async function markAsCaptain(playerId) {
         // Check if the player is selected (checkbox is checked)
@@ -768,6 +784,8 @@ ${getPlayerFormIndicator(player)}
         // Call the API to update the captain
         const gameweekId = document.getElementById('gameweekDropdown').value;
         try {
+
+            disableAllControls(); 
             const response = await fetch(`${config.backendUrl}/UserTeamPlayers/updateCaptainByGameweekAndSquad`, addAuthHeader({
                 method: 'POST',
                 headers: {
@@ -813,6 +831,8 @@ ${getPlayerFormIndicator(player)}
             // Display generic error message
             alert('Error setting captain. Please try again later.');
             console.error('Error updating captain:', error);
+        } finally {
+            enableAllControls(); // Re-enable all controls
         }
     }
 
@@ -827,6 +847,7 @@ ${getPlayerFormIndicator(player)}
 
             const gameweekId = document.getElementById('gameweekDropdown').value;
             try {
+                disableAllControls();
                 const response = await fetch(`${config.backendUrl}/UserTeamPlayers/AddByGameweekAndSquad`, addAuthHeader({
                     method: 'POST',
                     headers: {
@@ -875,6 +896,8 @@ ${getPlayerFormIndicator(player)}
                     checkbox.checked = false;
                     playerDiv?.classList.remove('selected');
                 }
+            } finally {
+                enableAllControls(); // Re-enable all controls
             }
         } else {
             // For non-user interactions, just update the UI
@@ -893,6 +916,7 @@ ${getPlayerFormIndicator(player)}
 
         const gameweekId = document.getElementById('gameweekDropdown').value;
         try {
+            disableAllControls(); 
             const response = await fetch(`${config.backendUrl}/UserTeamPlayers/DeleteByGameweekAndSquad`, addAuthHeader({
                 method: 'DELETE',
                 headers: {
@@ -941,6 +965,8 @@ ${getPlayerFormIndicator(player)}
                 checkbox.checked = true;
                 playerDiv?.classList.add('selected');
             }
+        } finally {
+            enableAllControls(); // Re-enable all controls
         }
     }
 
