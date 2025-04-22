@@ -1256,8 +1256,8 @@ ${getPlayerFormIndicator(player)}
     }
 
     // Initial check and setup
-    checkScreenWidth();
+    //checkScreenWidth();
 
     // Re-check when window is resized
-    window.addEventListener('resize', checkScreenWidth);
+    //window.addEventListener('resize', checkScreenWidth);
 });

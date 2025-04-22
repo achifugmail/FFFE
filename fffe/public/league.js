@@ -200,7 +200,6 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     function calculatePrizePoints(squads) {
         // Calculate total gameweeks by summing firstPlaces across all squads
-        // Since each gameweek must have exactly one first place
         const totalGameweeks = squads.reduce((sum, squad) => sum + squad.firstPlaces, 0);
 
         // Initialize total prize points to track zero-sum property
@@ -212,21 +211,16 @@ document.addEventListener('DOMContentLoaded', async function () {
             squad.prizePoints = 0;
 
             // Calculate points from first places
-            // Each first place earns 50 points from each other team in that gameweek
             const averageTeamsPerGameweek = squads.length - 1; // Exclude self
             squad.prizePoints += squad.firstPlaces * 50 * averageTeamsPerGameweek;
 
             // Calculate points deducted for second places
-            // Each second place costs 25 points
             squad.prizePoints -= squad.secondPlaces * 25;
 
             // Calculate points deducted for last places
-            // Each last place costs 75 points
             squad.prizePoints -= squad.lastPlaces * 75;
 
             // Calculate middle positions (non first, second, or last)
-            // We need to determine how many gameweeks each team participated in
-            // For simplicity, assume each team participated in the same number of gameweeks
             const gamesPerTeam = totalGameweeks / squads.length;
             const middlePositionCount = gamesPerTeam - (squad.firstPlaces + squad.secondPlaces + squad.lastPlaces);
 
@@ -239,15 +233,20 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         // Second pass: adjust to ensure zero-sum
         if (Math.abs(totalPrizePoints) > 0.001) { // Account for small floating point errors
-            // Distribute the imbalance equally among all teams
             const adjustment = totalPrizePoints / squads.length;
             squads.forEach(squad => {
                 squad.prizePoints -= adjustment;
             });
         }
 
+        // Format prizePoints to one decimal place
+        squads.forEach(squad => {
+            squad.prizePoints = parseFloat(squad.prizePoints.toFixed(1));
+        });
+
         return squads;
     }
+
 
     // Function to process player stats and create user team cards
     function createUserTeamCards(players, rankings, expandedStates = {}) {
@@ -373,19 +372,19 @@ document.addEventListener('DOMContentLoaded', async function () {
     <div class="ranking-icons">
         <div class="ranking-icon">
             <i class="fas fa-medal gold-medal" title="First Places"></i>
-            <span>${team.firstPlaces}</span>
+            <span>${team.firstPlaces.toFixed(1)}</span>
         </div>
         <div class="ranking-icon">
             <i class="fas fa-medal silver-medal" title="Second Places"></i>
-            <span>${team.secondPlaces}</span>
+            <span>${team.secondPlaces.toFixed(1)}</span>
         </div>
         <div class="ranking-icon">
             <i class="fas fa-poop brown-icon" title="Last Places"></i>
-            <span>${team.lastPlaces}</span>
+            <span>${team.lastPlaces.toFixed(1)}</span>
         </div>
         <div class="ranking-icon">
             <i class="fas fa-money-bill-wave green-icon" title="Prize Points"></i>
-            <span>${team.prizePoints}</span>
+            <span>${team.prizePoints.toFixed(1)}</span>
         </div>
     </div>
 `;

@@ -24,7 +24,7 @@ export function createPlayerCard(player) {
 
     const score = document.createElement('div');
     score.className = 'player-card-score';
-    score.textContent = player.score || player.points ||'0';
+    score.textContent = player.score || player.points || '0';
 
     nameScoreContainer.appendChild(name);
     nameScoreContainer.appendChild(positionItem);
@@ -72,11 +72,12 @@ export function createPlayerCard(player) {
     }
 
     const statItems = [
-        { iconClass: 'fa fa-futbol', value: player.goalsScored || '0' },
-        { iconClass: 'fa fa-shield-alt', value: player.cleanSheets || '0' },
-        { iconClass: 'fa fa-clock', value: player.minutesPlayed || '0' },
-        { iconClass: 'fa fa-square yellow-card', value: player.yellowCards || '0' },
-        { iconClass: 'fa fa-square red-card', value: player.redCards || '0' },
+        { iconClass: 'fa fa-futbol', value: player.goalsScored || '0', label: '' },
+        { iconClass: 'fa fa-hands-helping', value: player.assists || '0', label: '' }, 
+        { iconClass: 'fa fa-shield-alt', value: player.cleanSheets || '0', label: '' },
+        { iconClass: 'fa fa-clock', value: player.minutesPlayed || player.minutes || '0', label: '' },
+        { iconClass: 'fa fa-square yellow-card', value: player.yellowCards || '0', label: '' },
+        { iconClass: 'fa fa-square red-card', value: player.redCards || '0', label: '' },
     ];
 
     statItems.forEach((item) => {
@@ -87,7 +88,7 @@ export function createPlayerCard(player) {
         iconElement.className = `${item.iconClass} stat-icon`;
 
         statItem.appendChild(iconElement);
-        statItem.appendChild(document.createTextNode(` ${item.value}`));
+        statItem.appendChild(document.createTextNode(` ${item.value} ${item.label}`));
 
         statsContainer.appendChild(statItem);
     });
@@ -97,6 +98,7 @@ export function createPlayerCard(player) {
 
     return playerCardContainer;
 }
+
 
 export function setupPlayerPhotoInteractions() {
     // Get all player photos

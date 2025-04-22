@@ -19,8 +19,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         console.log('Using existing leagueId:', leagueId);
         fetchLeagues(); // Asynchronous call, don't await // changed to wait
     }
-
-    //fetchAndCreateUserTeamCards();
     
     // Fetch draft periods for dropdown
     let draftPeriods = [];
@@ -86,8 +84,6 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             if (leagues.length > 0) {
                 leagueDropdown.value = leagues[0].id;
-                //leagueId = leagues[0].id;
-                // Fix: Remove the hyphen that was breaking the call
                 if (!leagueId) {
                     leagueId = leagues[0].id;
                     localStorage.setItem('leagueId', leagueId);

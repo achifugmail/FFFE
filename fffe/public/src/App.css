@@ -621,7 +621,7 @@ li {
 .team-layout {
     flex: 1;
     display: flex;
-    flex-direction: column;
+    
     width: 100%;
     overflow-y: auto !important; /* Add scrolling at this level */
     -webkit-overflow-scrolling: touch;
@@ -1051,19 +1051,19 @@ th {
         z-index: 1010;
     }
 
-@media (min-width: 1080px) {
+@media (min-width: 800px) {
     .position-section {
         width: calc(720px); /* 2 * 350px + 20px for margins/padding */
     }
 }
 
-@media (min-width: 1440px) {
+@media (min-width: 1100px) {
     .position-section {
         width: calc(1080px); /* 3 * 350px + 30px for margins/padding */
     }
 }
 
-@media (min-width: 1800px) {
+@media (min-width: 1600px) {
     .position-section {
         width: calc(1440px); /* 4 * 350px + 40px for margins/padding */
     }
@@ -3217,7 +3217,7 @@ body.pitch-view-active {
     
     left: 1px;
     height: 40px; /* Reduced height since we no longer stack vertically */
-    border-radius: 10px;
+    border-radius: 15px;
     border: none;
     display: flex;
     /* Change from column to row for horizontal layout */
