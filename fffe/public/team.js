@@ -1,6 +1,9 @@
 import { setupPlayerPhotoInteractions } from './common.js';
-import config from './config.js';
+import { fetchLeagues } from './common.js';
+import { fetchDraftPeriods } from './common.js';
+import { fetchPositions } from './common.js';
 import { addAuthHeader } from './config.js';
+import config from './config.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
     // Fetch draft periods for dropdown
@@ -8,20 +11,19 @@ document.addEventListener('DOMContentLoaded', async function () {
     let vh = window.innerHeight * 0.01;
     document.documentElement.style.setProperty('--vh', `${vh}px`);
     const squadPlayersCache = new Map();
-    const positionsCache = { positions: null }    
 
     const token = localStorage.getItem('token');
     if (!token) {
         console.error('No authentication token found');
         window.location.href = '/'; // Redirect to login page
         throw new Error('Authentication required'); // Stop execution
-    }
-        
+    }        
     let draftPeriodId;
+    let draftPeriodDropdown = document.getElementById('filterDraftPeriodDropdown');    
     let squadId;  // Remove the URL parameter assignment
-    const currentUserId = localStorage.getItem('userId');
 
     const filterDraftPeriodDropdown = document.getElementById('filterDraftPeriodDropdown');
+    const leagueDropdown = document.getElementById('leagueDropdown');
 
     // Fetch and populate gameweeks based on selected draft period
     const gameweekDropdown = document.getElementById('gameweekDropdown');
@@ -37,8 +39,6 @@ document.addEventListener('DOMContentLoaded', async function () {
             gameweekCaption.textContent = options[newIndex].text; // Update the caption
             fetchAndDisplayFixtures(options[newIndex].value); // Fetch fixtures for the new gameweek
             await fetchAndDisplaySquadPlayers(squadId); // Fetch squad players for the new gameweek
-
-
         }
     }
 
@@ -47,8 +47,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         e.stopPropagation(); // Prevent triggering the button click
         const currentIndex = gameweekDropdown.selectedIndex;
         updateGameweek(currentIndex - 1); // Move to the previous gameweek
-
-
     });
 
     // Event listener for the right arrow (next gameweek)
@@ -56,8 +54,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         e.stopPropagation(); // Prevent triggering the button click
         const currentIndex = gameweekDropdown.selectedIndex;
         updateGameweek(currentIndex + 1); // Move to the next gameweek
-
-
     });
 
     async function fetchAndPopulateGameweeks(draftPeriodId) {
@@ -110,16 +106,6 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
         }
     }
-
-    // Initial population of gameweeks
-    //await fetchAndPopulateGameweeks(filterDraftPeriodDropdown.value);
-
-    // Update gameweeks when draft period changes
-    filterDraftPeriodDropdown.addEventListener('change', async function () {
-        await fetchAndPopulateGameweeks(this.value);
-        fetchAndDisplaySquadPlayers(squadId);
-        //updateTeamScoreLink();
-    });
 
     async function fetchAndDisplayFixtures(gameweekId) {
         try {
@@ -215,132 +201,11 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-
-
     gameweekDropdown.addEventListener('change', function () {
         fetchAndDisplaySquadPlayers(squadId);
         //updateTeamScoreLink();
         fetchAndDisplayFixtures(this.value);
     });
-
-    async function fetchLeagues() {
-        try {
-            const response = await fetch(`${config.backendUrl}/Leagues/byUser`, addAuthHeader());
-            if (response.status === 401) {
-                console.error('Authentication error: Unauthorized access (401)');
-                // Redirect to the root site
-                window.location.href = '/';
-                return;
-            }
-            if (response.status === 404) {
-                // Redirect to LeagueAdmin.html if no leagues are found
-                window.location.href = 'LeagueAdmin.html';
-                return;
-            }
-            if (!response.ok) {
-                console.error('Failed to fetch leagues:', response.status, response.statusText);
-                return;
-            }
-            const leagues = await response.json();
-
-            const leagueDropdown = document.getElementById('leagueDropdown');
-            leagueDropdown.innerHTML = '';
-            leagues.forEach(league => {
-                const option = document.createElement('option');
-                option.value = league.id;
-                option.text = league.name;
-                leagueDropdown.appendChild(option);
-            });
-
-            if (leagues.length > 0) {
-                leagueDropdown.value = leagues[0].id;
-                if (!leagueId) {
-                    leagueId = leagues[0].id;
-                    localStorage.setItem('leagueId', leagueId);
-                    console.log(`LeagueId not found in localStorage. Using first league from API: ${leagueId}`);
-                } else {
-                    // If leagueId exists, set the dropdown to that value
-                    leagueDropdown.value = leagueId;
-                }
-            }
-
-            leagueDropdown.addEventListener('change', async function () {
-                leagueId = this.value;
-                
-                localStorage.setItem('leagueId', leagueId);
-                // Also fetch draft periods when league changes
-                fetchAndDisplayPendingTransfers();
-                //await fetchDraftPeriods();
-                fetchAndDisplayFixtures(gameweekDropdown.value);
-                squadId = await fetchSquadId();
-                await fetchAndDisplaySquadPlayers(squadId);
-                setupViewToggle();
-                
-            });
-        } catch (error) {
-            console.error('Error fetching leagues:', error);
-        }
-    }
-
-    async function fetchDraftPeriods() {
-        try {
-
-            const response = await fetch(`${config.backendUrl}/DraftPeriods`, addAuthHeader());
-            if (response.status === 401) {
-                console.error('Authentication error: Unauthorized access (401)');
-                // Redirect to the root site
-                window.location.href = '/';
-                return;
-            }
-            if (!response.ok) {
-                console.error('Failed to fetch draft periods:', response.status, response.statusText);
-                return;
-            }
-            const draftPeriods = await response.json();
-
-            // Populate both dropdowns
-            const draftPeriodDropdown = document.getElementById('draftPeriodDropdown');
-            const filterDraftPeriodDropdown = document.getElementById('filterDraftPeriodDropdown');
-
-            [draftPeriodDropdown, filterDraftPeriodDropdown].forEach(dropdown => {
-                if (!dropdown) return;
-
-                dropdown.innerHTML = '';
-                draftPeriods.forEach(period => {
-                    const option = document.createElement('option');
-                    option.value = period.id;
-                    option.text = period.name || `Draft ${period.id}`;
-                    option.setAttribute('data-start-date', period.startDate);
-                    dropdown.appendChild(option);
-                });
-            });
-
-            if (draftPeriods.length > 0) {
-                const lastDraftPeriod = draftPeriods[draftPeriods.length - 1];
-                // Set the value for both dropdowns
-                if (draftPeriodDropdown) {
-                    draftPeriodDropdown.value = lastDraftPeriod.id;
-                }
-                if (filterDraftPeriodDropdown) {
-                    filterDraftPeriodDropdown.value = lastDraftPeriod.id;
-                }
-                draftPeriodId = lastDraftPeriod.id;
-
-                // After setting draft period, fetch the gameweeks
-                await fetchAndPopulateGameweeks(lastDraftPeriod.id);
-                
-            }
-
-            // Set up change event listener if not already set
-            draftPeriodDropdown?.addEventListener('change', async function () {
-                draftPeriodId = this.value;
-                await fetchAndPopulateGameweeks(this.value);
-            });
-
-        } catch (error) {
-            console.error('Error fetching draft periods:', error);
-        }
-    }
 
     async function fetchSquadId() {
         try {
@@ -430,17 +295,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                 squadPlayersCache.set(squadId, squadPlayers);
             }
 
-            let positions;
-            if (positionsCache.positions) {
-                console.log('Using cached positions data');
-                positions = positionsCache.positions;
-            } else {
-                console.log('Fetching positions data');
-                positions = await fetch(`${config.backendUrl}/PlayerPositions/positions`, addAuthHeader()).then(res => res.json());
-                // Store in cache for future use
-                positionsCache.positions = positions;
-            }
-
+            let positions = await fetchPositions();
+            
             const playerGrid = document.getElementById('playerGrid');
             playerGrid.innerHTML = ''; // Clear existing sections
 
@@ -603,9 +459,6 @@ ${getPlayerFormIndicator(player)}
         }
     }
 
-
-
-    // Function to create a transfer item
     // Function to create a transfer item
     function createTransferItem(transfer, isToMe) {
         const item = document.createElement('div');
@@ -679,8 +532,6 @@ ${getPlayerFormIndicator(player)}
         return item;
     }
 
-
-    // Function to handle accept/reject actions
     // Function to handle accept/reject/cancel actions
     async function handleTransferAction(transferId, action) {
         try {
@@ -725,7 +576,6 @@ ${getPlayerFormIndicator(player)}
         });
     }
 
-    // // Mark a player as captain
     // Function to visually mark a player as captain without making API calls
     function markCaptainVisually(playerId) {
         // First, remove captain status from any existing captain
@@ -827,8 +677,6 @@ ${getPlayerFormIndicator(player)}
         }
     }
 
-    // Select a player
-
     async function selectPlayer(playerId, isUserInteraction) {
         const checkbox = document.querySelector(`.player-checkbox[data-player-id="${playerId}"]`);
         const playerDiv = checkbox?.closest('.player-grid');
@@ -903,7 +751,6 @@ ${getPlayerFormIndicator(player)}
     async function deselectPlayer(playerId) {
         const checkbox = document.querySelector(`.player-checkbox[data-player-id="${playerId}"]`);
         const playerDiv = checkbox?.closest('.player-grid');
-
 
         const gameweekId = document.getElementById('gameweekDropdown').value;
         try {
@@ -1007,7 +854,6 @@ ${getPlayerFormIndicator(player)}
             }
         });
     }
-
 
     function renderPitchView() {
         console.log("Rendering vertical pitch view..."); // Debug log
@@ -1196,34 +1042,51 @@ ${getPlayerFormIndicator(player)}
         });
     }
 
-
     async function initializePage() {
-        console.log('Initializing page with leagueId:', leagueId);
-
-        // If leagueId is null, wait for fetchLeagues to populate it
         if (!leagueId) {
             console.log('No leagueId found, waiting for league fetch');
-            await fetchLeagues();
+            await fetchLeagues(leagueDropdown);
+            leagueId = localStorage.getItem('leagueId');
         } else {
             // If leagueId exists, call fetchLeagues but don't wait
             console.log('Using existing leagueId:', leagueId);
-            fetchLeagues(); // Asynchronous call, don't await
+            fetchLeagues(leagueDropdown); // Asynchronous call, don't await
         }
 
+        await fetchDraftPeriods(draftPeriodDropdown);
+        draftPeriodId = draftPeriodDropdown.value;
         fetchAndDisplayPendingTransfers();
-        await fetchDraftPeriods();
+        await fetchAndPopulateGameweeks(draftPeriodId);
         fetchAndDisplayFixtures(gameweekDropdown.value);        
         squadId = await fetchSquadId();
         await fetchAndDisplaySquadPlayers(squadId);
         setupViewToggle();
-        
 
+        filterDraftPeriodDropdown.addEventListener('change', async function () {
+            draftPeriodId = this.value;
+            await fetchAndPopulateGameweeks(this.value);
+
+            fetchAndDisplayPendingTransfers();
+            fetchAndDisplayFixtures(gameweekDropdown.value);
+            squadId = await fetchSquadId();
+            await fetchAndDisplaySquadPlayers(squadId);
+        });
+
+        leagueDropdown.addEventListener('change', async function () {
+            leagueId = this.value;
+
+            localStorage.setItem('leagueId', leagueId);
+            // Also fetch draft periods when league changes
+            fetchAndDisplayPendingTransfers();
+            //await fetchDraftPeriods(draftPeriodDropdown);
+            fetchAndDisplayFixtures(gameweekDropdown.value);
+            squadId = await fetchSquadId();
+            await fetchAndDisplaySquadPlayers(squadId);
+        });
         // Initial check for screen width
         //checkScreenWidth();
     }
     await initializePage();
-    // Initial link update
-    //updateTeamScoreLink();
 
     const fixturesToggle = document.getElementById('fixturesToggle');
     const teamLayout = document.querySelector('.team-layout');

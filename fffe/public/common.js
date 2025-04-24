@@ -1,3 +1,120 @@
+import config from './config.js';
+import { addAuthHeader } from './config.js';
+
+export async function fetchLeagues(leagueDropdown) {
+    try {
+        let leagueId = localStorage.getItem('leagueId');
+
+        const response = await fetch(`${config.backendUrl}/Leagues/byUser`, addAuthHeader());
+        if (response.status === 401) {
+            console.error('Authentication error: Unauthorized access (401)');
+            // Redirect to the root site
+            window.location.href = '/';
+            return;
+        }
+        if (response.status === 404) {
+            // Redirect to LeagueAdmin.html if no leagues are found
+            window.location.href = 'LeagueAdmin.html';
+            return;
+        }
+        if (!response.ok) {
+            console.error('Failed to fetch leagues:', response.status, response.statusText);
+            return;
+        }
+        const leagues = await response.json();
+                
+        leagueDropdown.innerHTML = '';
+        leagues.forEach(league => {
+            const option = document.createElement('option');
+            option.value = league.id;
+            option.text = league.name;
+            leagueDropdown.appendChild(option);
+        });
+
+        if (leagues.length > 0) {
+            leagueDropdown.value = leagues[0].id;
+            if (!leagueId) {
+                leagueId = leagues[0].id;
+                localStorage.setItem('leagueId', leagueId);
+                console.log(`LeagueId not found in localStorage. Using first league from API: ${leagueId}`);
+            } else {
+                // If leagueId exists, set the dropdown to that value
+                leagueDropdown.value = leagueId;
+            }
+        }        
+    } catch (error) {
+        console.error('Error fetching leagues:', error);
+    }
+}
+
+export async function fetchDraftPeriods(draftPeriodDropdown) {
+    try {
+        const response = await fetch(`${config.backendUrl}/DraftPeriods`, addAuthHeader());
+        if (response.status === 401) {
+            console.error('Authentication error: Unauthorized access (401)');
+            // Redirect to the root site
+            window.location.href = '/';
+            return;
+        }
+        if (!response.ok) {
+            console.error('Failed to fetch draft periods:', response.status, response.statusText);
+            return;
+        }
+        const draftPeriods = await response.json();
+
+        // Populate both dropdowns
+        //const draftPeriodDropdown = document.getElementById('draftPeriodDropdown');
+      
+
+        [draftPeriodDropdown].forEach(dropdown => {
+            if (!dropdown) return;
+
+            dropdown.innerHTML = '';
+            draftPeriods.forEach(period => {
+                const option = document.createElement('option');
+                option.value = period.id;
+                option.text = period.name || `Draft ${period.id}`;
+                option.setAttribute('data-start-date', period.startDate);
+                dropdown.appendChild(option);
+            });
+        });
+
+        if (draftPeriods.length > 0) {
+            const lastDraftPeriod = draftPeriods[draftPeriods.length - 1];
+
+            if (draftPeriodDropdown) {
+                draftPeriodDropdown.value = lastDraftPeriod.id;
+            }            
+        }
+    } catch (error) {
+        console.error('Error fetching draft periods:', error);
+    }
+}
+
+const positionsCache = { positions: null };
+
+export async function fetchPositions() {
+    if (positionsCache.positions) {
+        console.log('Using cached positions data');
+        return positionsCache.positions;
+    }
+
+    console.log('Fetching positions data');
+    try {
+        const response = await fetch(`${config.backendUrl}/PlayerPositions/positions`, addAuthHeader());
+        if (!response.ok) {
+            console.error('Failed to fetch positions:', response.status, response.statusText);
+            return null;
+        }
+        const positions = await response.json();
+        positionsCache.positions = positions; // Cache the positions for future use
+        return positions;
+    } catch (error) {
+        console.error('Error fetching positions:', error);
+        return null;
+    }
+}
+
 export function createPlayerCard(player) {
     const playerCardContainer = document.createElement('div');
     playerCardContainer.className = 'player-detail-card';
@@ -98,7 +215,6 @@ export function createPlayerCard(player) {
 
     return playerCardContainer;
 }
-
 
 export function setupPlayerPhotoInteractions() {
     // Get all player photos
