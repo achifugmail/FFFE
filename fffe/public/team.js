@@ -441,13 +441,6 @@ ${getPlayerFormIndicator(player)}
                 });
             }
 
-            // Calculate the total number of pending transfers
-            const totalTransfers = transfersToMe.length + transfersFromMe.length;
-
-            // Set the height based on the formula: 75px + (150px * number of transfers)
-            //const containerHeight = 75 + (150 * totalTransfers);
-            ///pendingTransfersContainer.style.height = `${containerHeight}px`;
-
             // Make sure there's enough space for the content
             pendingTransfersContainer.style.minHeight = '75px';
             pendingTransfersContainer.style.overflow = 'visible';
