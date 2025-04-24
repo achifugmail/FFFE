@@ -15,7 +15,7 @@
     <div id="content" class="team-container">
         <!-- League Dropdown -->
         <div class="dropdown-container">
-                <select id="leagueDropdown"></select>
+            <select id="leagueDropdown"></select>
 
             <div>
                 <select id="draftPeriodDropdown" style="display: none;"></select>
@@ -26,14 +26,18 @@
         <div class="team-layout">
             <div id="playerGrid" class="container"></div>
 
-            <button class="transfers-toggle" id="transfersToggle">
-                <i class="fas fa-exchange-alt"></i>
-            </button>
+
 
             <div id="transfersContainer" class="container">
                 <div id="transfersList"></div>
             </div>
         </div>
+        <button id="viewToggleButton" class="view-toggle-button">
+            <i class="fa-solid fa-arrow-right-to-bracket"></i>
+        </button>
+        <button class="transfers-toggle" id="transfersToggle">
+            <i class="fas fa-exchange-alt"></i>
+        </button>
     </div>
 
     <script type="module" src="squad.js"></script>

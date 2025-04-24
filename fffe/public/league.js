@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     let previousTeamStats = {};
     let cardsExpanded = true;
     const startColor = { r: 255, g: 255, b: 255 }; // #cfcfcf
-    const endColor = { r: 0, g: 128, b: 0 }; // #008000
+    const endColor = { r: 32, g: 128, b: 128 }; // #008000
 
     function getScoreColor(pointsPerMinute, maxPointsPerMinute) {
         if (maxPointsPerMinute === 0) return '#000000'; // Black if max points per minute is 0 (to avoid division by zero)

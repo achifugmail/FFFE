@@ -8,8 +8,7 @@ import config from './config.js';
 document.addEventListener('DOMContentLoaded', async function () {
     // Fetch draft periods for dropdown
     let leagueId = localStorage.getItem('leagueId');
-    let vh = window.innerHeight * 0.01;
-    document.documentElement.style.setProperty('--vh', `${vh}px`);
+    
     const squadPlayersCache = new Map();
 
     const token = localStorage.getItem('token');
@@ -446,8 +445,8 @@ ${getPlayerFormIndicator(player)}
             const totalTransfers = transfersToMe.length + transfersFromMe.length;
 
             // Set the height based on the formula: 75px + (150px * number of transfers)
-            const containerHeight = 75 + (150 * totalTransfers);
-            pendingTransfersContainer.style.height = `${containerHeight}px`;
+            //const containerHeight = 75 + (150 * totalTransfers);
+            ///pendingTransfersContainer.style.height = `${containerHeight}px`;
 
             // Make sure there's enough space for the content
             pendingTransfersContainer.style.minHeight = '75px';
@@ -527,7 +526,7 @@ ${getPlayerFormIndicator(player)}
         }
 
         // Add buttons to the player element
-        playerOutEl.appendChild(buttonsEl);
+        item.appendChild(buttonsEl);
 
         return item;
     }

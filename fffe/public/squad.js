@@ -23,6 +23,428 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     let transfersLoaded = false;
 
+    let allPlayers = [];
+    let otherUsersSquadPlayers = [];
+    let viewMode = 'squad'; // 'squad' or 'all'
+
+    // Add this function to fetch all players (both available and from other users)
+    async function fetchAllPlayers() {
+        try {
+            // Fetch available players
+            const availableResponse = await fetch(`${config.backendUrl}/PlayerPositions/available-players-with-positions/${leagueId}/${draftPeriodId}`, addAuthHeader());
+
+            // Fetch players in users' squads
+            const usersSquadResponse = await fetch(`${config.backendUrl}/PlayerPositions/league-user-squad-players/${leagueId}`, addAuthHeader());
+
+            if (!availableResponse.ok || !usersSquadResponse.ok) {
+                console.error('Failed to fetch all players:',
+                    availableResponse.status, availableResponse.statusText,
+                    usersSquadResponse.status, usersSquadResponse.statusText);
+                return;
+            }
+
+            // Process the responses
+            const availablePlayers = await availableResponse.json();
+            const usersSquadPlayers = await usersSquadResponse.json();
+
+            // Store all players
+            allPlayers = availablePlayers;
+
+            // Filter other users' squad players (excluding current user's players)
+            otherUsersSquadPlayers = usersSquadPlayers.filter(player =>
+                player.userId.toString() !== currentUserId);
+
+            // Add other users' players to allPlayers (if they're not already included)
+            otherUsersSquadPlayers.forEach(player => {
+                if (!allPlayers.some(p => p.id === player.id)) {
+                    allPlayers.push(player);
+                }
+            });
+
+            displayAllPlayersView();
+
+        } catch (error) {
+            console.error('Error fetching all players:', error);
+        }
+    }
+
+    function displayAllPlayersView() {
+        // Hide the regular squad view
+        const teamLayout = document.querySelector('.team-layout');
+        teamLayout.style.display = viewMode === 'squad' ? 'grid' : 'none';
+
+        // Show or hide the all players view
+        let allPlayersContainer = document.getElementById('allPlayersContainer');
+
+        if (!allPlayersContainer && viewMode === 'all') {
+            // Create the container if it doesn't exist
+            allPlayersContainer = document.createElement('div');
+            allPlayersContainer.id = 'allPlayersContainer';
+            allPlayersContainer.className = 'container';
+            teamLayout.parentNode.insertBefore(allPlayersContainer, teamLayout.nextSibling);
+
+            // Create position sections
+            positions.forEach(position => {
+                const section = document.createElement('div');
+                // Change the class to match the squad view
+                section.className = 'section position-section';
+                section.id = `all-${position.name}`;
+                // Add data-position attribute for the decorative label
+                section.setAttribute('data-position', position.name);
+
+                // Container for players
+                const playersContainer = document.createElement('div');
+                playersContainer.className = 'players'; // Changed from 'all-players-list' to 'players'
+                section.appendChild(playersContainer);
+
+                allPlayersContainer.appendChild(section);
+            });
+        }
+
+        if (allPlayersContainer) {
+            allPlayersContainer.style.display = viewMode === 'all' ? 'block' : 'none';
+        }
+
+        if (viewMode === 'all') {
+            // Populate the sections with players
+            positions.forEach(position => {
+                const section = document.getElementById(`all-${position.name}`);
+                const playersContainer = section.querySelector('.players'); // Changed from '.all-players-list' to '.players'
+
+                // Clear existing content
+                playersContainer.innerHTML = '';
+
+                // Filter players by position
+                const positionPlayers = allPlayers.filter(player => player.positionName === position.name);
+
+                // Add players to the section
+                positionPlayers.forEach(player => {
+                    const playerDiv = createPlayerDivForAllView(player, otherUsersSquadPlayers.some(p => p.id === player.id));
+                    playersContainer.appendChild(playerDiv);
+                });
+
+                // Add empty player rows if needed (similar to the squad view)
+                const totalPlayersInSection = positionPlayers.length;
+                // Find the corresponding position to get maxInSquad
+                const positionObj = positions.find(p => p.name === position.name);
+                if (positionObj && positionObj.maxInSquad) {
+                    for (let i = totalPlayersInSection; i < positionObj.maxInSquad; i++) {
+                        const emptyRow = document.createElement('div');
+                        emptyRow.className = 'player-row';
+                        emptyRow.innerText = 'Empty';
+                        playersContainer.appendChild(emptyRow);
+                    }
+                }
+            });
+        }
+    }
+
+    // Helper function to create player divs for the all players view
+    function createPlayerDivForAllView(player, isInOtherSquad = false) {
+        const playerDiv = document.createElement('div');
+        playerDiv.className = `player-grid ${isInOtherSquad ? 'player-in-other-squad' : ''}`;
+        playerDiv.setAttribute('data-player', JSON.stringify(player));
+
+        // Format the player's score for display
+        const playerScore = player.points || 0;
+        let formattedScore;
+        if (Number.isInteger(playerScore)) {
+            formattedScore = playerScore.toString();
+        } else {
+            formattedScore = playerScore.toFixed(1);
+        }
+
+        // Check if the score has a decimal point and add appropriate class
+        const hasDecimal = formattedScore.includes(".");
+        const scoreClass = hasDecimal ? "player-score decimal" : "player-score";
+
+        // Add squad information if player is in another user's squad
+        const squadInfo = isInOtherSquad ?
+            `<div class="player-squad-info">${player.squadName || 'Unknown Squad'}</div>` : '';
+
+        // Add plus button for initiating transfers (will handle click events separately)
+        const addButton = `<button class="transfer-player-button" data-player-id="${player.id}" data-position="${player.positionName}">+</button>`;
+
+        playerDiv.innerHTML = `
+        ${addButton}
+        <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
+        <span class="player-name-long">${player.webName}</span>
+        ${squadInfo}
+        ${getPlayerStatusIcon(player)}
+        <span class="${scoreClass}">${formattedScore}</span>
+        ${getPlayerFormIndicator(player)}        
+    `;
+
+        return playerDiv;
+    }
+
+    async function showTransferOptions(playerId, positionName, isInOtherSquad) {
+        // Find the target player from allPlayers array
+        const targetPlayer = allPlayers.find(p => p.id === parseInt(playerId));
+        if (!targetPlayer) {
+            console.error('Player not found:', playerId);
+            return;
+        }
+
+        // Create a modal overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'transfer-overlay';
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.remove();
+            }
+        });
+
+        // Create the transfer modal
+        const modal = document.createElement('div');
+        modal.className = 'transfer-modal';
+
+        // Create header with player info
+        const header = document.createElement('div');
+        header.className = 'transfer-modal-header';
+        header.innerHTML = `
+        <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${targetPlayer.photo.slice(0, -3)}png" 
+            alt="${targetPlayer.webName}" class="player-photo">
+        <h3>${targetPlayer.webName}</h3>
+        <span>${positionName}</span>
+        <button class="close-modal-btn">&times;</button>
+    `;
+
+        // Close button functionality
+        header.querySelector('.close-modal-btn').addEventListener('click', () => {
+            overlay.remove();
+        });
+
+        // Create the content area
+        const content = document.createElement('div');
+        content.className = 'transfer-modal-content';
+
+        // Set initial loading state
+        content.innerHTML = '<div class="loading">Loading your squad players...</div>';
+
+        // Add components to the page
+        modal.appendChild(header);
+        modal.appendChild(content);
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        try {
+            // Filter current user's squad players by position
+            const myPositionPlayers = squadPlayers.filter(p => p.positionName === positionName);
+
+            if (myPositionPlayers.length === 0) {
+                content.innerHTML = '<div class="no-players">You have no players in this position available to swap.</div>';
+                return;
+            }
+
+            // Determine if this is a direct add or a swap
+            if (isInOtherSquad) {
+                // This is a swap - show the player selection UI
+                content.innerHTML = `
+                <p>Select one of your players to swap out:</p>
+                <div class="swap-players-list"></div>
+                <div class="transfer-modal-buttons">
+                    <button class="cancel-transfer-btn">Cancel</button>
+                </div>
+            `;
+
+                const playersList = content.querySelector('.swap-players-list');
+
+                // Add each of the user's players as options
+                myPositionPlayers.forEach(player => {
+                    const playerOption = document.createElement('div');
+                    playerOption.className = 'swap-player-option';
+                    playerOption.setAttribute('data-player-id', player.id);
+
+                    playerOption.innerHTML = `
+                    <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" 
+                         alt="${player.webName}" class="player-photo">
+                    <span class="player-name">${player.webName}</span>
+                    <span class="player-score">${player.points || 0}</span>
+                `;
+
+                    // Add click event to select this player for swap
+                    playerOption.addEventListener('click', () => {
+                        // Confirm the swap
+                        confirmTransfer(player, targetPlayer, true);
+                        overlay.remove();
+                    });
+
+                    playersList.appendChild(playerOption);
+                });
+
+                // Add cancel button functionality
+                content.querySelector('.cancel-transfer-btn').addEventListener('click', () => {
+                    overlay.remove();
+                });
+            } else {
+                // This is a direct add - show confirmation UI
+                content.innerHTML = `
+                <p>Add this player to your squad?</p>
+                <div class="transfer-modal-buttons">
+                    <button class="confirm-transfer-btn">Add Player</button>
+                    <button class="cancel-transfer-btn">Cancel</button>
+                </div>
+            `;
+
+                // Add confirm button functionality
+                content.querySelector('.confirm-transfer-btn').addEventListener('click', () => {
+                    // If no position is full, add directly
+                    if (myPositionPlayers.length < getMaxSquadPlayersForPosition(positionName)) {
+                        // Direct add
+                        addPlayerToSquad(playerId, squadId, positionName);
+                        overlay.remove();
+                    } else {
+                        // Need to select a player to replace
+                        content.innerHTML = `
+                        <p>Your squad is full for this position. Select a player to replace:</p>
+                        <div class="swap-players-list"></div>
+                        <div class="transfer-modal-buttons">
+                            <button class="cancel-transfer-btn">Cancel</button>
+                        </div>
+                    `;
+
+                        const playersList = content.querySelector('.swap-players-list');
+
+                        // Add each of the user's players as options
+                        myPositionPlayers.forEach(player => {
+                            const playerOption = document.createElement('div');
+                            playerOption.className = 'swap-player-option';
+                            playerOption.setAttribute('data-player-id', player.id);
+
+                            playerOption.innerHTML = `
+                            <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" 
+                                 alt="${player.webName}" class="player-photo">
+                            <span class="player-name">${player.webName}</span>
+                            <span class="player-score">${player.points || 0}</span>
+                        `;
+
+                            // Add click event to select this player to replace
+                            playerOption.addEventListener('click', () => {
+                                // Set outPlayerId and perform swap
+                                outPlayerId = player.id;
+                                addPlayerToSquad(playerId, squadId, positionName);
+                                overlay.remove();
+                            });
+
+                            playersList.appendChild(playerOption);
+                        });
+
+                        // Add cancel button functionality
+                        content.querySelector('.cancel-transfer-btn').addEventListener('click', () => {
+                            overlay.remove();
+                        });
+                    }
+                });
+
+                // Add cancel button functionality
+                content.querySelector('.cancel-transfer-btn').addEventListener('click', () => {
+                    overlay.remove();
+                });
+            }
+        } catch (error) {
+            console.error('Error showing transfer options:', error);
+            content.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+        }
+    }
+
+    // Helper function to get max players allowed for a position
+    function getMaxSquadPlayersForPosition(positionName) {
+        const position = positions.find(p => p.name === positionName);
+        return position ? position.maxInSquad : 1;
+    }
+
+    // Function to confirm transfers and handle API calls
+    async function confirmTransfer(playerOut, playerIn, isSwap) {
+        if (isSwap) {
+            try {
+                // Prepare swap request payload
+                const payload = {
+                    fromUserSquadId: squadId,
+                    toUserSquadId: playerIn.squadId,
+                    playerInId: playerIn.id,
+                    playerOutId: playerOut.id
+                };
+
+                // Display loading/progress indicator
+                const progressIndicator = document.createElement('div');
+                progressIndicator.className = 'transfer-progress';
+                progressIndicator.innerHTML = '<div class="spinner"></div><p>Sending swap proposal...</p>';
+                document.body.appendChild(progressIndicator);
+
+                // Send the swap request
+                const response = await fetch(`${config.backendUrl}/Transfers/propose-swap`, addAuthHeader({
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                }));
+
+                // Remove the progress indicator
+                progressIndicator.remove();
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || 'Failed to propose swap');
+                }
+
+                // Display success message
+                alert('Swap proposal sent successfully!');
+
+                // Refresh pending transfers to show the new proposal
+                await fetchAndDisplayPendingTransfers();
+
+            } catch (error) {
+                console.error('Error proposing swap:', error);
+                alert(`Error proposing swap: ${error.message}`);
+            }
+        } else {
+            // For direct adds, we use the existing addPlayerToSquad function
+            // This is handled in the showTransferOptions function
+        }
+    }
+
+    // Add event listener for transfer buttons in all players view
+    document.addEventListener('click', function (event) {
+        if (event.target.classList.contains('transfer-player-button')) {
+            const playerId = event.target.getAttribute('data-player-id');
+            const position = event.target.getAttribute('data-position');
+            const playerDiv = event.target.closest('.player-grid');
+            const isInOtherSquad = playerDiv.classList.contains('player-in-other-squad');
+
+            showTransferOptions(playerId, position, isInOtherSquad);
+        }
+    });
+
+    function setupViewToggleButton() {
+        const viewToggleButton = document.getElementById('viewToggleButton');
+        if (!viewToggleButton) {
+            console.error('viewToggleButton not found in HTML');
+            return;
+        }
+
+        viewToggleButton.title = 'Toggle between squad view and all players view';
+        viewToggleButton.addEventListener('click', function () {
+            viewMode = viewMode === 'squad' ? 'all' : 'squad';
+
+            // Update button icon based on current view
+            const icon = this.querySelector('i');
+            // When in squad view, show the outward arrow (to go to all players)
+            // When in all players view, show the inward arrow (to go back to squad)
+            icon.className = viewMode === 'squad' ?
+                'fa-solid fa-arrow-right-to-bracket' :
+                'fa-solid fa-arrow-right-from-bracket';
+
+            // If switching to 'all' view, fetch all players if not already loaded
+            if (viewMode === 'all' && allPlayers.length === 0) {
+                fetchAllPlayers();
+            } else {
+                displayAllPlayersView();
+            }
+        });
+    }
+    
     // Later in the code, add the event listener for the toggle button
     document.getElementById('transfersToggle').addEventListener('click', function () {
         const teamLayout = document.querySelector('.team-layout');
@@ -272,7 +694,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
 
         // Add buttons to the player element
-        playerOutEl.appendChild(buttonsEl);
+        item.appendChild(buttonsEl);
 
         return item;
     }
@@ -919,6 +1341,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
 
     async function initializePage() {
+        // Existing code remains the same
+
         if (!leagueId) {
             console.log('No leagueId found, waiting for league fetch');
             await fetchLeagues(leagueDropdown);
@@ -937,6 +1361,9 @@ document.addEventListener('DOMContentLoaded', async function () {
         await fetchAndDisplayPendingTransfers();
         await checkForActiveDraft();
 
+        // Add the view toggle button
+        setupViewToggleButton();
+
         leagueDropdown.addEventListener('change', async function () {
             leagueId = this.value;
             localStorage.setItem('leagueId', leagueId);
@@ -944,6 +1371,15 @@ document.addEventListener('DOMContentLoaded', async function () {
             await updateSquadId();
             fetchAndDisplayPendingTransfers();
             await checkForActiveDraft();
+
+            // Reset view to squad when league changes
+            viewMode = 'squad';
+            displayAllPlayersView();
+            document.getElementById('viewToggleButton').querySelector('i').className = 'fa-solid fa-arrow-right-from-bracket';
+
+            // Clear cached data
+            allPlayers = [];
+            otherUsersSquadPlayers = [];
         });
 
         draftPeriodDropdown.addEventListener('change', async function () {
@@ -955,6 +1391,15 @@ document.addEventListener('DOMContentLoaded', async function () {
             // Add this line to check for active draft when draft period changes
             await fetchAndDisplayPendingTransfers();
             await checkForActiveDraft();
+
+            // Reset view to squad when draft period changes
+            viewMode = 'squad';
+            displayAllPlayersView();
+            document.getElementById('viewToggleButton').querySelector('i').className = 'fa-solid fa-arrow-right-from-bracket';
+
+            // Clear cached data
+            allPlayers = [];
+            otherUsersSquadPlayers = [];
         });
     }
 
