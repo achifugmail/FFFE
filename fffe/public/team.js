@@ -811,7 +811,7 @@ ${getPlayerFormIndicator(player)}
             }
             currentView = 'pitch';
             document.body.classList.add('pitch-view-active');
-            renderPitchView();
+            //renderPitchView();
         } else {
             // Switch to list view
             listView.classList.remove('hidden');
@@ -886,6 +886,10 @@ ${getPlayerFormIndicator(player)}
             noPlayersMsg.style.padding = '10px 20px';
             noPlayersMsg.style.borderRadius = '5px';
             pitchContainer.appendChild(noPlayersMsg);
+            setTimeout(() => {
+                noPlayersMsg.style.transition = 'opacity 1s';
+                noPlayersMsg.style.opacity = '1';
+            }, 2000);
             return;
         }
 
