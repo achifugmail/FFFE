@@ -1,5 +1,6 @@
 ﻿import config from './config.js';
 import { addAuthHeader } from './config.js';
+import { setupPlayerPhotoInteractions} from './common.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
     const currentUserId = localStorage.getItem('userId'); // Retrieve the current user ID from local storage
@@ -472,6 +473,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         return card;
     }
 
+    /*
     // Function for player photo interactions (zoom and player card)
     function setupPlayerPhotoInteractions() {
         // Get all player photos
@@ -820,6 +822,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             alert(`Error proposing swap: ${error.message}`);
         }
     }
+    */
 
     // Function to handle header click interactions
     function setupHeaderClickInteractions() {

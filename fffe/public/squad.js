@@ -1,4 +1,5 @@
-﻿import config from './config.js';
+﻿import { setupPlayerPhotoInteractions } from './common.js';
+import config from './config.js';
 import { addAuthHeader } from './config.js';
 import { fetchLeagues } from './common.js';
 import { fetchDraftPeriods } from './common.js';
@@ -20,6 +21,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     let draftPeriodDropdown = document.getElementById('draftPeriodDropdown');
     const leagueDropdown = document.getElementById('leagueDropdown');
     let leagueId = localStorage.getItem('leagueId');
+    const viewToggleButton = document.getElementById('viewToggleButton');
 
     let transfersLoaded = false;
 
@@ -61,8 +63,11 @@ document.addEventListener('DOMContentLoaded', async function () {
                 }
             });
 
-            displayAllPlayersView();
-
+            if (viewToggleButton) {
+                viewToggleButton.disabled = false;
+                viewToggleButton.style.opacity = 1;                
+                viewToggleButton.classList.remove('disabled-during-fetch');
+            }
         } catch (error) {
             console.error('Error fetching all players:', error);
         }
@@ -136,8 +141,13 @@ document.addEventListener('DOMContentLoaded', async function () {
                     }
                 }
             });
+
+            // Call setupPlayerPhotoInteractions to add click handlers to all player photos and names
+            // Import this function at the top of the file
+            setupPlayerPhotoInteractions();
         }
     }
+
 
     // Helper function to create player divs for the all players view
     function createPlayerDivForAllView(player, isInOtherSquad = false) {
@@ -439,9 +449,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             // If switching to 'all' view, fetch all players if not already loaded
             if (viewMode === 'all' && allPlayers.length === 0) {
                 fetchAllPlayers();
-            } else {
-                displayAllPlayersView();
             }
+            displayAllPlayersView();
         });
     }
     
@@ -1011,12 +1020,13 @@ document.addEventListener('DOMContentLoaded', async function () {
                     playerList.style.display = 'none'; // Hide available players when position is filled
                 }
             });
+
+            // Call setupPlayerPhotoInteractions to add click handlers to all player photos and names
+            setupPlayerPhotoInteractions();
         } catch (error) {
             console.error('Error fetching squad players:', error);
         }
     }
-
-
 
     // Helper function to calculate color based on score percentage
     function getScoreColor(percentage) {
@@ -1060,23 +1070,24 @@ document.addEventListener('DOMContentLoaded', async function () {
 
                 playerDiv.innerHTML = `
                 <button class="${isPlayerInSquad ? 'remove-player-button' : 'add-player-button'}" data-player-id="${player.id}" data-position="${position.name}">${isPlayerInSquad ? '-' : '+'}</button>
-            <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
-            <span class="player-name">${player.webName}</span>
-            ${getPlayerStatusIcon(player)}
-            ${getPlayerFormIndicator(player)}
-        `;
+                <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
+                <span class="player-name">${player.webName}</span>
+                ${getPlayerStatusIcon(player)}
+                ${getPlayerFormIndicator(player)}
+            `;
                 playerList.appendChild(playerDiv);
             });
             playerList.style.display = 'block';
             addButton.style.display = 'none'; // Hide the Add button
 
-            
+            // Call setupPlayerPhotoInteractions to add click handlers to all player photos and names
+            setupPlayerPhotoInteractions();
+
             section.scrollIntoView({ behavior: 'smooth', block: 'start' });
         } catch (error) {
             console.error('Error fetching available players:', error);
         }
     }
-
 
     async function addPlayerToSquad(playerId, squadId, position) {
         const now = new Date();
@@ -1350,6 +1361,12 @@ document.addEventListener('DOMContentLoaded', async function () {
         else {
             fetchLeagues(leagueDropdown);
         }
+        
+        if (viewToggleButton) {
+            viewToggleButton.disabled = true;
+            viewToggleButton.style.opacity = 0.5;
+            viewToggleButton.classList.add('disabled-during-fetch');
+        }
 
         await fetchDraftPeriods(draftPeriodDropdown);
         const selectedOption = draftPeriodDropdown.options[draftPeriodDropdown.selectedIndex];
@@ -1363,6 +1380,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         // Add the view toggle button
         setupViewToggleButton();
+        fetchAllPlayers();
 
         leagueDropdown.addEventListener('change', async function () {
             leagueId = this.value;

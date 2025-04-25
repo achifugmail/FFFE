@@ -1,5 +1,6 @@
 ﻿:root {
     --primary-color: #208579;
+    --navigation-color: #13476e;
 }
 
 .player-grid /* styles.css */
@@ -637,12 +638,6 @@ li {
     transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-.view-toggle-round-btn, .fixtures-toggle {
-    position: fixed;
-    z-index: 1000;
-}
-
-
 .dropdown-container {
     display: flex;
     gap: 10px;
@@ -1029,14 +1024,14 @@ th {
         position: absolute;
         top: -12px;
         left: 10px;
-        background: var(--primary-color);
+        background: var(--navigation-color);
         color: white;
         padding: 2px 10px;
         border-radius: 4px;
         font-size: 14px;
         font-weight: bold;
         box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-        z-index: 1010;
+        z-index: 999;
     }
 
 @media (min-width: 800px) {
@@ -1045,15 +1040,21 @@ th {
     }
 }
 
-@media (min-width: 1100px) {
+@media (min-width: 1120px) {
     .position-section {
-        width: calc(1080px); /* 3 * 350px + 30px for margins/padding */
+        width: calc(1100px); /* 3 * 350px + 30px for margins/padding */
     }
 }
 
 @media (min-width: 1600px) {
     .position-section {
-        width: calc(1440px); /* 4 * 350px + 40px for margins/padding */
+        width: calc(1460px); /* 4 * 350px + 40px for margins/padding */
+    }
+}
+
+@media (min-width: 2000px) {
+    .position-section {
+        width: calc(1850px); /* 4 * 350px + 40px for margins/padding */
     }
 }
 
@@ -1126,6 +1127,7 @@ th {
     position: relative;
     width: 335px;
     overflow: hidden;
+    border-left: 4px solid #fff;
 }
 
 /* Style for player status icons */
@@ -1345,9 +1347,6 @@ th {
     align-items: center;
     gap: 10px;
 }
-
-
-
 
 /* When fixtures drawer is open */
 .fixtures-open #playerGrid {
@@ -1882,31 +1881,8 @@ th {
     width: 100%;
 }
 
-/* Cards toggle button */
-.cards-toggle {
-    position: fixed;
-    right: 10px;
-    bottom: 20px;
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 101;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-    .cards-toggle i {
-        font-size: 18px;
-    }
-
 /* Transfers toggle button */
-.transfers-toggle, .view-toggle-button {
+.transfers-toggle, .view-toggle-button, .fixtures-toggle, .view-toggle-round-btn, .cards-toggle {
     position: fixed;
     background-color: var(--primary-color);
     color: white;
@@ -1922,15 +1898,63 @@ th {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-    .transfers-toggle i {
+    .transfers-toggle, .fixtures-toggle, .view-toggle-round-btn, .view-toggle-button, .cards-toggle i {
         font-size: 18px;
     }
 
-.transfers-toggle{
+/*    
+.view-toggle-round-btn {
+    position: fixed;
+    right: 20px;
+    bottom: 20px; 
+//background-color: var(--primary-color);
+border: none;
+border-radius: 50%;
+width: 40px;
+height: 40px;
+display: flex;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+z-index: 2001;
+background-color: rgba(255, 255, 255, 0.95); 
+color: var(--primary-color);
+box-shadow: 0px -2px 6px rgba(0,0,0,0.1);
+
+opacity: 0.5;
+}
+.view-toggle-round-btn i {
+    font-size: 18px;
+}
+
+.fixtures-toggle {
+    position: fixed;
+    right: 20px;
+    bottom: 70px;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2001; 
+    background-color: rgba(255, 255, 255, 0.95); 
+    color: var(--primary-color);
+    box-shadow: 0px -2px 6px rgba(0,0,0,0.1);
+    opacity: 0.5; 
+}
+
+    .fixtures-toggle i {
+        font-size: 18px;
+    }
+*/
+.transfers-toggle, .view-toggle-round-btn, .cards-toggle {
     right: 10px;
     bottom: 20px;
 }
-.view-toggle-button {    
+.view-toggle-button, .fixtures-toggle {
     right: 10px;
     bottom: 80px;
 }
@@ -3222,7 +3246,7 @@ body.pitch-view-active {
     color: black;
     box-shadow: 0px -2px 6px rgba(0,0,0,0.2);
     cursor: pointer;
-    z-index: 4000;
+    z-index: 999;
     padding: 0 10px; 
     opacity: 0.8;
     transition: opacity 0.1s ease;
@@ -3277,37 +3301,8 @@ body.pitch-view-active {
 
 
 #gameweekCaption {
-    font-size: 14px;
-    
-    
+    font-size: 14px;      
 }
-
-.view-toggle-round-btn {
-    position: fixed;
-    right: 20px;
-    bottom: 20px; /* Position above fixtures toggle */
-    //background-color: var(--primary-color);
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 2001;
-    background-color: rgba(255, 255, 255, 0.95); /* translucent white */
-    color: var(--primary-color);
-    box-shadow: 0px -2px 6px rgba(0,0,0,0.1);
-    
-    opacity: 0.5;
-}
-
-
-
-    .view-toggle-round-btn i {
-        font-size: 18px;
-    }
 
 /* Hide old toggle container */
 .view-toggle-container {
@@ -3341,31 +3336,6 @@ body.pitch-view-active {
 
     .view-toggle-button1:active {
         transform: scale(0.95);
-    }
-
-
-
-.fixtures-toggle {
-    position: fixed;
-    right: 20px;
-    bottom: 70px;
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 2001; /* Increased z-index to ensure button stays above other elements */
-    background-color: rgba(255, 255, 255, 0.95); /* translucent white */
-    color: var(--primary-color);
-    box-shadow: 0px -2px 6px rgba(0,0,0,0.1);
-    opacity: 0.5; /* Set transparency to 50% */
-}
-
-    .fixtures-toggle i {
-        font-size: 18px;
     }
 
 /* Styles for the All Players View */
@@ -3409,11 +3379,6 @@ body.pitch-view-active {
     background-color: #f7f7ff;
 }
 
-.player-in-other-squad {
-    position: relative;
-    border-left: 4px solid #ff2882;
-}
-
 .player-squad-info {
     position: absolute;
     left: 160px;
@@ -3421,10 +3386,10 @@ body.pitch-view-active {
     transform: translateY(-50%);
     font-size: 12px;
     background-color: white;
-    border-color: #13476e;
+    border-color: var(--navigation-color);
     border-style: solid;
     border-width: 1px;
-    color: #13476e;
+    color: var(--navigation-color);
     padding: 2px 6px;
     border-radius: 10px;
 }
@@ -3444,11 +3409,12 @@ body.pitch-view-active {
 }
 
 .player-in-other-squad {
-    border-left: 4px solid #ff2882;
+    position: relative;
+    border-left: 4px solid #ff2882;    
 }
 
 nav {
-    background-color: #13476e;
+    background-color: var(--navigation-color);
     overflow: hidden;
 }
 
@@ -3471,7 +3437,7 @@ nav {
                 align-items: center;
                 color: white;
                 text-align: center;
-                padding: 20px 10px 8px 15px;
+                padding: 20px 5px 8px 5px;
                 text-decoration: none;
                 min-width: 24px;
                 height: 28px;
