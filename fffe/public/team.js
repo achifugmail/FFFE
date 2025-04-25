@@ -10,13 +10,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     let leagueId = localStorage.getItem('leagueId');
     
     const squadPlayersCache = new Map();
-
-    const token = localStorage.getItem('token');
-    if (!token) {
-        console.error('No authentication token found');
-        window.location.href = '/'; // Redirect to login page
-        throw new Error('Authentication required'); // Stop execution
-    }        
+       
     let draftPeriodId;
     let draftPeriodDropdown = document.getElementById('filterDraftPeriodDropdown');    
     let squadId;  // Remove the URL parameter assignment
@@ -29,6 +23,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     const gameweekCaption = document.getElementById('gameweekCaption');
     const gameweekLeftArrow = document.getElementById('gameweekLeftArrow');
     const gameweekRightArrow = document.getElementById('gameweekRightArrow');
+    const fixturesToggle = document.getElementById('fixturesToggle');
+    const teamLayout = document.querySelector('.team-layout');
 
     // Function to update the gameweek caption and dropdown value
     async function updateGameweek(newIndex) {
@@ -40,20 +36,6 @@ document.addEventListener('DOMContentLoaded', async function () {
             await fetchAndDisplaySquadPlayers(squadId); // Fetch squad players for the new gameweek
         }
     }
-
-    // Event listener for the up arrow (previous gameweek)
-    gameweekLeftArrow.addEventListener('click', (e) => {
-        e.stopPropagation(); // Prevent triggering the button click
-        const currentIndex = gameweekDropdown.selectedIndex;
-        updateGameweek(currentIndex - 1); // Move to the previous gameweek
-    });
-
-    // Event listener for the right arrow (next gameweek)
-    gameweekRightArrow.addEventListener('click', (e) => {
-        e.stopPropagation(); // Prevent triggering the button click
-        const currentIndex = gameweekDropdown.selectedIndex;
-        updateGameweek(currentIndex + 1); // Move to the next gameweek
-    });
 
     async function fetchAndPopulateGameweeks(draftPeriodId) {
         let gameweeks = [];
@@ -555,18 +537,6 @@ ${getPlayerFormIndicator(player)}
         }
     }
 
-    // Update player selection highlighting
-    function updatePlayerSelection() {
-        const checkboxes = document.querySelectorAll('.player-checkbox');
-        checkboxes.forEach(checkbox => {
-            const playerDiv = checkbox.closest('.player-grid');
-            if (checkbox.checked) {
-                playerDiv.classList.add('selected');
-            } else {
-                playerDiv.classList.remove('selected');
-            }
-        });
-    }
 
     // Function to visually mark a player as captain without making API calls
     function markCaptainVisually(playerId) {
@@ -1034,6 +1004,33 @@ ${getPlayerFormIndicator(player)}
         });
     }
 
+    // Event listener for the up arrow (previous gameweek)
+    gameweekLeftArrow.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent triggering the button click
+        const currentIndex = gameweekDropdown.selectedIndex;
+        updateGameweek(currentIndex - 1); // Move to the previous gameweek
+    });
+
+    // Event listener for the right arrow (next gameweek)
+    gameweekRightArrow.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent triggering the button click
+        const currentIndex = gameweekDropdown.selectedIndex;
+        updateGameweek(currentIndex + 1); // Move to the next gameweek
+    });
+
+
+    fixturesToggle.addEventListener('click', function () {
+        teamLayout.classList.toggle('fixtures-open');
+
+        // Change the icon based on state
+        const icon = this.querySelector('i');
+        if (teamLayout.classList.contains('fixtures-open')) {
+            icon.className = 'fas fa-times'; // X icon when open
+        } else {
+            icon.className = 'fas fa-calendar-alt'; // Calendar icon when closed
+        }
+    });
+
     async function initializePage() {
         if (!leagueId) {
             console.log('No leagueId found, waiting for league fetch');
@@ -1079,21 +1076,6 @@ ${getPlayerFormIndicator(player)}
         //checkScreenWidth();
     }
     await initializePage();
-
-    const fixturesToggle = document.getElementById('fixturesToggle');
-    const teamLayout = document.querySelector('.team-layout');
-
-    fixturesToggle.addEventListener('click', function () {
-        teamLayout.classList.toggle('fixtures-open');
-
-        // Change the icon based on state
-        const icon = this.querySelector('i');
-        if (teamLayout.classList.contains('fixtures-open')) {
-            icon.className = 'fas fa-times'; // X icon when open
-        } else {
-            icon.className = 'fas fa-calendar-alt'; // Calendar icon when closed
-        }
-    });
 
     // Check screen width on page load to determine initial state
     function checkScreenWidth() {

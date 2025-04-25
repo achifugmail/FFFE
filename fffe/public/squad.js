@@ -155,7 +155,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-    // Helper function to create player divs for the all players view
     function createPlayerDivForAllView(player, isInOtherSquad = false) {
         const playerDiv = document.createElement('div');
         playerDiv.className = `player-grid ${isInOtherSquad ? 'player-in-other-squad' : ''}`;
@@ -421,18 +420,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-    // Add event listener for transfer buttons in all players view
-    document.addEventListener('click', function (event) {
-        if (event.target.classList.contains('transfer-player-button')) {
-            const playerId = event.target.getAttribute('data-player-id');
-            const position = event.target.getAttribute('data-position');
-            const playerDiv = event.target.closest('.player-grid');
-            const isInOtherSquad = playerDiv.classList.contains('player-in-other-squad');
-
-            showTransferOptions(playerId, position, isInOtherSquad);
-        }
-    });
-
     function setupViewToggleButton() {
         const viewToggleButton = document.getElementById('viewToggleButton');
         if (!viewToggleButton) {
@@ -515,7 +502,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-    // Function to update the UI based on draft status
     function updateUIForDraft(league) {
         const draftMessageContainer = document.getElementById('draftMessageContainer') || createDraftMessageContainer();
 
@@ -569,7 +555,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     async function fetchAndDisplayPendingTransfers() {
-
         try {
             // First fetch the pending transfers data
             // Fetch transfers to me
@@ -640,8 +625,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-
-    // Function to create a transfer item
     function createTransferItem(transfer, isToMe) {
         const item = document.createElement('div');
         item.className = `pending-transfer-item ${isToMe ? 'pending-transfer-to-me' : 'pending-transfer-from-me'}`;
@@ -714,7 +697,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         return item;
     }
 
-    // Function to handle accept/reject/cancel actions
     async function handleTransferAction(transferId, action) {
         try {
             const response = await fetch(`${config.backendUrl}/Transfers/${transferId}/${action}`, addAuthHeader({
@@ -769,11 +751,9 @@ document.addEventListener('DOMContentLoaded', async function () {
                 playerGrid.parentNode.insertBefore(container, playerGrid);
             }
         }
-
         return container;
     }
 
-    // Function to disable all buttons in the page
     function disableAllButtons() {
         const buttons = document.querySelectorAll('button:not(.confirm-draft-btn)');
         buttons.forEach(button => {
@@ -782,7 +762,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     }
 
-    // Function to enable all buttons in the page
     function enableAllButtons() {
         const buttons = document.querySelectorAll('button.disabled-during-draft');
         buttons.forEach(button => {
@@ -891,30 +870,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-    async function fetchSquadDetails() {
-        try {
-            const response = await fetch(`${config.backendUrl}/UserSquads/${squadId}`, addAuthHeader());
-
-            if (!response.ok) {
-                console.error('Failed to fetch squad details:', response.status, response.statusText);
-                return;
-            }
-            const squad = await response.json();
-            draftPeriodId = squad.draftPeriodId;
-            
-            if (currentUserId !== squad.userId.toString()) {
-                document.body.classList.add('hide-buttons');
-            }
-
-            // Update draft period dropdown if it exists
-            const draftPeriodDropdown = document.getElementById('draftPeriodDropdown');
-            if (draftPeriodDropdown) {
-                draftPeriodDropdown.value = draftPeriodId;
-            }
-        } catch (error) {
-            console.error('Error fetching squad details:', error);
-        }
-    }
     function getPlayerFormIndicator(player) {
         if (!player.form && player.form !== 0) return '';
 
@@ -1043,16 +998,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         const hue = Math.min(percentage * 1.2, 120);
         return `hsl(${hue}, 80%, 45%)`;
     }
-
-    document.addEventListener('click', async function (event) {
-        if (event.target.classList.contains('add-button')) {
-            const position = event.target.getAttribute('data-position');
-            await fetchAndDisplayAvailablePlayers(position, leagueId, draftPeriodId);
-
-            // Scroll the section to the top of the page
-            
-        }
-    });
 
     async function fetchAndDisplayAvailablePlayers(position, leagueId, draftPeriodId) {
         try {
@@ -1355,6 +1300,25 @@ document.addEventListener('DOMContentLoaded', async function () {
                 return;
             }            
         } 
+    });
+
+    document.addEventListener('click', async function (event) {
+        if (event.target.classList.contains('add-button')) {
+            const position = event.target.getAttribute('data-position');
+            await fetchAndDisplayAvailablePlayers(position, leagueId, draftPeriodId);
+        }
+    });
+
+    // Add event listener for transfer buttons in all players view
+    document.addEventListener('click', function (event) {
+        if (event.target.classList.contains('transfer-player-button')) {
+            const playerId = event.target.getAttribute('data-player-id');
+            const position = event.target.getAttribute('data-position');
+            const playerDiv = event.target.closest('.player-grid');
+            const isInOtherSquad = playerDiv.classList.contains('player-in-other-squad');
+
+            showTransferOptions(playerId, position, isInOtherSquad);
+        }
     });
 
     async function initializePage() {

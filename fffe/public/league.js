@@ -8,6 +8,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     let previousPlayerScores = {};
     let previousTeamStats = {};
     let cardsExpanded = true;
+    let maxMinutes = 0;
+    let maxPointsPerMinuteByPosition = {};
     const startColor = { r: 255, g: 255, b: 255 }; // #cfcfcf
     const endColor = { r: 32, g: 128, b: 128 }; // #008000
 
@@ -239,8 +241,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         return squads;
     }
 
-
-    // Function to process player stats and create user team cards
     function createUserTeamCards(players, rankings, expandedStates = {}) {
         const userTeamCardsContainer = document.getElementById('userTeamCardsContainer');
         if (!userTeamCardsContainer) return;
@@ -343,7 +343,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         setupHeaderClickInteractions();
     }
 
-    // Update the createTeamCard function
     function createTeamCard(team) {
         const card = document.createElement('div');
         card.className = 'user-team-card';
@@ -464,7 +463,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         return card;
     }    
 
-    // Function to handle header click interactions
     function setupHeaderClickInteractions() {
         // Get all team card headers
         const cardHeaders = document.querySelectorAll('.user-team-card-header2');
@@ -491,7 +489,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     }
 
-    // Setup the toggle button functionality
     function setupCardsToggle() {
         const cardsToggle = document.getElementById('cardsToggle');
         if (!cardsToggle) return;
@@ -525,9 +522,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     }
     
-    let maxMinutes = 0;
-    let maxPointsPerMinuteByPosition = {};
-
     function calculateGlobalMaxValues(players) {
         maxPointsPerMinuteByPosition = {};
 

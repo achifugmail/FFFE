@@ -1,6 +1,8 @@
 import { setupPlayerPhotoInteractions } from './common.js';
 import config from './config.js';
 import { addAuthHeader } from './config.js';
+import { fetchLeagues } from './common.js';
+import { fetchDraftPeriods } from './common.js';
 
 let previousPlayerScores = {};
 let refreshInterval;
@@ -8,102 +10,13 @@ const REFRESH_INTERVAL = 25000; // 60 seconds
 
 document.addEventListener('DOMContentLoaded', async function () {
     // Fetch leagues for dropdown
-    const currentUserId = localStorage.getItem('userId');
     let leagueId = localStorage.getItem('leagueId');
+    const cardsToggle = document.getElementById('cardsToggle');
+    let cardsExpanded = true; // Start with cards expanded
+    const leagueDropdown = document.getElementById('leagueDropdown');
 
-    if (!leagueId) {
-        console.log('No leagueId found, waiting for league fetch');
-        await fetchLeagues();
-    } else {
-        // If leagueId exists, call fetchLeagues but don't wait
-        console.log('Using existing leagueId:', leagueId);
-        fetchLeagues(); // Asynchronous call, don't await // changed to wait
-    }
-    
-    // Fetch draft periods for dropdown
-    let draftPeriods = [];
-    try {
-        const respDrafts = await fetch(`${config.backendUrl}/DraftPeriods`, addAuthHeader());
-        if (respDrafts.status === 401) {
-            console.error('Authentication error: Unauthorized access (401)');
-            // Redirect to the root site
-            window.location.href = '/';
-            return;
-        }
-        if (!respDrafts.ok) {
-            console.error('Failed to fetch draft periods:', respDrafts.status, respDrafts.statusText);
-        } else {
-            draftPeriods = await respDrafts.json();
-        }
-    } catch (error) {
-        console.error('Error fetching draft periods:', error);
-    }
-
-    // Populate draft period dropdown
     const draftPeriodDropdown = document.getElementById('draftPeriodDropdown');
-    draftPeriods.sort((a, b) => a.name.localeCompare(b.name)).forEach(draft => {
-        const option = document.createElement('option');
-        option.value = draft.id;
-        option.text = draft.name || `Draft ${draft.id}`;
-        draftPeriodDropdown.appendChild(option);
-    });
-
-    // Set default value to the last draft period alphabetically
-    if (draftPeriods.length > 0) {
-        draftPeriodDropdown.value = draftPeriods[draftPeriods.length - 1].id;
-    }
-
-    async function fetchLeagues() {
-        try {
-            const response = await fetch(`${config.backendUrl}/Leagues/byUser`, addAuthHeader());
-            if (response.status === 401) {
-                console.error('Authentication error: Unauthorized access (401)');
-                // Redirect to the root site
-                window.location.href = '/';
-                return;
-            }
-            if (response.status === 404) {
-                // Redirect to LeagueAdmin.html if no leagues are found
-                window.location.href = 'LeagueAdmin.html';
-                return;
-            }
-            if (!response.ok) {
-                console.error('Failed to fetch leagues:', response.status, response.statusText);
-                return;
-            }
-            const leagues = await response.json();
-
-            const leagueDropdown = document.getElementById('leagueDropdown');
-            leagueDropdown.innerHTML = '';
-            leagues.forEach(league => {
-                const option = document.createElement('option');
-                option.value = league.id;
-                option.text = league.name;
-                leagueDropdown.appendChild(option);
-            });
-
-            if (leagues.length > 0) {
-                leagueDropdown.value = leagues[0].id;
-                if (!leagueId) {
-                    leagueId = leagues[0].id;
-                    localStorage.setItem('leagueId', leagueId);
-                    console.log(`LeagueId not found in localStorage. Using first league from API: ${leagueId}`);
-                } else {
-                    // If leagueId exists, set the dropdown to that value
-                    leagueDropdown.value = leagueId;
-                }
-            }
-
-            leagueDropdown.addEventListener('change', async function () {
-                leagueId = this.value;                
-                localStorage.setItem('leagueId', leagueId);
-                fetchAndCreateUserTeamCards();
-            });
-        } catch (error) {
-            console.error('Error fetching leagues:', error);
-        }
-    }
-
+    
     // Fetch and populate gameweeks based on selected draft period
     const gameweekDropdown = document.getElementById('gameweekDropdown');
     async function fetchAndPopulateGameweeks(draftPeriodId) {
@@ -143,20 +56,6 @@ document.addEventListener('DOMContentLoaded', async function () {
             gameweekDropdown.value = pastGameweeks[pastGameweeks.length - 1].id;
         }
     }
-
-    // Initial population of gameweeks
-    await fetchAndPopulateGameweeks(draftPeriodDropdown.value);
-
-    // Update gameweeks when draft period changes
-    draftPeriodDropdown.addEventListener('change', async function () {
-        await fetchAndPopulateGameweeks(this.value);
-        //fetchAndDisplaySquads();
-    });
-
-    //gameweekDropdown.addEventListener('change', fetchAndDisplaySquads);
-
-    
-    // Update league details and squads when league changes
 
     async function refreshUserTeamCards() {
         // Store the expanded state of each card
@@ -314,7 +213,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     setupPlayerPhotoInteractions();
     setupHeaderClickInteractions();
 }
-
     function setupHeaderClickInteractions() {
         console.log('Setting up header click interactions...');
 
@@ -476,117 +374,63 @@ document.addEventListener('DOMContentLoaded', async function () {
         return card;
     }
 
-    // Setup swipe functionality for mobile devices
-    // Setup swipe functionality for mobile devices
-    function setupSwipeInteraction() {
-        const container = document.getElementById('userTeamCardsContainer');
-        if (!container) return; // Guard clause in case container doesn't exist
-
-        let startX, endX;
-        let isScrolling = false;
-        let reachedEnd = false;
-        let reachedStart = false;
-
-        container.addEventListener('touchstart', (e) => {
-            startX = e.touches[0].clientX;
-            isScrolling = false;
-
-            // Check if scrolled to the right end
-            reachedEnd = container.scrollLeft + container.clientWidth >= container.scrollWidth - 10;
-
-            // Check if scrolled to the left end
-            reachedStart = container.scrollLeft <= 10;
-        });
-
-        container.addEventListener('touchmove', (e) => {
-            if (!startX) return;
-
-            const currentX = e.touches[0].clientX;
-            const diffX = startX - currentX;
-
-            // If scrolling horizontally, prevent expanding/collapsing cards
-            if (Math.abs(diffX) > 5) {
-                isScrolling = true;
-            }
-
-            // If reached the right end and trying to scroll more right, expand cards
-            if (reachedEnd && diffX > 0 && !isScrolling) {
-                e.preventDefault();
-                document.querySelectorAll('.user-team-card').forEach(card => {
-                    card.classList.add('expanded');
-                });
-            }
-
-            // If reached the left end and trying to scroll more left, collapse cards
-            if (reachedStart && diffX < 0 && !isScrolling) {
-                e.preventDefault();
-                document.querySelectorAll('.user-team-card').forEach(card => {
-                    card.classList.remove('expanded');
-                });
-            }
-        });
-
-        container.addEventListener('touchend', () => {
-            startX = null;
-        });
-
-        // Add click handler to toggle expansion on desktop
-        container.addEventListener('click', (e) => {
-            const card = e.target.closest('.user-team-card');
-            if (card) {
-                // Toggle only the clicked card instead of all cards
-                card.classList.toggle('expanded');
-            }
-        });
-    }
-
-
-
-    // Fetch and display rankings on page load
-    //fetchAndDisplayRankings();
-    //fetchAndDisplayRankings().then(() => {
-        fetchAndCreateUserTeamCards();
-    //});
-
-    // Update rankings when gameweek changes
-    //gameweekDropdown.addEventListener('change', fetchAndDisplayRankings);
-    gameweekDropdown.addEventListener('change', fetchAndCreateUserTeamCards);
-
-    window.addEventListener('beforeunload', () => {
-        if (refreshInterval) {
-            clearInterval(refreshInterval);
-        }
-    });
-
-    const cardsToggle = document.getElementById('cardsToggle');
-    let cardsExpanded = true; // Start with cards expanded
-
-    // Set the initial button icon
-    if (cardsToggle.querySelector('i')) {
-        cardsToggle.querySelector('i').className = 'fas fa-compress';
-    }
-
-    cardsToggle.addEventListener('mouseenter', function () {
-        this.style.opacity = '1';
-    });
-
-    cardsToggle.addEventListener('mouseleave', function () {
-        this.style.opacity = '0.5';
-    });
-
-    cardsToggle.addEventListener('click', function () {
-        const cards = document.querySelectorAll('.user-team-card');
-        cardsExpanded = !cardsExpanded;
-
-        // Update icon based on state
-        const icon = this.querySelector('i');
-        if (cardsExpanded) {
-            icon.className = 'fas fa-compress'; // Compress icon when expanded
-            cards.forEach(card => card.classList.add('expanded'));
+    async function initializePage() {
+        if (!leagueId) {
+            console.log('No leagueId found, waiting for league fetch');
+            await fetchLeagues(leagueDropdown);
+            leagueId = localStorage.getItem('leagueId');
         } else {
-            icon.className = 'fas fa-expand'; // Expand icon when collapsed
-            cards.forEach(card => card.classList.remove('expanded'));
+            // If leagueId exists, call fetchLeagues but don't wait
+            console.log('Using existing leagueId:', leagueId);
+            fetchLeagues(leagueDropdown); // Asynchronous call, don't await
         }
-    });
-});
+        
+        await fetchDraftPeriods(draftPeriodDropdown);
+        await fetchAndPopulateGameweeks(draftPeriodDropdown.value);
 
+        fetchAndCreateUserTeamCards();
+
+        // Update gameweeks when draft period changes
+        draftPeriodDropdown.addEventListener('change', async function () {
+            await fetchAndPopulateGameweeks(this.value);
+            //fetchAndDisplaySquads();
+        });
+
+        if (cardsToggle.querySelector('i')) {
+            cardsToggle.querySelector('i').className = 'fas fa-compress';
+        }
+
+        cardsToggle.addEventListener('mouseenter', function () {
+            this.style.opacity = '1';
+        });
+
+        cardsToggle.addEventListener('mouseleave', function () {
+            this.style.opacity = '0.5';
+        });
+
+        gameweekDropdown.addEventListener('change', fetchAndCreateUserTeamCards);
+
+        window.addEventListener('beforeunload', () => {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+        });
+
+        cardsToggle.addEventListener('click', function () {
+            const cards = document.querySelectorAll('.user-team-card');
+            cardsExpanded = !cardsExpanded;
+
+            // Update icon based on state
+            const icon = this.querySelector('i');
+            if (cardsExpanded) {
+                icon.className = 'fas fa-compress'; // Compress icon when expanded
+                cards.forEach(card => card.classList.add('expanded'));
+            } else {
+                icon.className = 'fas fa-expand'; // Expand icon when collapsed
+                cards.forEach(card => card.classList.remove('expanded'));
+            }
+        });
+    }
+
+    initializePage();
+});
