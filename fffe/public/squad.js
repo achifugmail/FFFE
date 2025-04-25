@@ -120,7 +120,15 @@ document.addEventListener('DOMContentLoaded', async function () {
                 playersContainer.innerHTML = '';
 
                 // Filter players by position
-                const positionPlayers = allPlayers.filter(player => player.positionName === position.name);
+                let positionPlayers = allPlayers.filter(player => player.positionName === position.name);
+
+                // Sort players by points in descending order
+                positionPlayers.sort((a, b) => {
+                    // Handle null or undefined points
+                    const pointsA = a.points || 0;
+                    const pointsB = b.points || 0;
+                    return pointsB - pointsA; // Descending order
+                });
 
                 // Add players to the section
                 positionPlayers.forEach(player => {
@@ -143,11 +151,9 @@ document.addEventListener('DOMContentLoaded', async function () {
             });
 
             // Call setupPlayerPhotoInteractions to add click handlers to all player photos and names
-            // Import this function at the top of the file
             setupPlayerPhotoInteractions();
         }
     }
-
 
     // Helper function to create player divs for the all players view
     function createPlayerDivForAllView(player, isInOtherSquad = false) {
