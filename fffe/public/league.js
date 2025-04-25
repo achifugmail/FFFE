@@ -1,18 +1,10 @@
 ﻿import config from './config.js';
 import { addAuthHeader } from './config.js';
-import { setupPlayerPhotoInteractions} from './common.js';
+import { setupPlayerPhotoInteractions } from './common.js';
+import { fetchLeagues } from './common.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
-    const currentUserId = localStorage.getItem('userId'); // Retrieve the current user ID from local storage
     let leagueId = localStorage.getItem('leagueId');
-    if (!leagueId) {
-        console.log('No leagueId found, waiting for league fetch');
-        await fetchLeagues();
-    }
-    else {
-        fetchLeagues();
-    }
-
     let previousPlayerScores = {};
     let previousTeamStats = {};
     let cardsExpanded = true;
@@ -131,8 +123,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             // Create label
             const text = document.createElement('span');
             text.className = 'legend-text';
-            text.textContent = label;
-            
+            text.textContent = label;            
 
             container.appendChild(iconsContainer);
             container.appendChild(arrow);
@@ -471,358 +462,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         card.appendChild(footer);
 
         return card;
-    }
-
-    /*
-    // Function for player photo interactions (zoom and player card)
-    function setupPlayerPhotoInteractions() {
-        // Get all player photos
-        const playerPhotos = document.querySelectorAll('.player-photo');
-
-        // Remove any existing event listeners to prevent duplication
-        playerPhotos.forEach(photo => {
-            const newPhoto = photo.cloneNode(true);
-            photo.parentNode.replaceChild(newPhoto, photo);
-        });
-
-        // Add click/tap event listeners to all player photos
-        document.querySelectorAll('.player-photo').forEach(photo => {
-            let isZoomed = false;
-            let outsideClickHandler = null;
-
-            photo.addEventListener('click', (e) => {
-                e.stopPropagation();
-
-                //changed to If isZoomed to remove the intermediate click that zooms the picture before displaying the player card. Change back to revert to the tap-tap behavior
-                if (isZoomed) {
-                    // First click: zoom the photo
-                    photo.style.transform = 'scale(1.4)';
-                    photo.style.zIndex = '100';
-                    isZoomed = true;
-
-                    // Add click outside listener to revert zoom
-                    outsideClickHandler = (event) => {
-                        if (event.target !== photo) {
-                            photo.style.transform = '';
-                            photo.style.zIndex = '';
-                            isZoomed = false;
-                            document.removeEventListener('click', outsideClickHandler);
-                            outsideClickHandler = null;
-                        }
-                    };
-
-                    // Delay adding the outside click handler
-                    setTimeout(() => {
-                        document.addEventListener('click', outsideClickHandler);
-                    }, 10);
-                } else {
-                    // Second click: show player card
-                    // First remove the outside click handler
-                    if (outsideClickHandler) {
-                        document.removeEventListener('click', outsideClickHandler);
-                        outsideClickHandler = null;
-                    }
-
-                    const playerRow = photo.closest('.player-row');
-
-                    // Get the full player data from the data attribute
-                    let player;
-                    try {
-                        player = JSON.parse(playerRow.getAttribute('data-player'));
-                        console.log('Player data:', player);
-                    } catch (error) {
-                        console.error('Error parsing player data:', error);
-                        return;
-                    }
-
-                    // Create overlay to darken the background
-                    const overlay = document.createElement('div');
-                    overlay.id = 'player-card-overlay';
-                    overlay.className = 'player-card-overlay';
-                    overlay.addEventListener('click', () => {
-                        overlay.remove();
-                        document.querySelector('.player-detail-card')?.remove();
-                    });
-
-                    // Create player card
-                    const playerCard = createPlayerCard(player);
-
-                    // Add the overlay and card to the document
-                    document.body.appendChild(overlay);
-                    document.body.appendChild(playerCard);
-
-                    // Position the card in the center of the screen
-                    playerCard.style.position = 'fixed';
-                    playerCard.style.top = '50%';
-                    playerCard.style.left = '50%';
-                    playerCard.style.transform = 'translate(-50%, -50%)';
-                    playerCard.style.zIndex = '1001';
-
-                    // Reset photo zoom
-                    photo.style.transform = '';
-                    photo.style.zIndex = '';
-                    isZoomed = false;
-                }
-            });
-
-            // Make it visually clear that photos are clickable
-            photo.style.cursor = 'pointer';
-        });
-    }
-
-    function createPlayerCard(player) {
-        // Create container for player card
-        const playerCardContainer = document.createElement('div');
-        playerCardContainer.className = 'player-detail-card';
-
-        // Create header section with photo, name, score and close button
-        const cardHeader = document.createElement('div');
-        cardHeader.className = 'player-card-header';
-
-        // Add player photo
-        const photo = document.createElement('img');
-        photo.className = 'player-card-photo';
-        if (player.photo) {
-            photo.src = `https://resources.premierleague.com/premierleague/photos/players/110x140/p${player.photo.slice(0, -3)}png`;
-        } else {
-            photo.src = 'https://resources.premierleague.com/premierleague/photos/players/110x140/p0.png';
-        }
-        photo.alt = player.webName || 'Player';
-
-        // Add player name, position, and score
-        const nameScoreContainer = document.createElement('div');
-        nameScoreContainer.className = 'player-card-name-score';
-
-        // Get current user ID from localStorage
-        const currentUserId = localStorage.getItem('userId');
-
-        // Add swap button if player is not in current user's squad
-        if (player.userId !== parseInt(currentUserId)) {
-            const swapButton = document.createElement('button');
-            swapButton.className = 'swap-player-btn';
-            swapButton.textContent = 'Propose Swap';
-            swapButton.addEventListener('click', () => initiateSwap(player, playerCardContainer));
-            nameScoreContainer.appendChild(swapButton);
-        }
-
-        const name = document.createElement('h3');
-        name.textContent = player.webName || 'Unknown';
-
-        // Add position
-        const positionItem = document.createElement('div');
-        positionItem.className = 'player-card-position';
-        positionItem.textContent = player.positionName || 'N/A';
-
-        const score = document.createElement('div');
-        score.className = 'player-card-score';
-        score.textContent = player.score || '0';
-
-        nameScoreContainer.appendChild(name);
-        nameScoreContainer.appendChild(positionItem);
-        nameScoreContainer.appendChild(score);
-
-        // Add close button
-        const closeButton = document.createElement('button');
-        closeButton.className = 'player-card-close';
-        closeButton.innerHTML = '&times;';
-        closeButton.addEventListener('click', (e) => {
-            e.stopPropagation();
-            playerCardContainer.remove();
-            document.getElementById('player-card-overlay').remove();
-        });
-
-        // Append elements to card header
-        cardHeader.appendChild(photo);
-        cardHeader.appendChild(nameScoreContainer);
-        cardHeader.appendChild(closeButton);
-
-        // Create stats container with grid layout for stats
-        const statsContainer = document.createElement('div');
-        statsContainer.className = 'player-card-stats';
-
-        // Add relevant player statistics
-        const statItems = [];
-
-        // Add goals scored
-        statItems.push({
-            iconType: 'fa',
-            iconClass: 'fa fa-futbol',
-            value: player.goalsScored || '0',
-            label: 'Goals'
-        });
-
-        // Add assists
-        statItems.push({
-            iconType: 'fa',
-            iconClass: 'fa fa-hands-helping',
-            value: player.assists || '0',
-            label: 'Assists'
-        });
-
-        // Add minutes played
-        statItems.push({
-            iconType: 'fa',
-            iconClass: 'fa fa-clock',
-            value: player.minutes || '0',
-            label: 'Minutes'
-        });
-
-        // Create each stat item
-        statItems.forEach(item => {
-            const statItem = document.createElement('div');
-            statItem.className = 'player-stat-item';
-
-            // Create icon
-            const iconElement = document.createElement('i');
-            iconElement.className = `${item.iconClass} stat-icon`;
-
-            statItem.appendChild(iconElement);
-            statItem.appendChild(document.createTextNode(` ${item.value} ${item.label}`));
-
-            statsContainer.appendChild(statItem);
-        });
-
-        // Create swap players container (initially hidden)
-        const swapPlayersContainer = document.createElement('div');
-        swapPlayersContainer.className = 'swap-players-container';
-        swapPlayersContainer.style.display = 'none';
-
-        // Assemble the card
-        playerCardContainer.appendChild(cardHeader);
-        playerCardContainer.appendChild(statsContainer);
-        playerCardContainer.appendChild(swapPlayersContainer);
-
-        return playerCardContainer;
-    }
-
-    async function initiateSwap(targetPlayer, playerCardContainer) {
-        const currentUserId = localStorage.getItem('userId');
-
-        // Find the swap players container
-        const swapPlayersContainer = playerCardContainer.querySelector('.swap-players-container');
-
-        // Show loading state
-        swapPlayersContainer.style.display = 'block';
-        swapPlayersContainer.innerHTML = '<div class="loading-spinner">Loading your players...</div>';
-
-        try {
-            // Instead of making a new API call, filter current players from the page
-            // Get all player data from the DOM
-            const myPlayers = [];
-            const playerRows = document.querySelectorAll('.player-row');
-
-            playerRows.forEach(row => {
-                try {
-                    const playerData = JSON.parse(row.getAttribute('data-player'));
-                    // Only include players belonging to the current user
-                    if (playerData && playerData.userId == currentUserId) {
-                        myPlayers.push(playerData);
-                    }
-                } catch (error) {
-                    console.error('Error parsing player data:', error);
-                }
-            });
-
-            // Filter players by the same position
-            const samePositionPlayers = myPlayers.filter(p => p.positionName === targetPlayer.positionName);
-
-            if (samePositionPlayers.length === 0) {
-                swapPlayersContainer.innerHTML = '<div class="no-players-message">You don\'t have any players in this position to swap.</div>';
-                return;
-            }
-
-            // Create header for swap section
-            swapPlayersContainer.innerHTML = `
-            <h4>Select one of your players to swap:</h4>
-            <div class="swap-players-list"></div>
-        `;
-
-            const swapPlayersList = swapPlayersContainer.querySelector('.swap-players-list');
-
-            // Add each of the user's players as options
-            samePositionPlayers.forEach(player => {
-                const playerOption = document.createElement('div');
-                playerOption.className = 'swap-player-option';
-
-                playerOption.innerHTML = `
-                <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo ? player.photo.slice(0, -3) : '0'}png" 
-                     alt="${player.webName}" class="player-photo">
-                <span class="player-name">${player.webName}</span>
-                <span class="player-score">${player.points || 0}</span>
-            `;
-
-                // Add click event to select this player for swap
-                playerOption.addEventListener('click', () => confirmSwap(player, targetPlayer));
-
-                swapPlayersList.appendChild(playerOption);
-            });
-
-            // Add cancel button
-            const cancelButton = document.createElement('button');
-            cancelButton.className = 'cancel-swap-btn';
-            cancelButton.textContent = 'Cancel';
-            cancelButton.addEventListener('click', () => {
-                swapPlayersContainer.style.display = 'none';
-            });
-
-            swapPlayersContainer.appendChild(cancelButton);
-
-        } catch (error) {
-            console.error('Error finding your players:', error);
-            swapPlayersContainer.innerHTML = `<div class="error-message">Error: ${error.message}</div>`;
-        }
-    }
-
-    function confirmSwap(playerOut, playerIn) {
-        // Create confirmation dialog
-        const confirmation = confirm(`Are you sure you want to request a trade of ${playerOut.webName} for ${playerIn.webName}?`);
-
-        if (confirmation) {
-            // User confirmed, send the swap request
-            proposeSwap(playerOut, playerIn);
-        } else {
-            // User cancelled, just hide the swap container
-            const swapPlayersContainer = document.querySelector('.swap-players-container');
-            if (swapPlayersContainer) {
-                swapPlayersContainer.style.display = 'none';
-            }
-        }
-    }
-
-    async function proposeSwap(playerOut, playerIn) {
-        try {
-            // Prepare swap request payload
-            const payload = {
-                fromUserSquadId: playerOut.squadId,
-                toUserSquadId: playerIn.squadId,
-                playerInId: playerIn.id,
-                playerOutId: playerOut.id
-            };
-
-            // Send the swap request
-            const response = await fetch(`${config.backendUrl}/Transfers/propose-swap`, addAuthHeader({
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            }));
-
-            if (!response.ok) {
-                throw new Error('Failed to propose swap');
-            }
-
-            // Display success message and close the card
-            alert('Swap proposal sent successfully!');
-            document.querySelector('.player-detail-card')?.remove();
-            document.getElementById('player-card-overlay')?.remove();
-
-        } catch (error) {
-            console.error('Error proposing swap:', error);
-            alert(`Error proposing swap: ${error.message}`);
-        }
-    }
-    */
+    }    
 
     // Function to handle header click interactions
     function setupHeaderClickInteractions() {
@@ -884,57 +524,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
         });
     }
-
-    // Function to fetch and display leagues for the current user    
-    function clearSquadTable() {
-        const squadTableHeader = document.getElementById('squadTableHeader');
-        const squadTableRow = document.getElementById('squadTableRow');
-        squadTableHeader.innerHTML = ''; // Clear existing headers
-        squadTableRow.innerHTML = ''; // Clear existing row
-    }
-
-    async function fetchLeagues() {
-        try {
-            const response = await fetch(`${config.backendUrl}/Leagues/byUser`, addAuthHeader());
-            if (response.status === 401) {
-                console.error('Authentication error: Unauthorized access (401)');
-                window.location.href = '/';
-                return;
-            }
-            if (!response.ok) {
-                console.error('Failed to fetch leagues:', response.status, response.statusText);
-                return;
-            }
-            const leagues = await response.json();
-            const leagueDropdown = document.getElementById('leagueDropdown');
-            leagueDropdown.innerHTML = '';
-            leagues.forEach(league => {
-                const option = document.createElement('option');
-                option.value = league.id;
-                option.text = league.name;
-                leagueDropdown.appendChild(option);
-            });
-
-            if (!leagueId) {
-                leagueId = leagues[0].id;
-                localStorage.setItem('leagueId', leagueId);
-                console.log(`LeagueId not found in localStorage. Using first league from API: ${leagueId}`);
-            } else {
-                leagueDropdown.value = leagueId;
-            }
-
-            leagueDropdown.addEventListener('change', async function () {
-                leagueId = this.value;
-                localStorage.setItem('leagueId', leagueId);
-            });
-        } catch (error) {
-            console.error('Error fetching leagues:', error);
-        }
-    }
-        
-    // Store squad details for quick access when user clicks
-    let squadsMap = {};
-
+    
     let maxMinutes = 0;
     let maxPointsPerMinuteByPosition = {};
 
@@ -954,22 +544,27 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
         });
     }
-        
-    setupCardsToggle();
 
-    // Fetch and display existing leagues on page load
-    await fetchAndCreateUserTeamCards();
+    async function initializePage() {
+        // Existing code remains the same
 
-    // After leagues are loaded, set up the change event listener
-    const leagueDropdown = document.getElementById('leagueDropdown');
-    if (leagueDropdown) {
-        leagueDropdown.addEventListener('change', fetchAndCreateUserTeamCards);
+        const leagueDropdown = document.getElementById('leagueDropdown');
+        if (!leagueId) {
+            console.log('No leagueId found, waiting for league fetch');
+            await fetchLeagues(leagueDropdown);
+        }
+        else {
+            fetchLeagues(leagueDropdown);
+        }
 
-        // Now that we know leagues are loaded, we can safely check and use the value
-        if (leagueDropdown.value) {
-            // Initial fetch for the selected league
-            //fetchAndCreateUserTeamCards();
+        setupCardsToggle();
+
+        await fetchAndCreateUserTeamCards();
+
+        if (leagueDropdown) {
+            leagueDropdown.addEventListener('change', fetchAndCreateUserTeamCards);
         }
     }
 
+    initializePage();
 });
