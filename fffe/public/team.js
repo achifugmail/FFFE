@@ -8,7 +8,7 @@ import config from './config.js';
 document.addEventListener('DOMContentLoaded', async function () {
     // Fetch draft periods for dropdown
     let leagueId = localStorage.getItem('leagueId');
-    
+    let currentView = 'list';    
     const squadPlayersCache = new Map();
        
     let draftPeriodId;
@@ -34,16 +34,29 @@ document.addEventListener('DOMContentLoaded', async function () {
             gameweekCaption.textContent = options[newIndex].text; // Update the caption
             fetchAndDisplayFixtures(options[newIndex].value); // Fetch fixtures for the new gameweek
             await fetchAndDisplaySquadPlayers(squadId); // Fetch squad players for the new gameweek
+
+            // Check if the selected gameweek is in the past
+            const selectedOption = gameweekDropdown.options[gameweekDropdown.selectedIndex];
+            const gwStartDate = new Date(selectedOption.dataset.startdate + 'Z');
+            const now = new Date();
+
+            if (gwStartDate < now) {
+                // Switch to pitch view
+                setView('pitch');
+            } else {
+                // Switch to list view
+                setView('list');
+            }
         }
     }
 
+    // 1) In fetchAndPopulateGameweeks, add data-startdate to each option
     async function fetchAndPopulateGameweeks(draftPeriodId) {
         let gameweeks = [];
         try {
             const respGameweeks = await fetch(`${config.backendUrl}/Gameweeks/by-draft-period/${draftPeriodId}`, addAuthHeader());
             if (respGameweeks.status === 401) {
                 console.error('Authentication error: Unauthorized access (401)');
-                // Redirect to the root site
                 window.location.href = '/';
                 return;
             }
@@ -59,33 +72,30 @@ document.addEventListener('DOMContentLoaded', async function () {
         // Clear existing options
         gameweekDropdown.innerHTML = '';
 
-        // Get current date and time
-        const now = new Date();
+        // Sort all gameweeks by their "number"
+        gameweeks.sort((a, b) => a.number - b.number);
 
-        // Filter to only future gameweeks 
-        const futureGameweeks = gameweeks.filter(gameweek => new Date(gameweek.startDate + 'Z') > now);
-
-        // If no future gameweeks, include all gameweeks (to prevent empty dropdown)
-        const gameweeksToDisplay = futureGameweeks.length > 0 ? futureGameweeks : gameweeks;
-
-        // Sort gameweeks by number
-        gameweeksToDisplay.sort((a, b) => a.number - b.number).forEach(gameweek => {
+        // Populate dropdown with all gameweeks, adding data-startdate
+        gameweeks.forEach(gw => {
             const option = document.createElement('option');
-            option.value = gameweek.id;
-            option.text = `${gameweek.number}`;
+            option.value = gw.id;
+            option.text = String(gw.number);
+            option.dataset.startdate = gw.startDate; // Store startDate
             gameweekDropdown.appendChild(option);
         });
 
-        // Set default value to the first gameweek in the list
-        if (gameweeksToDisplay.length > 0) {
-            gameweekDropdown.value = gameweeksToDisplay[0].id;
-
-            // Update the caption of the gameweek-btn
-            const gameweekCaption = document.getElementById('gameweekCaption');
-            if (gameweekCaption) {
-                gameweekCaption.textContent = `${gameweeksToDisplay[0].number}`; // Set only the gameweek number
-            }
+        // Decide default selection: most recent past gameweek if any, else first
+        const now = new Date();
+        const pastGws = gameweeks.filter(gw => new Date(gw.startDate + 'Z') <= now);
+        if (pastGws.length > 0) {
+            const defaultGw = pastGws[pastGws.length - 1];
+            gameweekDropdown.value = defaultGw.id;
+            gameweekCaption.textContent = String(defaultGw.number);
+        } else if (gameweeks.length > 0) {
+            gameweekDropdown.value = gameweeks[0].id;
+            gameweekCaption.textContent = String(gameweeks[0].number);
         }
+        setView('pitch');
     }
 
     async function fetchAndDisplayFixtures(gameweekId) {
@@ -182,10 +192,26 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-    gameweekDropdown.addEventListener('change', function () {
+    function changeGameweek(gameweekDropdown) {
         fetchAndDisplaySquadPlayers(squadId);
-        //updateTeamScoreLink();
-        fetchAndDisplayFixtures(this.value);
+        fetchAndDisplayFixtures(gameweekDropdown.value);
+
+        // Check if the selected gameweek is in the past
+        const selectedOption = gameweekDropdown.options[gameweekDropdown.selectedIndex];
+        const gwStartDate = new Date(selectedOption.dataset.startdate + 'Z');
+        const now = new Date();
+
+        if (gwStartDate < now) {
+            // Switch to pitch view
+            setView('pitch');
+        } else {
+            // Switch to list view
+            setView('list');
+        }
+    }
+
+    gameweekDropdown.addEventListener('change', function () {
+        updateGameweek(this.value);
     });
 
     async function fetchSquadId() {
@@ -770,50 +796,57 @@ ${getPlayerFormIndicator(player)}
         }
     }
 
+    function setView(newView) {
+        const listView = document.getElementById('playerGrid');
+        const pitchView = document.getElementById('pitchView');
+        const viewToggleBtn = document.getElementById('viewToggleBtn');
+
+        if (newView === 'pitch') {
+            // Switch to pitch view
+            listView.classList.add('hidden');
+            pitchView.classList.add('active');
+            if (viewToggleBtn) {
+                viewToggleBtn.innerHTML = '<i class="fas fa-th-list"></i>';
+                viewToggleBtn.setAttribute('title', 'Switch to List View');
+            }
+            currentView = 'pitch';
+            document.body.classList.add('pitch-view-active');
+            renderPitchView();
+        } else {
+            // Switch to list view
+            listView.classList.remove('hidden');
+            pitchView.classList.remove('active');
+            if (viewToggleBtn) {
+                viewToggleBtn.innerHTML = '<i class="fas fa-futbol"></i>';
+                viewToggleBtn.setAttribute('title', 'Switch to Pitch View');
+            }
+            currentView = 'list';
+            document.body.classList.remove('pitch-view-active');
+        }
+    }
+
     function setupViewToggle() {
-        // Remove the old toggle container from DOM if it exists
+        // Remove any old toggle container if it exists
         const oldToggleContainer = document.querySelector('.view-toggle-container');
         if (oldToggleContainer) {
             oldToggleContainer.remove();
         }
 
-        const listView = document.getElementById('playerGrid');
-        const pitchView = document.getElementById('pitchView');
+        // Create the button if it doesn't already exist
+        let viewToggleBtn = document.getElementById('viewToggleBtn');
+        if (!viewToggleBtn) {
+            viewToggleBtn = document.createElement('button');
+            viewToggleBtn.className = 'view-toggle-round-btn';
+            viewToggleBtn.id = 'viewToggleBtn';
+            viewToggleBtn.innerHTML = '<i class="fas fa-futbol"></i>'; // Football icon to start in list view
+            viewToggleBtn.setAttribute('title', 'Switch to Pitch View');
+            viewToggleBtn.setAttribute('aria-label', 'Switch View');
+            document.body.appendChild(viewToggleBtn);
+        }
 
-        // Create a new round toggle button
-        const viewToggleBtn = document.createElement('button');
-        viewToggleBtn.className = 'view-toggle-round-btn';
-        viewToggleBtn.id = 'viewToggleBtn';
-        viewToggleBtn.innerHTML = '<i class="fas fa-futbol"></i>'; // Football icon for pitch view
-        viewToggleBtn.setAttribute('title', 'Switch to Pitch View');
-        viewToggleBtn.setAttribute('aria-label', 'Switch View');
-
-        // Add the button to the document
-        document.body.appendChild(viewToggleBtn);
-
-        // Track current view (start with list view)
-        let currentView = 'list';
-
-        // Add click event
+        // Click event to switch between pitch <--> list
         viewToggleBtn.addEventListener('click', function () {
-            if (currentView === 'list') {
-                // Switch to pitch view
-                listView.classList.add('hidden');
-                pitchView.classList.add('active');
-                viewToggleBtn.innerHTML = '<i class="fas fa-th-list"></i>'; // List icon when in pitch view
-                viewToggleBtn.setAttribute('title', 'Switch to List View');
-                currentView = 'pitch';
-                document.body.classList.add('pitch-view-active'); // Add class to body
-                renderPitchView();
-            } else {
-                // Switch to list view
-                listView.classList.remove('hidden');
-                pitchView.classList.remove('active');
-                viewToggleBtn.innerHTML = '<i class="fas fa-futbol"></i>'; // Football icon when in list view
-                viewToggleBtn.setAttribute('title', 'Switch to Pitch View');
-                currentView = 'list';
-                document.body.classList.remove('pitch-view-active'); // Remove class from body
-            }
+            setView(currentView === 'list' ? 'pitch' : 'list');
         });
     }
 
