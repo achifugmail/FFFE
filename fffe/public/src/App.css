@@ -1897,12 +1897,12 @@ th {
 
 
 .transfers-toggle, .view-toggle-round-btn, .cards-toggle {
-    right: 10px;
-    bottom: 20px;
+    right: 20px;
+    bottom: 40px;
 }
 .view-toggle-button, .fixtures-toggle {
-    right: 10px;
-    bottom: 80px;
+    right: 20px;
+    bottom: 90px;
 }
 
     /* Transfers container styling */
@@ -2696,7 +2696,7 @@ th {
 
 .pitch-view-container {
     position: relative;
-    min-height: 450px;
+    min-height: 90%;
     max-width: 100%;
     margin: 0 auto;
     /* Remove the old solid background color and grid lines */
@@ -3628,14 +3628,8 @@ nav {
     }
 }
 
-.view-toggle-round-btn {
-    bottom: calc(140px + env(safe-area-inset-bottom));
-}
 
-.pitch-view-container {
-    position: relative; /* Establish new stacking context */
-    padding-bottom: 80px; /* Space for buttons */
-}
+
 
 .team-container {
     height: auto; /* Remove fixed height */
