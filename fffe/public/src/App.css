@@ -2,6 +2,13 @@
     --primary-color: #208579;
     --navigation-color: #13476e;
 }
+html, body {
+    background-color: var(--navigation-color);
+    
+    margin: 0;
+    padding: 0;
+}
+
 
 .player-grid /* styles.css */
 /* General styles */
