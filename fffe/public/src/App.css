@@ -3625,14 +3625,14 @@ nav {
 
 .team-container {
     height: auto; /* Remove fixed height */
-    min-height: 95vh;
+    min-height: 90vh;
     padding-bottom: 5px;
 }
 
 .view-toggle-round-btn {
-    bottom: calc(160px + env(safe-area-inset-bottom));
+    bottom: calc(100px + env(safe-area-inset-bottom));
 }
 
 .fixtures-toggle {
-    bottom: calc(100px + env(safe-area-inset-bottom));
+    bottom: calc(50px + env(safe-area-inset-bottom));
 }
