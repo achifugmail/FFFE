@@ -3633,6 +3633,6 @@ nav {
 
 .team-container {
     height: auto; /* Remove fixed height */
-    min-height: 100vh;
+    min-height: 90vh;
     padding-bottom: 0;
 }
