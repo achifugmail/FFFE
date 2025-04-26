@@ -410,11 +410,18 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         gameweekDropdown.addEventListener('change', fetchAndCreateUserTeamCards);
 
+        leagueDropdown.addEventListener('change', async function () {
+            leagueId = this.value;
+            localStorage.setItem('leagueId', leagueId);
+            fetchAndCreateUserTeamCards();
+        });
+
         window.addEventListener('beforeunload', () => {
             if (refreshInterval) {
                 clearInterval(refreshInterval);
             }
         });
+
 
         cardsToggle.addEventListener('click', function () {
             const cards = document.querySelectorAll('.user-team-card');
@@ -434,3 +441,4 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     initializePage();
 });
+
