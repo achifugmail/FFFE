@@ -558,7 +558,9 @@ ul {
 }
 
 li {
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.1rem;
+    margin-top: 0.1rem;
+
 }
 
     li a {
@@ -770,10 +772,6 @@ h3 {
 ul {
     list-style-type: none;
     padding: 0;
-}
-
-li {
-    margin-bottom: 0.5rem;
 }
 
     li a {
@@ -3383,7 +3381,7 @@ nav {
 
     nav ul {
         list-style-type: none;
-        margin: -5px;
+        margin: 1px;
         padding: 0;
         display: flex;
         justify-content: space-around;
@@ -3419,7 +3417,7 @@ nav {
                 /* Add styles for the icons */
                 nav ul li a i {
                     font-size: 1.5em;
-                    margin-bottom: 4px;
+                    margin-bottom: 0px;
                 }
 
 /* Style for the text under icons */
@@ -3428,7 +3426,7 @@ nav {
     white-space: nowrap;
     display: block;
     text-align: center;
-    line-height: 1;
+    line-height: 1.2;
 }
 
 /* Styles for league dropdown menu */
