@@ -1390,7 +1390,7 @@ th {
     flex-wrap: nowrap;
     overflow-x: auto;
     gap: 1px;
-    padding: 10px 5px;
+    padding: 1px 5px;
     scroll-behavior: smooth;
     width: 100%; /* Ensure the container takes full width */
     box-sizing: border-box; /* Include padding in width calculation */
