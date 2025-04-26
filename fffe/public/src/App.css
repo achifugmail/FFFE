@@ -585,18 +585,11 @@ li {
     margin: 0 auto;
     max-height: 90%;
     height: 90%;
-    /*height: calc(100vh - 130px);
-    /*height: calc(100vh - 130px);
-    height: calc(var(--vh, 1vh) * 100 - 130px);*/
     position: relative;
     /* Remove overflow-y: auto from here - this is key */
 }
 
 #content.team-container {
-    /*height: calc(100vh - 130px) !important;
-    //max-height: calc(100vh - 130px) !important;
-    height: calc(var(--vh, 1vh) * 100 - 130px);
-    max-height: calc(var(--vh, 1vh) * 100 - 130px);*/
     height: 90% !important;
     max-height: 90% !important;
     display: flex;
@@ -1894,7 +1887,7 @@ th {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    z-index: 101;
+    z-index: 2001;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
@@ -1902,54 +1895,7 @@ th {
         font-size: 18px;
     }
 
-/*    
-.view-toggle-round-btn {
-    position: fixed;
-    right: 20px;
-    bottom: 20px; 
-//background-color: var(--primary-color);
-border: none;
-border-radius: 50%;
-width: 40px;
-height: 40px;
-display: flex;
-align-items: center;
-justify-content: center;
-cursor: pointer;
-z-index: 2001;
-background-color: rgba(255, 255, 255, 0.95); 
-color: var(--primary-color);
-box-shadow: 0px -2px 6px rgba(0,0,0,0.1);
 
-opacity: 0.5;
-}
-.view-toggle-round-btn i {
-    font-size: 18px;
-}
-
-.fixtures-toggle {
-    position: fixed;
-    right: 20px;
-    bottom: 70px;
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 2001; 
-    background-color: rgba(255, 255, 255, 0.95); 
-    color: var(--primary-color);
-    box-shadow: 0px -2px 6px rgba(0,0,0,0.1);
-    opacity: 0.5; 
-}
-
-    .fixtures-toggle i {
-        font-size: 18px;
-    }
-*/
 .transfers-toggle, .view-toggle-round-btn, .cards-toggle {
     right: 10px;
     bottom: 20px;
