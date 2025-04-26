@@ -2707,6 +2707,22 @@ th {
     overflow: hidden;
 }
 
+@media (max-height: 800px) {
+    .view-toggle-round-btn {
+        bottom: 120px; /* Move button well above browser UI controls */
+        z-index: 10000; /* Ensure it's above everything */
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.4); /* Stronger shadow for visibility */
+    }
+}
+
+/* For even shorter screens like in landscape mode */
+@media (max-height: 500px) {
+    .view-toggle-round-btn {
+        bottom: 150px; /* Even higher position */
+        right: 15px; /* Slightly more to the right */
+    }
+}
+
 
 /* Field markings for vertical pitch */
 .pitch-markings {
@@ -3610,4 +3626,19 @@ nav {
     100% {
         transform: rotate(360deg);
     }
+}
+
+.view-toggle-round-btn {
+    bottom: calc(140px + env(safe-area-inset-bottom));
+}
+
+.pitch-view-container {
+    position: relative; /* Establish new stacking context */
+    padding-bottom: 80px; /* Space for buttons */
+}
+
+.team-container {
+    height: auto; /* Remove fixed height */
+    min-height: 100vh;
+    padding-bottom: 0;
 }
