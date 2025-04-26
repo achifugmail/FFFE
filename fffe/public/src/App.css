@@ -2707,13 +2707,7 @@ th {
     overflow: hidden;
 }
 
-@media (max-height: 800px) {
-    .view-toggle-round-btn {
-        bottom: 120px; /* Move button well above browser UI controls */
-        z-index: 10000; /* Ensure it's above everything */
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.4); /* Stronger shadow for visibility */
-    }
-}
+
 
 /* For even shorter screens like in landscape mode */
 @media (max-height: 500px) {
@@ -3629,10 +3623,16 @@ nav {
 }
 
 
-
-
 .team-container {
     height: auto; /* Remove fixed height */
-    min-height: 90vh;
-    padding-bottom: 0;
+    min-height: 95vh;
+    padding-bottom: 5px;
+}
+
+.view-toggle-round-btn {
+    bottom: calc(160px + env(safe-area-inset-bottom));
+}
+
+.fixtures-toggle {
+    bottom: calc(100px + env(safe-area-inset-bottom));
 }
