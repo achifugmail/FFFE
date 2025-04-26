@@ -3630,9 +3630,9 @@ nav {
 }
 
 .view-toggle-round-btn {
-    bottom: calc(100px + env(safe-area-inset-bottom));
+    bottom: calc(90px + env(safe-area-inset-bottom));
 }
 
 .fixtures-toggle {
-    bottom: calc(50px + env(safe-area-inset-bottom));
+    bottom: calc(40px + env(safe-area-inset-bottom));
 }
