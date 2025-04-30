@@ -19,6 +19,19 @@ const config = {
             : 'https://ffbe1-hjdthacef0hjc9ht.eastus2-01.azurewebsites.net/api2'
 };
 
+const host = window.location.hostname;
+const root = document.documentElement;
+
+if (host === 'localhost') {
+    root.style.setProperty('--primary-color', 'orange'); 
+    root.style.setProperty('--navigation-color', 'indigo');
+} else if (host.includes('test') || host.includes('staging')) {
+    root.style.setProperty('--primary-color', 'pink');
+    root.style.setProperty('--navigation-color', 'seagreen');
+} else {
+    // production
+}
+
 
 function getToken() {
     return localStorage.getItem('token');
