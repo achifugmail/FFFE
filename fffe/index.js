@@ -1,10 +1,13 @@
 const isDevelopment = window.location.hostname === 'localhost';
+const isTest = window.location.hostname === 'test.divizia.net';
 
 const config = {
     backendUrl: isDevelopment
         ? 'https://localhost:44390/api2'
-    //: 'https://ffbe-akdrgxb2fjd6fddh.eastus2-01.azurewebsites.net/api'
-        : 'https://ffbe1-hjdthacef0hjc9ht.eastus2-01.azurewebsites.net/api2'
+        //: 'https://ffbe-akdrgxb2fjd6fddh.eastus2-01.azurewebsites.net/api'
+        //: 'https://ffbe1-hjdthacef0hjc9ht.eastus2-01.azurewebsites.net/api2'
+        : isTest ? 'https://ffbe1test-cmdch8dgcscmd0e6.eastus2-01.azurewebsites.net'
+            : 'https://ffbe1-hjdthacef0hjc9ht.eastus2-01.azurewebsites.net'
 };
 
 document.getElementById('loginForm').addEventListener('submit', async function (event) {
