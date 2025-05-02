@@ -555,9 +555,11 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         await fetchAndCreateUserTeamCards();
 
-        if (leagueDropdown) {
-            leagueDropdown.addEventListener('change', fetchAndCreateUserTeamCards);
-        }
+        leagueDropdown.addEventListener('change', async function () {
+            leagueId = this.value;
+            localStorage.setItem('leagueId', leagueId);
+            fetchAndCreateUserTeamCards();
+        });
     }
 
     initializePage();
