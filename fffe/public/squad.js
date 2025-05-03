@@ -88,22 +88,16 @@ document.addEventListener('DOMContentLoaded', async function () {
             allPlayersContainer.className = 'container';
             teamLayout.parentNode.insertBefore(allPlayersContainer, teamLayout.nextSibling);
 
-            // Create position sections
-            positions.forEach(position => {
-                const section = document.createElement('div');
-                // Change the class to match the squad view
-                section.className = 'section position-section';
-                section.id = `all-${position.name}`;
-                // Add data-position attribute for the decorative label
-                section.setAttribute('data-position', position.name);
+            // Add a search text box
+            const searchBox = document.createElement('input');
+            searchBox.type = 'text';
+            searchBox.id = 'playerSearchBox';
+            searchBox.placeholder = 'Search players...';
+            searchBox.className = 'search-box';
+            allPlayersContainer.appendChild(searchBox);
 
-                // Container for players
-                const playersContainer = document.createElement('div');
-                playersContainer.className = 'players'; // Changed from 'all-players-list' to 'players'
-                section.appendChild(playersContainer);
-
-                allPlayersContainer.appendChild(section);
-            });
+            // Add event listener for filtering
+            searchBox.addEventListener('input', filterPlayers);
         }
 
         if (allPlayersContainer) {
@@ -113,10 +107,25 @@ document.addEventListener('DOMContentLoaded', async function () {
         if (viewMode === 'all') {
             // Populate the sections with players
             positions.forEach(position => {
-                const section = document.getElementById(`all-${position.name}`);
-                const playersContainer = section.querySelector('.players'); // Changed from '.all-players-list' to '.players'
+                const sectionId = `all-${position.name}`;
+                let section = document.getElementById(sectionId);
+
+                if (!section) {
+                    section = document.createElement('div');
+                    section.className = 'section position-section';
+                    section.id = sectionId;
+                    section.setAttribute('data-position', position.name);
+
+                    // Container for players
+                    const playersContainer = document.createElement('div');
+                    playersContainer.className = 'players';
+                    section.appendChild(playersContainer);
+
+                    allPlayersContainer.appendChild(section);
+                }
 
                 // Clear existing content
+                const playersContainer = section.querySelector('.players');
                 playersContainer.innerHTML = '';
 
                 // Filter players by position
@@ -124,10 +133,9 @@ document.addEventListener('DOMContentLoaded', async function () {
 
                 // Sort players by points in descending order
                 positionPlayers.sort((a, b) => {
-                    // Handle null or undefined points
                     const pointsA = a.points || 0;
                     const pointsB = b.points || 0;
-                    return pointsB - pointsA; // Descending order
+                    return pointsB - pointsA;
                 });
 
                 // Add players to the section
@@ -136,9 +144,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                     playersContainer.appendChild(playerDiv);
                 });
 
-                // Add empty player rows if needed (similar to the squad view)
+                // Add empty player rows if needed
                 const totalPlayersInSection = positionPlayers.length;
-                // Find the corresponding position to get maxInSquad
                 const positionObj = positions.find(p => p.name === position.name);
                 if (positionObj && positionObj.maxInSquad) {
                     for (let i = totalPlayersInSection; i < positionObj.maxInSquad; i++) {
@@ -154,6 +161,71 @@ document.addEventListener('DOMContentLoaded', async function () {
             setupPlayerPhotoInteractions();
         }
     }
+
+    function filterPlayers() {
+        const searchText = document.getElementById('playerSearchBox').value.toLowerCase();
+
+        // Normalize the search text to remove diacritical marks
+        const normalizedSearchText = searchText.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+        // Filter players based on the normalized search text
+        const filteredPlayers = allPlayers.filter(player => {
+            const fieldsToSearch = [
+                player.firstName,
+                player.secondName,
+                player.webName,
+                player.positionName,
+                player.teamName
+            ];
+
+            // Normalize each field and check if it includes the search text
+            return fieldsToSearch.some(field =>
+                field && field.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().includes(normalizedSearchText)
+            );
+        });
+
+        // Update the displayed players
+        positions.forEach(position => {
+            const sectionId = `all-${position.name}`;
+            const section = document.getElementById(sectionId);
+            const playersContainer = section.querySelector('.players');
+
+            // Clear existing content
+            playersContainer.innerHTML = '';
+
+            // Filter players by position
+            let positionPlayers = filteredPlayers.filter(player => player.positionName === position.name);
+
+            // Sort players by points in descending order
+            positionPlayers.sort((a, b) => {
+                const pointsA = a.points || 0;
+                const pointsB = b.points || 0;
+                return pointsB - pointsA;
+            });
+
+            // Add players to the section
+            positionPlayers.forEach(player => {
+                const playerDiv = createPlayerDivForAllView(player, otherUsersSquadPlayers.some(p => p.id === player.id));
+                playersContainer.appendChild(playerDiv);
+            });
+
+            // Add empty player rows if needed
+            const totalPlayersInSection = positionPlayers.length;
+            const positionObj = positions.find(p => p.name === position.name);
+            if (positionObj && positionObj.maxInSquad) {
+                for (let i = totalPlayersInSection; i < positionObj.maxInSquad; i++) {
+                    const emptyRow = document.createElement('div');
+                    emptyRow.className = 'player-row';
+                    emptyRow.innerText = 'Empty';
+                    playersContainer.appendChild(emptyRow);
+                }
+            }
+        });
+
+        // Call setupPlayerPhotoInteractions to reapply click handlers
+        setupPlayerPhotoInteractions();
+    }
+
 
     function createPlayerDivForAllView(player, isInOtherSquad = false) {
         const playerDiv = document.createElement('div');
