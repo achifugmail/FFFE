@@ -62,6 +62,10 @@ document.addEventListener('DOMContentLoaded', async function () {
         if (viewMode === 'all') {
             // Clear existing sections but keep the search box
             const searchBox = document.getElementById('playerSearchBox');
+            searchBox.placeholder = 'Search players...';           
+            searchBox.addEventListener('input', filterPlayers);
+
+
             allPlayersContainer.innerHTML = '';
             if (searchBox) {
                 allPlayersContainer.appendChild(searchBox);
@@ -306,6 +310,9 @@ document.addEventListener('DOMContentLoaded', async function () {
         return card;
     }
 
+    let previousDraftRound = null;
+    let previousDraftUserId = null;
+
     async function checkForActiveDraft() {
         if (!leagueId || !draftPeriodId) return false;
 
@@ -330,6 +337,23 @@ document.addEventListener('DOMContentLoaded', async function () {
                 now <= draftEnd &&
                 league.nextDraftPeriodId == draftPeriodId
             );
+
+            // Check if currentDraftRound or currentDraftUserId has changed
+            if (
+                league.currentDraftRound !== previousDraftRound ||
+                league.currentDraftUserId !== previousDraftUserId
+            ) {
+                console.log('Draft state has changed:');
+                console.log(`Previous Round: ${previousDraftRound}, Current Round: ${league.currentDraftRound}`);
+                console.log(`Previous User ID: ${previousDraftUserId}, Current User ID: ${league.currentDraftUserId}`);
+
+                // Update the previous values
+                previousDraftRound = league.currentDraftRound;
+                previousDraftUserId = league.currentDraftUserId;
+
+                // Call fetchAndCreateUserTeamCards to update the UI
+                await fetchAndCreateUserTeamCards();
+            }
 
             // Update UI based on draft status
             updateUIForDraft(league);
