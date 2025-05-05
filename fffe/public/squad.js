@@ -205,27 +205,17 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             // Add players to the section
             positionPlayers.forEach(player => {
-                const playerDiv = createPlayerDivForAllView(player, otherUsersSquadPlayers.some(p => p.id === player.id));
+                const playerDiv = createPlayerDivForAllView(player);
                 playersContainer.appendChild(playerDiv);
             });
 
-            // Add empty player rows if needed
-            const totalPlayersInSection = positionPlayers.length;
-            const positionObj = positions.find(p => p.name === position.name);
-            if (positionObj && positionObj.maxInSquad) {
-                for (let i = totalPlayersInSection; i < positionObj.maxInSquad; i++) {
-                    const emptyRow = document.createElement('div');
-                    emptyRow.className = 'player-row';
-                    emptyRow.innerText = 'Empty';
-                    playersContainer.appendChild(emptyRow);
-                }
-            }
+            // Hide or show section based on whether there are players
+            section.style.display = positionPlayers.length > 0 ? 'block' : 'none';
         });
 
         // Call setupPlayerPhotoInteractions to reapply click handlers
         setupPlayerPhotoInteractions();
     }
-
 
     function createPlayerDivForAllView(player, isInOtherSquad = false) {
         const playerDiv = document.createElement('div');

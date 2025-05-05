@@ -3,28 +3,32 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" viewport-fit="cover">
-    <title>Draft Page</title>
+    <title>Draft</title>
     <link rel="stylesheet" href="src/App.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <style>
+    </style>
 </head>
 <body>
     <div id="nav-placeholder"></div>
-    <div id="content" class="draft-container">
+    <div id="squadInfo"></div>
+    <div id="content" class="team-container">
         <!-- League Dropdown -->
         <div class="dropdown-container">
-            <label for="leagueDropdown">Select League:</label>
             <select id="leagueDropdown"></select>
 
-            <label for="draftPeriodDropdown">Select Draft Period:</label>
-            <select id="draftPeriodDropdown"></select>
+            <div>
+                <select id="draftPeriodDropdown" style="display: none;"></select>
+            </div>
         </div>
 
-        <!-- Filter and Available Players -->
-        <div>
-            <input type="text" id="filterInput" placeholder="Filter players...">
+        <div id="draftContainer" class="draft-layout">
+            <div id="allPlayersContainer" class="container">
+                <input type="text" id="playerSearchBox" placeholder="Search players..." class="search-box">
+            </div>
+            <div class="user-team-cards-container-draft" id="userTeamCardsContainer"></div>
         </div>
-        <div id="availablePlayersContainer"></div>
     </div>
 
     <script type="module" src="draft.js"></script>

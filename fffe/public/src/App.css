@@ -48,7 +48,7 @@ label {
 }
 
 input[type="text"] {
-    width: 100%;
+    
     padding: 10px;
     margin: 5px 0 20px;
     border: 1px solid #ccc;
@@ -1004,7 +1004,7 @@ th {
     max-width: 80px;
 }
 /* Position section with decorative label */
-.position-section {
+.position-section, .position-section-draft {
     position: relative;
     border: 1px solid #ccc;
     padding: 5px 5px 5px 5px;
@@ -1041,6 +1041,18 @@ th {
 @media (min-width: 1120px) {
     .position-section {
         width: calc(1100px); /* 3 * 350px + 30px for margins/padding */
+    }
+}
+
+@media (min-width: 800px) {
+    .position-section-draft {
+        width: calc(320px); /* 2 * 350px + 20px for margins/padding */
+    }
+}
+
+@media (min-width: 1120px) {
+    .position-section-draft {
+        width: calc(740px); /* 3 * 350px + 30px for margins/padding */
     }
 }
 
@@ -1392,9 +1404,17 @@ th {
     gap: 1px;
     padding: 1px 5px;
     scroll-behavior: smooth;
-    width: 100%; /* Ensure the container takes full width */
     box-sizing: border-box; /* Include padding in width calculation */
-    
+}
+.user-team-cards-container-draft {
+    display: flex;
+    flex-wrap: nowrap;
+
+
+    gap: 1px;
+    padding: 1px 5px;
+    scroll-behavior: smooth;
+    box-sizing: border-box; /* Include padding in width calculation */
 }
 
 .user-team-card {
@@ -2358,7 +2378,7 @@ th {
     padding: 10px;
     border-radius: 5px;
     text-align: center;
-    width: 100%; /* Ensure it spans the full width */
+    width: 80%; /* Ensure it spans the full width */
     margin-bottom: 20px; /* Add space between message and grid */
 }
 
@@ -3643,10 +3663,78 @@ nav {
 }
 
 .search-box {
-    width: 100%;
+    width: 180px;
     padding: 10px;
     margin-bottom: 20px;
     font-size: 16px;
     border: 1px solid #ccc;
     border-radius: 5px;
+}
+
+.draft-layout {
+    display: flex;
+    gap: 20px;
+    position: relative;
+    
+    margin-top: 20px;
+}
+
+#allPlayersContainer {
+    flex: 1;
+    min-width: 0; /* Prevents flex item from overflowing */
+}
+
+#userTeamCardsContainer {
+    flex-shrink: 0; /* Prevents the container from shrinking */
+    position:relative;
+    left:10px;
+}
+
+@media (max-width: 768px) {
+    .draft-layout {
+        flex-direction: column;
+    }
+}
+#draftContainer {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap; /* Prevent wrapping */
+    overflow-x: auto;
+    justify-content: flex-start;
+    align-items: flex-start;
+    width: 100%; /* Ensure it spans the full width */
+    scrollbar-width: thin; /* Optional: Thin scrollbar for modern browsers */
+}
+
+#userTeamCardsContainer {
+    flex-shrink: 0; /* Prevent shrinking */
+    width:min-content;
+    position: relative;
+    left: 10px;
+}
+
+#allPlayersContainer {
+    flex: 1; /* Adjust as needed */
+    min-width: 200px; /* Ensure it doesn't shrink too much */
+}
+
+#userTeamCardsContainer {
+    flex: 1; /* Adjust as needed */
+    
+}
+.team-container {
+    min-width: 100%; /* Ensure it doesn't shrink below the viewport width */
+}
+
+.userTeamCardsContainer {
+    display: flex;
+    
+    padding: 0 10px;
+}
+.draftContainer {
+    display: flex;
+    overflow-x: auto;
+    padding: 10px;
+    max-width: 100%; /* Ensures scroll activates when content overflows */
+    box-sizing: border-box;
 }
