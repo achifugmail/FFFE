@@ -10,7 +10,7 @@ html, body {
 }
 
 
-.player-grid /* styles.css */
+.player-grid, .player-grid-drafted /* styles.css */
 /* General styles */
 h1, h2, h3, h4, h5, h6 {
     color: #444;
@@ -141,7 +141,8 @@ th {
 
 
 .player-grid span,
-.player-grid .player-name {
+.player-grid .player-name,
+.player-grid-drafted .player-name {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -412,7 +413,7 @@ a {
         font-size: 20px; /* Adjust base font size for smaller screens */
     }
 
-    .player-grid {
+    .player-grid, .player-grid-drafted {
         grid-template-columns: 70px auto 50px;
         gap: 5px;
     }
@@ -470,7 +471,7 @@ a {
         font-size: 22px; /* Increase base font size for high-resolution screens */
     }
 
-    .player-grid {
+    .player-grid, .player-grid-drafted {
         grid-template-columns: 80px auto 60px;
         gap: 5px;
     }
@@ -798,11 +799,11 @@ ul {
 
 
 
-    .player-grid img {
-        border-radius: 50%;
-        width: 25px;
-        height: 25px;
-    }
+.player-grid, .player-grid-drafted img {
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+}
 
 .add-button {
     margin-top: 10px;
@@ -1031,6 +1032,20 @@ th {
         box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         z-index: 999;
     }
+    .position-section-draft::before {
+        content: attr(data-position);
+        position: absolute;
+        top: -12px;
+        left: 10px;
+        background: var(--navigation-color);
+        color: white;
+        padding: 2px 10px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: bold;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        z-index: 999;
+    }
 
 @media (min-width: 800px) {
     .position-section {
@@ -1050,11 +1065,7 @@ th {
     }
 }
 
-@media (min-width: 1120px) {
-    .position-section-draft {
-        width: calc(740px); /* 3 * 350px + 30px for margins/padding */
-    }
-}
+
 
 @media (min-width: 1600px) {
     .position-section {
@@ -1126,7 +1137,7 @@ th {
         margin-left: auto; /* This will still push it to the right */
     }
 
-.player-grid {
+.player-grid, .player-grid-drafted {
     display: flex;
     align-items: center;
     margin: 5px;
@@ -1531,6 +1542,9 @@ th {
     display: block;
 }
 .transfer-player .player-name {
+    display: block;
+}
+.drafted-player .player-name {
     display: block;
 }
 
@@ -2374,12 +2388,12 @@ th {
     margin-top: 1rem;
 }
 .draft-message-container {
-    margin: 15px 0;
-    padding: 10px;
+    margin: 5px 0;
+    padding: 5px;
     border-radius: 5px;
     text-align: center;
-    width: 80%; /* Ensure it spans the full width */
-    margin-bottom: 20px; /* Add space between message and grid */
+    width: 95%; /* Ensure it spans the full width */
+    
 }
 
 /* Rest of your CSS stays the same */
@@ -2387,12 +2401,14 @@ th {
     padding: 15px;
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    width: 95%;
 }
 
 .your-turn {
     background-color: #d4edda;
     border: 1px solid #c3e6cb;
     color: #155724;
+    
 }
 
 .waiting {
@@ -3362,7 +3378,7 @@ body.pitch-view-active {
 
 .player-squad-info {
     position: absolute;
-    left: 160px;
+    left: 120px;
     top: 50%;
     transform: translateY(-50%);
     font-size: 12px;
@@ -3673,21 +3689,15 @@ nav {
 
 .draft-layout {
     display: flex;
-    gap: 20px;
+    gap: 1px;
     position: relative;
     
-    margin-top: 20px;
+    margin-top: 5px;
 }
 
 #allPlayersContainer {
     flex: 1;
     min-width: 0; /* Prevents flex item from overflowing */
-}
-
-#userTeamCardsContainer {
-    flex-shrink: 0; /* Prevents the container from shrinking */
-    position:relative;
-    left:10px;
 }
 
 @media (max-width: 768px) {
@@ -3718,10 +3728,6 @@ nav {
     min-width: 200px; /* Ensure it doesn't shrink too much */
 }
 
-#userTeamCardsContainer {
-    flex: 1; /* Adjust as needed */
-    
-}
 .team-container {
     min-width: 100%; /* Ensure it doesn't shrink below the viewport width */
 }
@@ -3738,3 +3744,64 @@ nav {
     max-width: 100%; /* Ensures scroll activates when content overflows */
     box-sizing: border-box;
 }
+
+#draftedPlayersContainer {
+    display: flex;
+    flex-wrap: nowrap; /* Prevent wrapping */
+    overflow-x: auto; /* Enable horizontal scrolling */
+    gap: 10px; /* Add spacing between players */
+    padding: 10px;
+    background-color: #f9f9f9; /* Optional: Background color */
+    border: 1px solid #ccc; /* Optional: Border for the container */
+    border-radius: 5px;
+    max-height: 120px; /* Limit the height of the container */
+    scrollbar-width: thin; /* Thin scrollbar for modern browsers */
+}
+
+    #draftedPlayersContainer::-webkit-scrollbar {
+        height: 8px; /* Height of the scrollbar */
+    }
+
+    #draftedPlayersContainer::-webkit-scrollbar-thumb {
+        background-color: #ccc; /* Color of the scrollbar thumb */
+        border-radius: 4px;
+    }
+
+    #draftedPlayersContainer::-webkit-scrollbar-track {
+        background-color: #f1f1f1; /* Color of the scrollbar track */
+    }
+
+.drafted-player {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 80px; /* Minimum width for each player card */
+    max-width: 80px; /* Maximum width for each player card */
+    text-align: center;
+    padding: 5px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+    .drafted-player img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        margin-bottom: 5px;
+    }
+
+    .drafted-player .player-name {
+        font-size: 12px;
+        font-weight: bold;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .drafted-player .squad-name {
+        font-size: 10px;
+        color: #666;
+    }

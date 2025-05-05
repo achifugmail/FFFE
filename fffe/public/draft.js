@@ -202,9 +202,39 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             // Create user team cards
             createUserTeamCards(players, squads);
+
+            // Create drafted players list
+            createDraftedPlayersList(players);
         } catch (error) {
             console.error('Error fetching league squad players:', error);
         }
+    }
+
+    function createDraftedPlayersList(players) {
+        const draftedPlayersContainer = document.getElementById('draftedPlayersContainer');
+        if (!draftedPlayersContainer) return;
+
+        // Clear the container
+        draftedPlayersContainer.innerHTML = '';
+
+        // Sort players by draftId in descending order
+        const sortedPlayers = players.sort((a, b) => b.draftId - a.draftId);
+
+        // Create player elements
+        sortedPlayers.forEach(player => {
+            const playerDiv = document.createElement('div');
+            playerDiv.className = 'drafted-player';
+
+            playerDiv.innerHTML = `
+            <span class="squad-name">${player.squadName}</span>
+            <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" 
+                 alt="${player.webName}" class="player-photo">
+            <span class="player-name">${player.webName}</span>
+            
+        `;
+
+            draftedPlayersContainer.appendChild(playerDiv);
+        });
     }
 
     function createUserTeamCards(players, squads) {
@@ -234,6 +264,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 ...player,
                 webName: player.webName || player.displayName || 'Unknown',
                 position: player.positionName,
+                teamName: player.teamName,
                 score: player.points || 0
             });
 
