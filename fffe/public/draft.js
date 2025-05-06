@@ -941,7 +941,6 @@ document.addEventListener('DOMContentLoaded', async function () {
             draftPeriodId = this.value;
             const selectedOption = this.options[this.selectedIndex];
             draftPeriodStartDate = new Date(selectedOption.getAttribute('data-start-date')).toUTCString();
-            outPlayerId = null;
 
             await updateSquadId();
             await checkForActiveDraft();
@@ -955,6 +954,21 @@ document.addEventListener('DOMContentLoaded', async function () {
             displayAllPlayersView();
 
             await fetchAndCreateUserTeamCards();
+        });
+
+        const userTeamCardsContainer = document.getElementById('userTeamCardsContainer');
+        const toggleButton = document.getElementById('userTeamCardsContainerToggle');
+
+        // Hide the container on page load
+        userTeamCardsContainer.style.display = 'none';
+
+        // Add click event to the floating action button
+        toggleButton.addEventListener('click', function () {
+            if (userTeamCardsContainer.style.display === 'none') {
+                userTeamCardsContainer.style.display = 'flex'; // Show the container
+            } else {
+                userTeamCardsContainer.style.display = 'none'; // Hide the container
+            }
         });
     }
 

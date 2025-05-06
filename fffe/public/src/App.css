@@ -1058,9 +1058,43 @@ th {
     }
 }
 
-@media (min-width: 800px) {
+@media (min-width: 210px) {
     .position-section-draft {
         width: calc(205px); /* 2 * 350px + 20px for margins/padding */
+    }
+}
+
+@media (min-width: 440px) {
+    .position-section-draft {
+        width: calc(420px); 
+    }
+}
+
+@media (min-width: 650px) {
+    .position-section-draft {
+        width: calc(630px);
+    }
+}
+
+@media (min-width: 860px) {
+    .position-section-draft {
+        width: calc(840px);
+    }
+}
+@media (min-width: 1070px) {
+    .position-section-draft {
+        width: calc(1040px);
+    }
+}
+@media (min-width: 1280px) {
+    .position-section-draft {
+        width: calc(1250px);
+    }
+}
+
+@media (min-width: 1490px) {
+    .position-section-draft {
+        width: calc(1460px);
     }
 }
 
@@ -1082,7 +1116,7 @@ th {
         width: 95%; /* 1 * 350px + 10px for margins/padding */
     }
 
-    .player-grid, .player-grid-for-draft {
+    .player-grid{
         width: -webkit-fill-available !important;
         
     }
@@ -1426,7 +1460,7 @@ th {
     display: flex;
     flex-wrap: nowrap;
 
-
+    z-index:1010;
     gap: 1px;
     padding: 1px 5px;
     scroll-behavior: smooth;
@@ -1919,7 +1953,7 @@ th {
 }
 
 /* Transfers toggle button */
-.transfers-toggle, .view-toggle-button, .fixtures-toggle, .view-toggle-round-btn, .cards-toggle {
+.transfers-toggle, .view-toggle-button, .fixtures-toggle, .view-toggle-round-btn, .cards-toggle, .squads-toggle {
     position: fixed;
     background-color: var(--primary-color);
     color: white;
@@ -1935,12 +1969,12 @@ th {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-    .transfers-toggle, .fixtures-toggle, .view-toggle-round-btn, .view-toggle-button, .cards-toggle i {
+    .transfers-toggle, .fixtures-toggle, .view-toggle-round-btn, .view-toggle-button, .cards-toggle, .squads-toggle i {
         font-size: 18px;
     }
 
 
-.transfers-toggle, .view-toggle-round-btn, .cards-toggle {
+.transfers-toggle, .view-toggle-round-btn, .cards-toggle, .squads-toggle {
     right: 20px;
     bottom: 40px;
 }
