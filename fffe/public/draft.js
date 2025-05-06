@@ -6,7 +6,6 @@ import { fetchDraftPeriods } from './common.js';
 import { fetchPositions } from './common.js';
 
 let draftPeriodStartDate = null;
-let outPlayerId = null;
 let isDraftInProgress = false;
 let draftCheckInterval = null;
 let currentLeague = null;
@@ -164,7 +163,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     function createPlayerDivForAllView(player) {
         const playerDiv = document.createElement('div');
-        playerDiv.className = 'player-grid';  // Removed isInOtherSquad class
+        playerDiv.className = 'player-grid-for-draft';  // Removed isInOtherSquad class
         playerDiv.setAttribute('data-player', JSON.stringify(player));
 
         // Format score and other player info as before...
@@ -173,7 +172,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         playerDiv.innerHTML = `
         <button class="add-player-button" data-player-id="${player.id}" data-position="${player.positionName}">+</button>
         <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
-        <span class="player-name-long">${player.webName}</span>
+        <span class="player-name">${player.webName}</span>
         ${getPlayerStatusIcon(player)}
     `;
         return playerDiv;
@@ -795,166 +794,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-    async function removePlayerFromSquad(playerId, squadId, position) {
-        // Check if a swap is already pending
-        if (outPlayerId) {
-            alert('A player swap is pending. Please complete the swap before removing another player.');
-            return;
-        }
-
-        const now = new Date();
-        const draftStart = new Date(draftPeriodStartDate);
-
-        if (now > draftStart) {
-            // After draft has started, store the removed player's ID
-            outPlayerId = playerId;
-
-            // Get section elements
-            const section = document.getElementById(position);
-            const addButton = section.querySelector('.add-button');
-            const playerList = section.querySelector('.player-list');
-
-            // Show the Add button and available players list
-            addButton.style.display = 'block';
-            playerList.style.display = 'block';
-
-            // Mark section as pending swap
-            section.classList.add('pending-swap');
-
-            // Fetch available players immediately to populate the list
-            await fetchAndDisplayAvailablePlayers(position, leagueId, draftPeriodId);
-
-            return;
-        }
-
-        // Pre-draft period behavior remains the same
-        const payload = {
-            userSquadId: parseInt(squadId),
-            playerId: parseInt(playerId)
-        };
-
-        try {
-            const response = await fetch(`${config.backendUrl}/PlayerPositions/delete-user-squad-player`, addAuthHeader({
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            }));
-
-            if (!response.ok) {
-                console.error('Failed to remove player from squad:', response.status, response.statusText);
-                return;
-            }
-
-//            await fetchAndDisplaySquadPlayers(squadId, leagueId);
-            await fetchAndDisplayAvailablePlayers(position, leagueId, draftPeriodId);
-
-            const section = document.getElementById(position);
-            const addButton = section.querySelector('.add-button');
-            addButton.style.display = 'block';
-        } catch (error) {
-            console.error('Error removing player from squad:', error);
-        }
-    }
-
-    /*
-    document.addEventListener('click', function (event) {
-        if (event.target.classList.contains('add-player-button')) {
-            const playerId = event.target.getAttribute('data-player-id');
-            const position = event.target.getAttribute('data-position');
-            const playerDiv = event.target.closest('.player-grid');
-            const player = JSON.parse(playerDiv.getAttribute('data-player'));
-
-            // Create confirmation dialog
-            const overlay = document.createElement('div');
-            overlay.className = 'transfer-overlay';
-
-            const modal = document.createElement('div');
-            modal.className = 'transfer-modal';
-
-            // Reuse existing modal structure
-            modal.innerHTML = `
-            <div class="transfer-modal-header">
-                <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" 
-                     alt="${player.webName}" class="player-photo">
-                <h3>${player.webName}</h3>
-                <span>${position}</span>
-                <button class="close-modal-btn">&times;</button>
-            </div>
-            <div class="transfer-modal-content">
-                <p>Are you sure this is your pick?</p>
-                <div class="transfer-modal-buttons">
-                    <button class="confirm-transfer-btn">OK</button>
-                    <button class="cancel-transfer-btn">Cancel</button>
-                </div>
-            </div>
-        `;
-
-            // Add event listeners
-            modal.querySelector('.close-modal-btn').addEventListener('click', () => overlay.remove());
-            modal.querySelector('.cancel-transfer-btn').addEventListener('click', () => overlay.remove());
-            modal.querySelector('.confirm-transfer-btn').addEventListener('click', async () => {
-                overlay.remove();
-                await addPlayerToSquad(playerId, squadId, position);
-                await advanceDraft();
-            });
-
-            overlay.appendChild(modal);
-            document.body.appendChild(overlay);
-        }
-    });
-
-    document.addEventListener('click', function (event) {
-        if (event.target.classList.contains('add-button')) {
-            const position = event.target.getAttribute('data-position');
-            fetchAndDisplayAvailablePlayers(position, leagueId, draftPeriodId);
-
-            // Scroll the section to the top of the page
-            const section = document.getElementById(position);
-            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-    });
-
-    document.addEventListener('click', function (event) {
-        const playerId = event.target.getAttribute('data-player-id');
-        const position = event.target.getAttribute('data-position');
-
-        if (event.target.classList.contains('add-player-button')) {
-            addPlayerToSquad(playerId, squadId, position);
-        } else if (event.target.classList.contains('remove-player-button')) {
-            // Check if a swap is already pending
-            if (outPlayerId) {
-                alert('A player swap is pending. Please complete the swap before removing another player.');
-                return;
-            }
-            event.target.classList.remove('remove-player-button');
-            event.target.classList.add('remove-player-button-pending');
-            removePlayerFromSquad(playerId, squadId, position);
-        } else if (event.target.classList.contains('remove-player-button-pending')) {
-            if (outPlayerId) {
-                if (outPlayerId === playerId) {
-                    // Cancel the pending transfer
-                    outPlayerId = null;
-                    const section = document.getElementById(position);
-                    section.classList.remove('pending-swap');
-                    const addButton = section.querySelector('.add-button');
-                    const playerList = section.querySelector('.player-list');
-                    addButton.style.display = 'none';
-                    playerList.style.display = 'none';
-
-                    // Remove pending class from the button
-                    event.target.classList.remove('remove-player-button-pending');
-                    event.target.classList.add('remove-player-button');
-                    return;
-                }
-                alert('A player swap is pending. Please complete the swap before removing another player.');
-                return;
-            }
-        }
-    });
-    */
-
     document.addEventListener('click', async function (event) {
         // Get common attributes
         const playerId = event.target.getAttribute('data-player-id');
@@ -1015,18 +854,6 @@ document.addEventListener('DOMContentLoaded', async function () {
             // Scroll the section to the top of the page
             const section = document.getElementById(position);
             section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-
-        // Handle remove player button
-        else if (event.target.classList.contains('remove-player-button')) {
-            // Check if a swap is already pending
-            if (outPlayerId) {
-                alert('A player swap is pending. Please complete the swap before removing another player.');
-                return;
-            }
-            event.target.classList.remove('remove-player-button');
-            event.target.classList.add('remove-player-button-pending');
-            removePlayerFromSquad(playerId, squadId, position);
         }
 
         // Handle remove player button pending

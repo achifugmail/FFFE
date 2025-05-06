@@ -9,8 +9,7 @@ html, body {
     padding: 0;
 }
 
-
-.player-grid, .player-grid-drafted /* styles.css */
+.player-grid, .player-grid-for-draft, .player-grid-drafted /* styles.css */
 /* General styles */
 h1, h2, h3, h4, h5, h6 {
     color: #444;
@@ -142,11 +141,11 @@ th {
 
 .player-grid span,
 .player-grid .player-name,
+.player-grid-for-draft .player-name,
 .player-grid-drafted .player-name {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    
     display: inline-block; /* Needed for ellipsis to work */
 }
 
@@ -413,7 +412,7 @@ a {
         font-size: 20px; /* Adjust base font size for smaller screens */
     }
 
-    .player-grid, .player-grid-drafted {
+    .player-grid, .player-grid-drafted, .player-grid-for-draft {
         grid-template-columns: 70px auto 50px;
         gap: 5px;
     }
@@ -471,7 +470,7 @@ a {
         font-size: 22px; /* Increase base font size for high-resolution screens */
     }
 
-    .player-grid, .player-grid-drafted {
+    .player-grid, .player-grid-drafted, .player-grid-for-draft {
         grid-template-columns: 80px auto 60px;
         gap: 5px;
     }
@@ -799,7 +798,7 @@ ul {
 
 
 
-.player-grid, .player-grid-drafted img {
+.player-grid, .player-grid-drafted, .player-grid-for-draft img {
     border-radius: 50%;
     width: 25px;
     height: 25px;
@@ -1061,11 +1060,9 @@ th {
 
 @media (min-width: 800px) {
     .position-section-draft {
-        width: calc(320px); /* 2 * 350px + 20px for margins/padding */
+        width: calc(205px); /* 2 * 350px + 20px for margins/padding */
     }
 }
-
-
 
 @media (min-width: 1600px) {
     .position-section {
@@ -1085,7 +1082,7 @@ th {
         width: 95%; /* 1 * 350px + 10px for margins/padding */
     }
 
-    .player-grid {
+    .player-grid, .player-grid-for-draft {
         width: -webkit-fill-available !important;
         
     }
@@ -1137,7 +1134,7 @@ th {
         margin-left: auto; /* This will still push it to the right */
     }
 
-.player-grid, .player-grid-drafted {
+.player-grid, .player-grid-drafted, .player-grid-for-draft {
     display: flex;
     align-items: center;
     margin: 5px;
@@ -1146,10 +1143,18 @@ th {
     border-radius: 5px;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
     position: relative;
-    width: 335px;
     overflow: hidden;
     border-left: 4px solid #fff;
 }
+
+.player-grid, .player-grid-drafted {
+    width: 335px;
+}
+
+.player-grid-for-draft {
+    width: 180px;
+}
+
 
 /* Style for player status icons */
 .player-status {
