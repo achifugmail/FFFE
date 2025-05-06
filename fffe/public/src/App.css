@@ -1097,6 +1097,11 @@ th {
         width: calc(1460px);
     }
 }
+@media (min-width: 1700px) {
+    .position-section-draft {
+        width: calc(1670px);
+    }
+}
 
 @media (min-width: 1600px) {
     .position-section {
