@@ -3765,6 +3765,7 @@ nav {
     width:min-content;
     position: relative;
     left: 10px;
+    top:70px;
 }
 
 #allPlayersContainer {

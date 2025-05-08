@@ -178,6 +178,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         return playerDiv;
     }
 
+    /* this version shows all squads
     async function fetchAndCreateUserTeamCards() {
         try {
             // Fetch squad details
@@ -203,6 +204,61 @@ document.addEventListener('DOMContentLoaded', async function () {
             createUserTeamCards(players, squads);
 
             // Create drafted players list
+            createDraftedPlayersList(players);
+        } catch (error) {
+            console.error('Error fetching league squad players:', error);
+        }
+    }*/
+
+    /*this version shows current player's squad*/
+    async function fetchAndCreateUserTeamCards() {
+        try {
+            console.log('Current User ID:', currentUserId); // Log the current user ID
+
+            // Fetch squad details
+            const response = await fetch(`${config.backendUrl}/UserSquads/ByLeague/${leagueId}`, addAuthHeader());
+
+            if (!response.ok) {
+                console.error('Failed to fetch league squad players:', response.status, response.statusText);
+                return;
+            }
+
+            const squads = await response.json();
+            console.log('All Squads:', squads); // Log all squads
+
+            // Fetch player details for the league
+            const playersResponse = await fetch(`${config.backendUrl}/PlayerPositions/league-user-squad-players/${leagueId}`, addAuthHeader());
+            if (!playersResponse.ok) {
+                console.error('Failed to fetch league squad players:', playersResponse.status, playersResponse.statusText);
+                return;
+            }
+
+            const players = await playersResponse.json();
+
+            // Filter players to only include the current user's squad
+            const currentUserSquad = squads.find(squad => {
+                console.log('Comparing squad userId:', squad.userId, 'with currentUserId:', currentUserId);
+                return squad.userId.toString() === currentUserId.toString(); // Convert both to strings for comparison
+            });
+
+            if (!currentUserSquad) {
+                console.warn('No squad found for the current user.');
+                console.log('Available squad user IDs:', squads.map(s => s.userId));
+                return;
+            }
+
+            console.log('Found current user squad:', currentUserSquad);
+
+            const currentUserPlayers = players.filter(player => player.squadId === currentUserSquad.id);
+            console.log('Current user players:', currentUserPlayers);
+
+            // Create user team cards for the current user's squad
+            createUserTeamCards(currentUserPlayers, [currentUserSquad]);
+
+            // Ensure the container is visible
+            const userTeamCardsContainer = document.getElementById('userTeamCardsContainer');
+            userTeamCardsContainer.style.display = 'flex';
+
             createDraftedPlayersList(players);
         } catch (error) {
             console.error('Error fetching league squad players:', error);
@@ -916,7 +972,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         displayAllPlayersView();
 
-        await fetchAndCreateUserTeamCards();
+        //await fetchAndCreateUserTeamCards();
 
         // Add event listeners for dropdowns
         leagueDropdown.addEventListener('change', async function () {
@@ -960,7 +1016,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         const toggleButton = document.getElementById('userTeamCardsContainerToggle');
 
         // Hide the container on page load
-        userTeamCardsContainer.style.display = 'none';
+        //userTeamCardsContainer.style.display = 'none';
 
         // Add click event to the floating action button
         toggleButton.addEventListener('click', function () {
