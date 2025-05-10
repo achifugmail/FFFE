@@ -1586,9 +1586,6 @@ th {
 .transfer-player .player-name {
     display: block;
 }
-.drafted-player .player-name {
-    display: block;
-}
 
 .player-score {
     text-align: right;
@@ -3833,11 +3830,12 @@ nav {
         height: 40px;
         border-radius: 50%;
         margin-bottom: 5px;
+        padding:2px;
     }
 
     .drafted-player .player-name {
         font-size: 12px;
-        font-weight: bold;
+        display: block;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;

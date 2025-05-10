@@ -350,7 +350,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         header.innerHTML = `
         <div class="header-top">
             <h3 title="${team.username}">${team.username}</h3>
-            <span class="total-score">${Math.round(team.totalPoints)}</span>
         </div>
     `;
         card.appendChild(header);
