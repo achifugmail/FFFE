@@ -211,6 +211,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     }*/
 
     /*this version shows current player's squad*/
+    let squads = []; // Global variable to store squads
+
     async function fetchAndCreateUserTeamCards() {
         try {
             console.log('Current User ID:', currentUserId); // Log the current user ID
@@ -223,7 +225,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 return;
             }
 
-            const squads = await response.json();
+            squads = await response.json(); // Store squads globally
             console.log('All Squads:', squads); // Log all squads
 
             // Fetch player details for the league
@@ -468,23 +470,26 @@ document.addEventListener('DOMContentLoaded', async function () {
         // There is an active draft
         draftMessageContainer.style.display = 'block';
 
+        // Look up the squad name for the currentDraftUserId
+        const currentDraftSquad = squads.find(squad => squad.userId.toString() === league.currentDraftUserId.toString());
+        const squadName = currentDraftSquad ? currentDraftSquad.squadName : `User ID: ${league.currentDraftUserId}`;
+
         if (league.currentDraftUserId.toString() === currentUserId) {
             // Current user's turn in the draft
             draftMessageContainer.innerHTML = `
-    <div class="draft-message your-turn">
-        <div class="your-turn-inline">
-            <h3>It's your turn to draft!</h3>
-        </div>
-    </div>
-`;
+            <div class="draft-message your-turn">
+                <div class="your-turn-inline">
+                    <p>It's your turn to draft!</p>
+                </div>
+            </div>
+        `;
             enableAllButtons();
         } else {
-            // Waiting for another user - horizontally aligned elements
+            // Waiting for another user - display squad name
             draftMessageContainer.innerHTML = `
             <div class="draft-message waiting">
-                <div class="draft-message-inline">
-                    <h3>Draft in progress</h3>
-                    <p>Waiting for player ID: ${league.currentDraftUserId}</p>
+                <div class="draft-message-inline">                    
+                    <p>Waiting for squad: ${squadName}</p>
                     <div class="loader"></div>
                 </div>
             </div>
@@ -792,7 +797,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             playerList.innerHTML = '';
             filteredPlayers.forEach(player => {
                 const playerDiv = document.createElement('div');
-                playerDiv.className = 'player-grid';
+                playerDiv.className = 'player-grid-for-draft';
                 const isPlayerInSquad = squadPlayers.some(p => p.id === player.id);
                 playerDiv.setAttribute('data-player', JSON.stringify(player));
 
@@ -857,7 +862,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         // Handle add player button (+ button)
         if (event.target.classList.contains('add-player-button')) {
-            const playerDiv = event.target.closest('.player-grid');
+            const playerDiv = event.target.closest('.player-grid-for-draft');
             const player = JSON.parse(playerDiv.getAttribute('data-player'));
 
             // Create confirmation dialog

@@ -1463,9 +1463,7 @@ th {
 }
 .user-team-cards-container-draft {
     display: flex;
-    flex-wrap: nowrap;
-
-    z-index:1010;
+    flex-wrap: nowrap;   
     gap: 1px;
     padding: 1px 5px;
     scroll-behavior: smooth;
@@ -2436,29 +2434,28 @@ th {
     padding: 5px;
     border-radius: 5px;
     text-align: center;
-    width: 95%; /* Ensure it spans the full width */
+    width: 100%; /* Ensure it spans the full width */
     
 }
 
 /* Rest of your CSS stays the same */
 .draft-message {
-    padding: 15px;
+    padding: 5px;
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     width: 95%;
 }
 
 .your-turn {
-    background-color: #d4edda;
+    background-color: var(--primary-color);
     border: 1px solid #c3e6cb;
-    color: #155724;
-    
+    color: white;
 }
 
 .waiting {
-    background-color: #fff3cd;
+    background-color: var(--navigation-color);
     border: 1px solid #ffeeba;
-    color: #856404;
+    color: white;
 }
 
 .confirm-draft-btn {
@@ -3821,8 +3818,8 @@ nav {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-width: 80px; /* Minimum width for each player card */
-    max-width: 80px; /* Maximum width for each player card */
+    min-width: 60px; /* Minimum width for each player card */
+    max-width: 60px; /* Maximum width for each player card */
     text-align: center;
     padding: 5px;
     background-color: white;
@@ -3832,8 +3829,8 @@ nav {
 }
 
     .drafted-player img {
-        width: 50px;
-        height: 50px;
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
         margin-bottom: 5px;
     }
