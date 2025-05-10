@@ -23,11 +23,11 @@ const host = window.location.hostname;
 const root = document.documentElement;
 
 if (host === 'localhost') {
+    root.style.setProperty('--primary-color', 'orange'); 
+    root.style.setProperty('--navigation-color', 'indigo');
+} else if (host.includes('test') || host.includes('staging')) {
     root.style.setProperty('--primary-color', 'pink');
     root.style.setProperty('--navigation-color', 'DarkOliveGreen');
-} else if (host.includes('test') || host.includes('staging')) {
-    root.style.setProperty('--primary-color', 'orange');
-    root.style.setProperty('--navigation-color', 'indigo');
 } else {
     // production
 }
