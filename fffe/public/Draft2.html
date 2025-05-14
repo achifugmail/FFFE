@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" viewport-fit="cover">
+    <title>Draft</title>
+    <!-- Link to your new CSS file first, then the general one -->
+    <link rel="stylesheet" href="src/app2.css">
+    <link rel="stylesheet" href="src/App.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <!-- Removed inline styles, they are now in app2.css -->
+</head>
+<body>
+    <div id="nav-placeholder"></div>
+    <div id="squadInfo"></div>
+    <div id="content" class="team-container">
+        <div class="dropdown-container">
+            <select id="leagueDropdown"></select>
+            <div>
+                <select id="draftPeriodDropdown" style="display: none;"></select>
+            </div>
+        </div>
+
+        <div id="draftContainer" class="draft-layout">
+            <!-- Current Pick Info / Timer Area - MOVED HERE -->
+            <div id="currentPickInfoContainer">
+                <!-- Content populated by JS: updateUIForDraft -->
+            </div>
+
+            <div class="draft-main-content">
+                <div id="availablePlayersSection" class="draft-column">
+                    <h2>Available Players</h2>
+                    <div class="filters-sort-search-container">
+                        <input type="text" id="playerSearchBox" placeholder="Search players..." class="search-box">
+                        <div id="playerFilters" class="player-filters">
+                            <button data-position-filter="ALL" class="filter-button active">ALL</button>
+                            <!-- Other position filter buttons will be populated by JS -->
+                        </div>
+                        <div id="playerSorters" class="player-sorters">
+                            <label for="sortPlayerOptions">Sort by: </label>
+                            <select id="sortPlayerOptions">
+                                <option value="name_asc">Name (A-Z)</option>
+                                <option value="name_desc">Name (Z-A)</option>
+                                <!-- Points sort options removed -->
+                            </select>
+                        </div>
+                    </div>
+                    <div id="allPlayersContainer">
+                        <!-- Player sections (GK, DEF, etc.) will be rendered here by JS -->
+                    </div>
+                </div>
+
+                <div class="draft-column-right">
+                    <div id="draftLogContainer" class="draft-column-item">
+                        <h2>Draft Log</h2>
+                        <div id="draftLogContent">
+                            <!-- Drafted player items will be rendered here by JS -->
+                        </div>
+                    </div>
+
+                    <div id="mySquadContainer" class="draft-column-item">
+                        <h2 id="mySquadHeader">My Squad</h2>
+                        <div id="userTeamCardsContainer">
+                            <!-- User's team card will be rendered here by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="draft2.js"></script>
+    <script type="module">
+        import { initializeNavigation } from './nav.js';
+        fetch('nav.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('nav-placeholder').innerHTML = data;
+                initializeNavigation();
+            });
+    </script>
+</body>
+</html>

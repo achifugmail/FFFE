@@ -1,0 +1,413 @@
+/* app2.css - Draft Page Specific Styles */
+
+/* General Layout */
+.draft-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Reduced gap */
+    padding: 5px; /* Reduced padding */
+}
+
+#currentPickInfoContainer {
+    padding: 8px; /* Reduced padding */
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+    width: 100%; /* Ensure it takes full width */
+    box-sizing: border-box;
+    margin-bottom: 10px; /* Space below the indicator */
+}
+
+    #currentPickInfoContainer .your-turn-message {
+        color: #28a745;
+        font-size: 1.0em; /* Slightly smaller */
+    }
+
+    #currentPickInfoContainer .waiting-message {
+        color: #b8860b; /* Darker yellow for better visibility */
+    }
+
+    #currentPickInfoContainer .draft-round-info {
+        font-size: 0.85em; /* Slightly smaller */
+        color: #555;
+        margin-top: 3px;
+    }
+
+    #currentPickInfoContainer .loader {
+        border: 3px solid #f3f3f3; /* Thinner border */
+        border-top: 3px solid #3498db;
+        border-radius: 50%;
+        width: 16px; /* Smaller loader */
+        height: 16px;
+        animation: spin 1s linear infinite;
+        display: inline-block;
+        margin-left: 8px;
+        vertical-align: middle;
+    }
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.draft-main-content {
+    display: flex;
+    gap: 10px; /* Reduced gap */
+}
+
+.draft-column { /* For Available Players */
+    flex: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* Reduced gap */
+    padding: 8px; /* Reduced padding */
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    min-width: 280px; /* Adjusted min-width */
+}
+
+.draft-column-right { /* For Draft Log & My Squad */
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Reduced gap */
+    min-width: 260px; /* Adjusted min-width */
+}
+
+.draft-column-item {
+    padding: 8px; /* Reduced padding */
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+}
+
+#draftLogContainer, #mySquadContainer {
+    min-height: 180px; /* Reduced min-height */
+}
+
+    #availablePlayersSection h2,
+    #draftLogContainer h2,
+    #mySquadContainer h2 {
+        margin-top: 0;
+        margin-bottom: 8px; /* Reduced margin */
+        font-size: 1.1em; /* Slightly smaller */
+        color: #333;
+        padding-bottom: 4px;
+        border-bottom: 1px solid #eee;
+    }
+
+/* Compact Filters, Sort, Search container */
+.filters-sort-search-container {
+    display: flex;
+    flex-direction: column; /* Stack them vertically for now */
+    gap: 8px; /* Space between elements */
+    margin-bottom: 8px; /* Reduced margin */
+}
+
+#playerSearchBox.search-box { /* Target specific search box */
+    padding: 6px 8px; /* Reduced padding */
+    font-size: 0.9em;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    width: 100%; /* Make search box take full width of its container */
+    box-sizing: border-box;
+    margin-bottom: 0; /* Remove its own margin bottom if controlled by flex gap */
+}
+
+.player-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px; /* Reduced gap */
+    margin-bottom: 0;
+}
+
+    .player-filters .filter-button {
+        padding: 4px 8px; /* Smaller buttons */
+        border: 1px solid #ccc;
+        background-color: #f9f9f9;
+        cursor: pointer;
+        border-radius: 3px;
+        font-size: 0.8em; /* Smaller font */
+    }
+
+        .player-filters .filter-button.active {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+.player-sorters {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 0;
+}
+
+    .player-sorters label {
+        font-size: 0.85em; /* Smaller label */
+    }
+
+    .player-sorters select {
+        padding: 4px 6px; /* Reduced padding */
+        border-radius: 3px;
+        border: 1px solid #ccc;
+        font-size: 0.85em; /* Smaller font */
+    }
+
+
+#allPlayersContainer {
+    overflow-y: auto;
+    flex-grow: 1;
+    max-height: 55vh; /* Adjusted max height */
+}
+
+    #allPlayersContainer .position-section-draft {
+        margin-bottom: 10px; /* Reduced margin */
+    }
+
+        #allPlayersContainer .position-section-draft .section-header {
+            font-weight: bold;
+            padding: 4px 0; /* Reduced padding */
+            font-size: 0.95em;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 4px;
+        }
+
+.player-grid-for-draft {
+    display: flex;
+    align-items: center;
+    gap: 6px; /* Reduced gap */
+    padding: 4px 2px; /* Reduced padding */
+    border-bottom: 1px solid #f0f0f0;
+}
+
+    .player-grid-for-draft:last-child {
+        border-bottom: none;
+    }
+
+    .player-grid-for-draft .player-photo {
+        width: 28px; /* Slightly smaller */
+        height: 28px;
+    }
+
+    .player-grid-for-draft .player-name {
+        flex-grow: 1;
+        font-size: 0.9em; /* Slightly smaller */
+    }
+    /* Points removed */
+    .player-grid-for-draft .add-player-button { /* For "+" button */
+        padding: 0;
+        width: 22px; /* Adjust size for a small plus button */
+        height: 22px;
+        font-size: 1.1em; /* Size of the "+" character */
+        font-weight: bold;
+        background-color: #28a745; /* Green background */
+        color: white;
+        border: none;
+        border-radius: 4px; /* Slightly rounded corners */
+        cursor: pointer;
+        line-height: 22px; /* Center the "+" vertically */
+        text-align: center;
+    }
+
+        .player-grid-for-draft .add-player-button:hover {
+            background-color: #218838;
+        }
+
+    .player-grid-for-draft .player-status {
+        margin-left: auto;
+    }
+
+/* Draft Log */
+#draftLogContent {
+    max-height: 280px; /* Adjusted */
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.draft-log-item {
+    display: grid;
+    grid-template-columns: 25px auto 1fr auto; /* Photo, Pick#, Player Name, Pos */
+    gap: 6px; /* Reduced gap */
+    align-items: center;
+    padding: 5px 3px; /* Reduced padding */
+    border-bottom: 1px solid #eee;
+    font-size: 0.85em; /* Slightly smaller */
+}
+
+    .draft-log-item:last-child {
+        border-bottom: none;
+    }
+
+    .draft-log-item .player-photo {
+        width: 22px;
+        height: 22px; /* Smaller photo */
+    }
+
+    .draft-log-item .pick-number {
+        font-weight: bold;
+        color: #555;
+        text-align: right;
+        padding-right: 3px;
+    }
+
+    .draft-log-item .drafting-team {
+        color: #0056b3;
+        font-weight: 500;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 80px; /* Constrain team name width */
+        padding-right: 5px;
+    }
+
+    .draft-log-item .player-name {
+        font-weight: 500; /* Make player name slightly bolder */
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        /* flex-grow: 1; will be handled by grid 1fr */
+    }
+
+    .draft-log-item .player-position {
+        background-color: #e9ecef;
+        padding: 2px 5px;
+        border-radius: 3px;
+        font-size: 0.75em; /* Smaller */
+        color: #495057;
+        text-align: center;
+    }
+
+/* My Squad */
+#userTeamCardsContainer {
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+#mySquadContainer .user-team-card-header2 h3 {
+    margin: 0;
+    font-size: 1.0em; /* Slightly smaller */
+}
+
+#mySquadContainer .position-group {
+    margin-bottom: 8px; /* Reduced margin */
+}
+
+    #mySquadContainer .position-group .position-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 4px; /* Reduced margin */
+    }
+
+    #mySquadContainer .position-group .position-label {
+        font-weight: bold;
+        font-size: 0.95em; /* Slightly smaller */
+    }
+
+    #mySquadContainer .position-group .position-count {
+        font-size: 0.8em; /* Smaller */
+        color: #6c757d;
+        background-color: #f0f0f0;
+        padding: 1px 4px; /* Reduced padding */
+        border-radius: 3px;
+    }
+
+#mySquadContainer .player-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 0; /* Reduced padding */
+    font-size: 0.85em; /* Slightly smaller */
+}
+
+    #mySquadContainer .player-row .player-photo {
+        width: 28px;
+        height: 28px;
+    }
+
+    #mySquadContainer .player-row.empty-slot {
+        color: #999;
+        font-style: italic;
+        padding-left: 34px; /* (28px photo + 6px gap) */
+        min-height: 28px;
+    }
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .draft-main-content {
+        flex-direction: column;
+    }
+
+    .draft-column, .draft-column-right {
+        flex: 1;
+        min-width: initial;
+    }
+
+    #allPlayersContainer {
+        max-height: 35vh;
+    }
+}
+
+@media (max-width: 768px) {
+    .filters-sort-search-container {
+        /* Could stack search, filter, sort vertically or wrap filters more aggressively */
+    }
+
+    .player-filters .filter-button {
+        padding: 3px 6px;
+        font-size: 0.75em;
+    }
+
+    .player-grid-for-draft .player-name,
+    .draft-log-item .player-name {
+        font-size: 0.85em;
+    }
+}
+
+/* Status icon styles from App.css (if you want to ensure they are applied) */
+.player-status {
+    margin-left: 5px; /* Keep some space */
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 10px; /* fa icon size */
+    flex-shrink: 0; /* Prevent shrinking */
+}
+
+.status-warning {
+    color: #856404;
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+}
+
+.status-injured {
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+}
+
+.status-suspended {
+    color: #ffffff;
+    background-color: #f66565;
+    border: 1px solid #b8daff;
+}
+/* Example */
+.status-unavailable {
+    color: #383d41;
+    background-color: #e2e3e5;
+    border: 1px solid #d6d8db;
+}
