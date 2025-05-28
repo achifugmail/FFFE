@@ -16,9 +16,24 @@ document.getElementById('registerForm').addEventListener('submit', async functio
     });
 
     if (response.ok) {
-        const data = await response.json();
-        alert('Registration successful!');
-        // Handle successful registration, e.g., redirect to login page
+        // Registration successful, now log in automatically
+        const loginResponse = await fetch(`${config.backendUrl}/User/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+        });
+
+        if (loginResponse.ok) {
+            const data = await loginResponse.json();
+            localStorage.setItem('username', username);
+            localStorage.setItem('userId', data.userId);
+            localStorage.setItem('token', data.token); // Store the JWT
+            window.location.href = 'Team.html';
+        } else {
+            alert('Registration succeeded, but automatic login failed. Please log in manually.');
+        }
     } else {
         alert('Registration failed. Please try again.');
     }

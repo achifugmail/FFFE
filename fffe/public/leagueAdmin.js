@@ -900,7 +900,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('Failed to join league');
             } else {
                 alert('Joined league successfully!');
-                fetchCurrentLeagues(); // Refresh the list of current leagues
+                window.location.href = 'Draft.html';
+                //fetchCurrentLeagues(); // Refresh the list of current leagues
             }
         } catch (error) {
             console.error('Error joining league:', error);
@@ -956,7 +957,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     alert('Failed to join league');
                 } else {
                     alert('League create and joined successfully!');
-                    fetchCurrentLeagues(); // Refresh the list of current leagues
+                    window.location.href = 'Draft.html';
+                    //fetchCurrentLeagues(); // Refresh the list of current leagues
                 }
             }
         } catch (error) {
