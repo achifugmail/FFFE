@@ -9,8 +9,7 @@ html, body {
     padding: 0;
 }
 
-
-.player-grid /* styles.css */
+.player-grid, .player-grid-for-draft, .player-grid-drafted /* styles.css */
 /* General styles */
 h1, h2, h3, h4, h5, h6 {
     color: #444;
@@ -48,7 +47,7 @@ label {
 }
 
 input[type="text"] {
-    width: 100%;
+    
     padding: 10px;
     margin: 5px 0 20px;
     border: 1px solid #ccc;
@@ -141,11 +140,12 @@ th {
 
 
 .player-grid span,
-.player-grid .player-name {
+.player-grid .player-name,
+.player-grid-for-draft .player-name,
+.player-grid-drafted .player-name {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    
     display: inline-block; /* Needed for ellipsis to work */
 }
 
@@ -260,14 +260,18 @@ th {
 }
 
 .transfer-item {
-    display: grid;
-    grid-template-columns: auto 1fr auto 1fr auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.transfer-content {
+    display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 1rem;
-    padding: 0.5rem;
-    margin-bottom: 0.5rem;
-    background-color: #f8f9fa;
-    border-radius: 4px;
 }
 
 .transfer-date {
@@ -299,6 +303,68 @@ th {
     color: #666;
     padding: 1rem;
 }
+
+.transfers-count-header {
+    background-color: var(--background-color);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.transfers-remaining {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.1rem;
+}
+
+.transfers-label {
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.transfers-number {
+    font-weight: bold;
+    color: var(--primary-color);
+    font-size: 1.2rem;
+}
+
+
+
+.transfer-squads {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.from-squad, .to-squad {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    background-color: var(--background-secondary);
+    font-weight: 500;
+}
+
+.from-squad {
+    color: var(--text-color);
+    margin-right: 0.5rem;
+}
+
+.to-squad {
+    color: var(--text-color);
+}
+
+    /* On hover effect */
+    .from-squad:hover, .to-squad:hover {
+        background-color: var(--background-hover);
+    }
+
 iframe {
     min-height: 800px;
     width: 100%; /* Add this to make iframe full width */
@@ -412,7 +478,7 @@ a {
         font-size: 20px; /* Adjust base font size for smaller screens */
     }
 
-    .player-grid {
+    .player-grid, .player-grid-drafted, .player-grid-for-draft {
         grid-template-columns: 70px auto 50px;
         gap: 5px;
     }
@@ -470,7 +536,7 @@ a {
         font-size: 22px; /* Increase base font size for high-resolution screens */
     }
 
-    .player-grid {
+    .player-grid, .player-grid-drafted, .player-grid-for-draft {
         grid-template-columns: 80px auto 60px;
         gap: 5px;
     }
@@ -798,11 +864,11 @@ ul {
 
 
 
-    .player-grid img {
-        border-radius: 50%;
-        width: 25px;
-        height: 25px;
-    }
+.player-grid, .player-grid-drafted, .player-grid-for-draft img {
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+}
 
 .add-button {
     margin-top: 10px;
@@ -899,6 +965,96 @@ th {
     object-fit: cover; /* Not in App.css */
     width: 25px; /* Different size than App.css */
     height: 25px; /* Different size than App.css */
+}
+
+.player-photo-container {
+    position: relative;
+    width: 40px;
+    height: 40px;
+}
+
+.captain-indicator {
+    position: absolute;
+    width: 52px; /* Slightly larger than photo */
+    height: 52px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+}
+
+.captain-segment {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    clip-path: polygon(50% 50%, 50% 0%, 70.7% 0%, 100% 0%, 100% 29.3%, 100% 50%);
+}
+
+    /* Position each segment */
+    .captain-segment[data-segment="1"] {
+        transform: rotate(0deg);
+    }
+
+    .captain-segment[data-segment="2"] {
+        transform: rotate(72deg);
+    }
+
+    .captain-segment[data-segment="3"] {
+        transform: rotate(144deg);
+    }
+
+    .captain-segment[data-segment="4"] {
+        transform: rotate(216deg);
+    }
+
+    .captain-segment[data-segment="5"] {
+        transform: rotate(288deg);
+    }
+
+.captain-segment {
+    background: rgba(128, 128, 128, 0.3); /* Inactive segments */
+}
+
+    .captain-segment.active {
+        background: rgba(255, 215, 0, 0.5); /* Semi-transparent gold for active segments */
+    }
+
+.player-photo {
+    position: relative;
+    z-index: 1;
+    border-radius: 50%;
+}
+
+/* Ensure proper positioning within the player grid */
+.player-grid .player-photo-container {
+    grid-area: photo;
+    justify-self: center;
+}
+
+.player-photo-container {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.captain-indicator-svg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40px;
+    height: 40px;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 2;
+}
+
+.player-photo {
+    border-radius: 50%;
+    position: relative;
+    z-index: 3;
 }
 
 .web-name {
@@ -1004,7 +1160,7 @@ th {
     max-width: 80px;
 }
 /* Position section with decorative label */
-.position-section {
+.position-section, .position-section-draft {
     position: relative;
     border: 1px solid #ccc;
     padding: 5px 5px 5px 5px;
@@ -1031,6 +1187,20 @@ th {
         box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         z-index: 999;
     }
+    .position-section-draft::before {
+        content: attr(data-position);
+        position: absolute;
+        top: -12px;
+        left: 10px;
+        background: var(--navigation-color);
+        color: white;
+        padding: 2px 10px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: bold;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        z-index: 999;
+    }
 
 @media (min-width: 800px) {
     .position-section {
@@ -1041,6 +1211,51 @@ th {
 @media (min-width: 1120px) {
     .position-section {
         width: calc(1100px); /* 3 * 350px + 30px for margins/padding */
+    }
+}
+
+@media (min-width: 210px) {
+    .position-section-draft {
+        width: calc(205px); /* 2 * 350px + 20px for margins/padding */
+    }
+}
+
+@media (min-width: 440px) {
+    .position-section-draft {
+        width: calc(420px); 
+    }
+}
+
+@media (min-width: 650px) {
+    .position-section-draft {
+        width: calc(630px);
+    }
+}
+
+@media (min-width: 860px) {
+    .position-section-draft {
+        width: calc(840px);
+    }
+}
+@media (min-width: 1070px) {
+    .position-section-draft {
+        width: calc(1040px);
+    }
+}
+@media (min-width: 1280px) {
+    .position-section-draft {
+        width: calc(1250px);
+    }
+}
+
+@media (min-width: 1490px) {
+    .position-section-draft {
+        width: calc(1460px);
+    }
+}
+@media (min-width: 1700px) {
+    .position-section-draft {
+        width: calc(1670px);
     }
 }
 
@@ -1062,7 +1277,7 @@ th {
         width: 95%; /* 1 * 350px + 10px for margins/padding */
     }
 
-    .player-grid {
+    .player-grid{
         width: -webkit-fill-available !important;
         
     }
@@ -1114,7 +1329,7 @@ th {
         margin-left: auto; /* This will still push it to the right */
     }
 
-.player-grid {
+.player-grid, .player-grid-drafted, .player-grid-for-draft {
     display: flex;
     align-items: center;
     margin: 5px;
@@ -1123,10 +1338,18 @@ th {
     border-radius: 5px;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
     position: relative;
-    width: 335px;
     overflow: hidden;
     border-left: 4px solid #fff;
 }
+
+.player-grid, .player-grid-drafted {
+    width: 335px;
+}
+
+.player-grid-for-draft {
+    width: 180px;
+}
+
 
 /* Style for player status icons */
 .player-status {
@@ -1392,9 +1615,15 @@ th {
     gap: 1px;
     padding: 1px 5px;
     scroll-behavior: smooth;
-    width: 100%; /* Ensure the container takes full width */
     box-sizing: border-box; /* Include padding in width calculation */
-    
+}
+.user-team-cards-container-draft {
+    display: flex;
+    flex-wrap: nowrap;   
+    gap: 1px;
+    padding: 1px 5px;
+    scroll-behavior: smooth;
+    box-sizing: border-box; /* Include padding in width calculation */
 }
 
 .user-team-card {
@@ -1880,7 +2109,7 @@ th {
 }
 
 /* Transfers toggle button */
-.transfers-toggle, .view-toggle-button, .fixtures-toggle, .view-toggle-round-btn, .cards-toggle {
+.transfers-toggle, .view-toggle-button, .fixtures-toggle, .view-toggle-round-btn, .cards-toggle, .squads-toggle {
     position: fixed;
     background-color: var(--primary-color);
     color: white;
@@ -1896,12 +2125,12 @@ th {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-    .transfers-toggle, .fixtures-toggle, .view-toggle-round-btn, .view-toggle-button, .cards-toggle i {
+    .transfers-toggle, .fixtures-toggle, .view-toggle-round-btn, .view-toggle-button, .cards-toggle, .squads-toggle i {
         font-size: 18px;
     }
 
 
-.transfers-toggle, .view-toggle-round-btn, .cards-toggle {
+.transfers-toggle, .view-toggle-round-btn, .cards-toggle, .squads-toggle {
     right: 20px;
     bottom: 40px;
 }
@@ -2354,31 +2583,32 @@ th {
     margin-top: 1rem;
 }
 .draft-message-container {
-    margin: 15px 0;
-    padding: 10px;
+    margin: 5px 0;
+    padding: 5px;
     border-radius: 5px;
     text-align: center;
     width: 100%; /* Ensure it spans the full width */
-    margin-bottom: 20px; /* Add space between message and grid */
+    
 }
 
 /* Rest of your CSS stays the same */
 .draft-message {
-    padding: 15px;
+    padding: 5px;
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    width: 95%;
 }
 
 .your-turn {
-    background-color: #d4edda;
+    background-color: var(--primary-color);
     border: 1px solid #c3e6cb;
-    color: #155724;
+    color: white;
 }
 
 .waiting {
-    background-color: #fff3cd;
+    background-color: var(--navigation-color);
     border: 1px solid #ffeeba;
-    color: #856404;
+    color: white;
 }
 
 .confirm-draft-btn {
@@ -3342,7 +3572,7 @@ body.pitch-view-active {
 
 .player-squad-info {
     position: absolute;
-    left: 160px;
+    left: 120px;
     top: 50%;
     transform: translateY(-50%);
     font-size: 12px;
@@ -3641,3 +3871,133 @@ nav {
 .fixtures-toggle {
     bottom: calc(40px + env(safe-area-inset-bottom));
 }
+
+.search-box {
+    width: 180px;
+    padding: 10px;
+    margin-bottom: 20px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.draft-layout {
+    display: flex;
+    gap: 1px;
+    position: relative;
+    
+    margin-top: 5px;
+}
+
+#allPlayersContainer {
+    flex: 1;
+    min-width: 0; /* Prevents flex item from overflowing */
+}
+
+@media (max-width: 768px) {
+    .draft-layout {
+        flex-direction: column;
+    }
+}
+#draftContainer {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap; /* Prevent wrapping */
+    overflow-x: auto;
+    justify-content: flex-start;
+    align-items: flex-start;
+    width: 100%; /* Ensure it spans the full width */
+    scrollbar-width: thin; /* Optional: Thin scrollbar for modern browsers */
+}
+
+#userTeamCardsContainer {
+    flex-shrink: 0; /* Prevent shrinking */
+    width:min-content;
+    /*position: relative;*/
+    left: 10px;
+    top:70px;
+}
+
+#allPlayersContainer {
+    flex: 1; /* Adjust as needed */
+    min-width: 200px; /* Ensure it doesn't shrink too much */
+}
+
+.team-container {
+    min-width: 100%; /* Ensure it doesn't shrink below the viewport width */
+}
+
+.userTeamCardsContainer {
+    display: flex;
+    
+    padding: 0 10px;
+}
+.draftContainer {
+    display: flex;
+    overflow-x: auto;
+    padding: 10px;
+    max-width: 100%; /* Ensures scroll activates when content overflows */
+    box-sizing: border-box;
+}
+
+#draftedPlayersContainer {
+    display: flex;
+    flex-wrap: nowrap; /* Prevent wrapping */
+    overflow-x: auto; /* Enable horizontal scrolling */
+    gap: 10px; /* Add spacing between players */
+    padding: 10px;
+    background-color: #f9f9f9; /* Optional: Background color */
+    border: 1px solid #ccc; /* Optional: Border for the container */
+    border-radius: 5px;
+    max-height: 120px; /* Limit the height of the container */
+    scrollbar-width: thin; /* Thin scrollbar for modern browsers */
+}
+
+    #draftedPlayersContainer::-webkit-scrollbar {
+        height: 8px; /* Height of the scrollbar */
+    }
+
+    #draftedPlayersContainer::-webkit-scrollbar-thumb {
+        background-color: #ccc; /* Color of the scrollbar thumb */
+        border-radius: 4px;
+    }
+
+    #draftedPlayersContainer::-webkit-scrollbar-track {
+        background-color: #f1f1f1; /* Color of the scrollbar track */
+    }
+
+.drafted-player {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 60px; /* Minimum width for each player card */
+    max-width: 60px; /* Maximum width for each player card */
+    text-align: center;
+    padding: 5px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+    .drafted-player img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-bottom: 5px;
+        padding:2px;
+    }
+
+    .drafted-player .player-name {
+        font-size: 12px;
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .drafted-player .squad-name {
+        font-size: 10px;
+        color: #666;
+    }

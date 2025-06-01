@@ -8,13 +8,30 @@ const config = {
 */
 
 const isDevelopment = window.location.hostname === 'localhost';
+const isTest = window.location.hostname === 'test.divizia.net';
 
 const config = {
     backendUrl: isDevelopment
         ? 'https://localhost:44390/api2'
         //: 'https://ffbe-akdrgxb2fjd6fddh.eastus2-01.azurewebsites.net/api'
-        : 'https://ffbe1-hjdthacef0hjc9ht.eastus2-01.azurewebsites.net/api2'
+        //: 'https://ffbe1-hjdthacef0hjc9ht.eastus2-01.azurewebsites.net/api2'
+        : isTest ? 'https://ffbe1test-cmdch8dgcscmd0e6.eastus2-01.azurewebsites.net/api2'
+            : 'https://ffbe1-hjdthacef0hjc9ht.eastus2-01.azurewebsites.net/api2'
 };
+
+const host = window.location.hostname;
+const root = document.documentElement;
+
+if (host === 'localhost') {
+    root.style.setProperty('--primary-color', 'orange'); 
+    root.style.setProperty('--navigation-color', 'indigo');
+} else if (host.includes('test') || host.includes('staging')) {
+    root.style.setProperty('--primary-color', 'pink');
+    root.style.setProperty('--navigation-color', 'DarkOliveGreen');
+} else {
+    // production
+}
+
 
 function getToken() {
     return localStorage.getItem('token');

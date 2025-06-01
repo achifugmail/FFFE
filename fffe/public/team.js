@@ -323,12 +323,15 @@ document.addEventListener('DOMContentLoaded', async function () {
                     playerDiv.className = 'player-grid';
                     playerDiv.setAttribute('data-player', JSON.stringify(player));
                     playerDiv.innerHTML = `
-<input type="checkbox" class="player-checkbox" data-player-id="${player.id}">
-<button class="captain-button" data-player-id="${player.id}"><i class="fas fa-crown"></i></button>
-<img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
-<span class="player-name-long">${player.webName}</span>
-${getPlayerStatusIcon(player)}
-${getPlayerFormIndicator(player)}
+    <input type="checkbox" class="player-checkbox" data-player-id="${player.id}">
+    <button class="captain-button" data-player-id="${player.id}"><i class="fas fa-crown"></i></button>
+    <div class="player-photo-container">
+        ${getCaptainIndicator(player.captainCount)}
+        <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
+    </div>
+    <span class="player-name-long">${player.webName}</span>
+    ${getPlayerStatusIcon(player)}
+    ${getPlayerFormIndicator(player)}
 `;
                     playersDiv.appendChild(playerDiv);
                 });
@@ -663,6 +666,41 @@ ${getPlayerFormIndicator(player)}
         } finally {
             enableAllControls(); // Re-enable all controls
         }
+    }
+
+    function getCaptainIndicator(captainCount) {
+        if (!captainCount || captainCount <= 0) return '';
+        const segments = 5;
+        const photoRadius = 14; // Player photo has 40x40px, so radius is 20px
+        const strokeWidth = 3; // Slightly thinner border
+        const r = photoRadius + (strokeWidth / 2) + 1; // Adjust radius to be just outside the photo, adding 1px for a small gap
+        const center = r + strokeWidth; // Adjust center calculation based on new r and strokeWidth
+        const gold = "#FFD700";
+        const gray = "#cccccc";
+        let paths = '';
+        for (let i = 0; i < segments; i++) {
+            const startAngle = (i * 72 - 90) * Math.PI / 180;
+            const endAngle = ((i + 1) * 72 - 90) * Math.PI / 180;
+            const x1 = center + r * Math.cos(startAngle);
+            const y1 = center + r * Math.sin(startAngle);
+            const x2 = center + r * Math.cos(endAngle);
+            const y2 = center + r * Math.sin(endAngle);
+            const largeArcFlag = 0;
+            const color = i < captainCount ? gold : gray;
+            paths += `
+            <path
+                d="M ${x1} ${y1} A ${r} ${r} 0 ${largeArcFlag} 1 ${x2} ${y2}"
+                stroke="${color}"
+                stroke-width="${strokeWidth}"
+                fill="none"
+            />
+        `;
+        }
+        return `
+        <svg class="captain-indicator-svg" width="${(center * 2)}" height="${(center * 2)}" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:2;">
+            ${paths}
+        </svg>
+    `;
     }
 
     async function selectPlayer(playerId, isUserInteraction) {

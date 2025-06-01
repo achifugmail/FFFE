@@ -88,22 +88,16 @@ document.addEventListener('DOMContentLoaded', async function () {
             allPlayersContainer.className = 'container';
             teamLayout.parentNode.insertBefore(allPlayersContainer, teamLayout.nextSibling);
 
-            // Create position sections
-            positions.forEach(position => {
-                const section = document.createElement('div');
-                // Change the class to match the squad view
-                section.className = 'section position-section';
-                section.id = `all-${position.name}`;
-                // Add data-position attribute for the decorative label
-                section.setAttribute('data-position', position.name);
+            // Add a search text box
+            const searchBox = document.createElement('input');
+            searchBox.type = 'text';
+            searchBox.id = 'playerSearchBox';
+            searchBox.placeholder = 'Search players...';
+            searchBox.className = 'search-box';
+            allPlayersContainer.appendChild(searchBox);
 
-                // Container for players
-                const playersContainer = document.createElement('div');
-                playersContainer.className = 'players'; // Changed from 'all-players-list' to 'players'
-                section.appendChild(playersContainer);
-
-                allPlayersContainer.appendChild(section);
-            });
+            // Add event listener for filtering
+            searchBox.addEventListener('input', filterPlayers);
         }
 
         if (allPlayersContainer) {
@@ -113,10 +107,25 @@ document.addEventListener('DOMContentLoaded', async function () {
         if (viewMode === 'all') {
             // Populate the sections with players
             positions.forEach(position => {
-                const section = document.getElementById(`all-${position.name}`);
-                const playersContainer = section.querySelector('.players'); // Changed from '.all-players-list' to '.players'
+                const sectionId = `all-${position.name}`;
+                let section = document.getElementById(sectionId);
+
+                if (!section) {
+                    section = document.createElement('div');
+                    section.className = 'section position-section';
+                    section.id = sectionId;
+                    section.setAttribute('data-position', position.name);
+
+                    // Container for players
+                    const playersContainer = document.createElement('div');
+                    playersContainer.className = 'players';
+                    section.appendChild(playersContainer);
+
+                    allPlayersContainer.appendChild(section);
+                }
 
                 // Clear existing content
+                const playersContainer = section.querySelector('.players');
                 playersContainer.innerHTML = '';
 
                 // Filter players by position
@@ -124,10 +133,9 @@ document.addEventListener('DOMContentLoaded', async function () {
 
                 // Sort players by points in descending order
                 positionPlayers.sort((a, b) => {
-                    // Handle null or undefined points
                     const pointsA = a.points || 0;
                     const pointsB = b.points || 0;
-                    return pointsB - pointsA; // Descending order
+                    return pointsB - pointsA;
                 });
 
                 // Add players to the section
@@ -136,9 +144,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                     playersContainer.appendChild(playerDiv);
                 });
 
-                // Add empty player rows if needed (similar to the squad view)
+                // Add empty player rows if needed
                 const totalPlayersInSection = positionPlayers.length;
-                // Find the corresponding position to get maxInSquad
                 const positionObj = positions.find(p => p.name === position.name);
                 if (positionObj && positionObj.maxInSquad) {
                     for (let i = totalPlayersInSection; i < positionObj.maxInSquad; i++) {
@@ -153,6 +160,61 @@ document.addEventListener('DOMContentLoaded', async function () {
             // Call setupPlayerPhotoInteractions to add click handlers to all player photos and names
             setupPlayerPhotoInteractions();
         }
+    }
+
+    function filterPlayers() {
+        const searchText = document.getElementById('playerSearchBox').value.toLowerCase();
+
+        // Normalize the search text to remove diacritical marks
+        const normalizedSearchText = searchText.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+        // Filter players based on the normalized search text
+        const filteredPlayers = allPlayers.filter(player => {
+            const fieldsToSearch = [
+                player.firstName,
+                player.secondName,
+                player.webName,
+                player.positionName,
+                player.teamName
+            ];
+
+            // Normalize each field and check if it includes the search text
+            return fieldsToSearch.some(field =>
+                field && field.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().includes(normalizedSearchText)
+            );
+        });
+
+        // Update the displayed players
+        positions.forEach(position => {
+            const sectionId = `all-${position.name}`;
+            const section = document.getElementById(sectionId);
+            const playersContainer = section.querySelector('.players');
+
+            // Clear existing content
+            playersContainer.innerHTML = '';
+
+            // Filter players by position
+            let positionPlayers = filteredPlayers.filter(player => player.positionName === position.name);
+
+            // Sort players by points in descending order
+            positionPlayers.sort((a, b) => {
+                const pointsA = a.points || 0;
+                const pointsB = b.points || 0;
+                return pointsB - pointsA;
+            });
+
+            // Add players to the section
+            positionPlayers.forEach(player => {
+                const playerDiv = createPlayerDivForAllView(player);
+                playersContainer.appendChild(playerDiv);
+            });
+
+            // Hide or show section based on whether there are players
+            section.style.display = positionPlayers.length > 0 ? 'block' : 'none';
+        });
+
+        // Call setupPlayerPhotoInteractions to reapply click handlers
+        setupPlayerPhotoInteractions();
     }
 
     function createPlayerDivForAllView(player, isInOtherSquad = false) {
@@ -810,7 +872,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             await fetchAndCreateSections();
             //await fetchSquadDetails();
             await fetchAndDisplaySquadPlayers(squadId, leagueId);
-            await fetchAndDisplayTransfers(squadId);
+            fetchAndDisplayTransfers(squadId);
         }
     }
 
@@ -1177,6 +1239,20 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
+    function getCaptainIndicator(captainCount) {
+        if (!captainCount || captainCount <= 0) return '';
+
+        // Create 5 segments, each representing 72 degrees (360/5)
+        const segments = Array(5).fill(0).map((_, i) => {
+            const isActive = i < captainCount;
+            // Calculate rotation for each segment
+            const rotation = i * 72;
+            return `<div class="captain-segment ${isActive ? 'active' : ''}" style="transform: rotate(${rotation}deg)"></div>`;
+        }).join('');
+
+        return `<div class="captain-indicator">${segments}</div>`;
+    }
+
     async function fetchAndDisplayTransfers(squadId) {
         try {
             const response = await fetch(`${config.backendUrl}/PlayerPositions/squad-transfers/${squadId}`, addAuthHeader());
@@ -1189,12 +1265,27 @@ document.addEventListener('DOMContentLoaded', async function () {
             const transfers = await response.json();
             const transfersList = document.getElementById('transfersList');
 
+            // Count standard transfers
+            const standardTransfersUsed = transfers.filter(t => t.type !== 'Swap').length;
+            const remainingTransfers = 20 - standardTransfersUsed;
+
+            // Add transfer count display at the top
+            const transferCountHtml = `
+            <div class="transfers-count-header">
+                <div class="transfers-remaining">
+                    <span class="transfers-label">Transfers Remaining:</span>
+                    <span class="transfers-number">${remainingTransfers}/20</span>
+                    
+                </div>
+            </div>
+        `;
+
             if (transfers.length === 0) {
-                transfersList.innerHTML = '<div class="no-transfers">No transfers made yet</div>';
+                transfersList.innerHTML = transferCountHtml + '<div class="no-transfers">No transfers made yet</div>';
                 return;
             }
 
-            transfersList.innerHTML = transfers.map(transfer => {
+            transfersList.innerHTML = transferCountHtml + transfers.map(transfer => {
                 const date = new Date(transfer.transferDate).toLocaleDateString('en-GB', {
                     day: 'numeric',
                     month: 'short',
@@ -1203,49 +1294,51 @@ document.addEventListener('DOMContentLoaded', async function () {
                     minute: '2-digit'
                 });
 
-                // Add a CSS class based on the transfer type
                 const transferTypeClass = transfer.type ?
                     `transfer-type-${transfer.type.toLowerCase()}` :
                     'transfer-type-standard';
 
-                // Add an icon based on the transfer type
                 const transferTypeIcon = transfer.type === 'Swap' ?
                     '<i class="fas fa-sync-alt transfer-type-icon" title="Swap Transfer"></i>' :
                     '<i class="fas fa-arrow-right transfer-type-icon" title="Standard Transfer"></i>';
 
-                // Add status badge if available
                 const statusBadge = transfer.status ?
                     `<span class="transfer-status transfer-status-${transfer.status.toLowerCase()}">${transfer.status}</span>` :
                     '';
 
+                // Rest of your existing transfer item HTML...
                 return `
-            <div class="transfer-item ${transferTypeClass}">
-                <div class="transfer-date">
-                    ${date} 
-                    ${transferTypeIcon}
-                    ${statusBadge}
-                </div>
-                <div class="transfer-player">
-                    <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${transfer.playerIn.photo.slice(0, -3)}png" 
-                         alt="${transfer.playerIn.webName}" 
-                         class="player-photo">
-                    <span class="player-name">${transfer.playerIn.webName}</span>
-                </div>
-                <div class="transfer-arrow">←</div>
-                <div class="transfer-player">
-                    <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${transfer.playerOut.photo.slice(0, -3)}png" 
-                         alt="${transfer.playerOut.webName}" 
-                         class="player-photo">
-                    <span class="player-name">${transfer.playerOut.webName}</span>
-                </div>
-                ${transfer.fromSquad || transfer.toSquad ?
-                        `<div class="transfer-squads">
-                        ${transfer.fromSquad ? `<span class="from-squad">From: ${transfer.fromSquad}</span>` : ''}
-                        ${transfer.toSquad ? `<span class="to-squad">To: ${transfer.toSquad}</span>` : ''}
-                    </div>` :
-                        ''}
-            </div>
-        `;
+                    <div class="transfer-item ${transferTypeClass}">
+                        <div class="transfer-date">
+                            ${date} 
+                            ${transferTypeIcon}
+                            ${statusBadge}
+                        </div>
+                        <div class="transfer-content">
+                            <div class="transfer-player">
+                                <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${transfer.playerOut.photo.slice(0, -3)}png" 
+                                     alt="${transfer.playerOut.webName}" 
+                                     class="player-photo">
+                                <span class="player-name">${transfer.playerOut.webName}</span>
+                            </div>
+                            <div class="transfer-arrow">→</div>
+                            <div class="transfer-player">
+                                <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${transfer.playerIn.photo.slice(0, -3)}png" 
+                                     alt="${transfer.playerIn.webName}" 
+                                     class="player-photo">
+                                <span class="player-name">${transfer.playerIn.webName}</span>
+                            </div>
+
+                        </div>
+                        ${transfer.fromSquad || transfer.toSquad ?
+                                        `<div class="transfer-squads">
+                                ${transfer.fromSquad ? `<span class="from-squad">From: ${transfer.fromSquad}</span>` : ''}
+                                ${transfer.toSquad ? `<span class="to-squad">To: ${transfer.toSquad}</span>` : ''}
+                            </div>` :
+                                        ''}
+                    </div>
+                `;
+
             }).join('');
 
         } catch (error) {
@@ -1351,6 +1444,11 @@ document.addEventListener('DOMContentLoaded', async function () {
         // Add the view toggle button
         setupViewToggleButton();
         fetchAllPlayers();
+
+        if (!transfersLoaded && squadId) {
+            fetchAndDisplayTransfers(squadId);
+            transfersLoaded = true;
+        }
 
         leagueDropdown.addEventListener('change', async function () {
             leagueId = this.value;
