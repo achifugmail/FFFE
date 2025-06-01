@@ -69,6 +69,33 @@ export async function populateGameweeks() {
     }
 }
 
+
+export async function copyTodayToNextGameweek() {
+    const progressIndicator = document.getElementById('progressIndicator');
+    if (progressIndicator) {
+        progressIndicator.style.display = 'block';
+        progressIndicator.innerText = 'Copying today\'s teams to next gameweek...';
+    }
+    try {
+        const response = await fetch(`${config.backendUrl}/UserTeamPlayers/copy-today-to-next-gameweek`, addAuthHeader({
+            method: 'POST'
+        }));
+        const result = await response.text();
+        if (!response.ok) {
+            console.error('Failed to copy teams:', response.status, response.statusText);
+            if (progressIndicator) progressIndicator.innerText = `Failed: ${result}`;
+            return;
+        }
+        if (progressIndicator) progressIndicator.innerText = `Success: ${result}`;
+        alert('Teams copied to next gameweek successfully!');
+    } catch (error) {
+        console.error('Error copying teams:', error);
+        if (progressIndicator) progressIndicator.innerText = 'Error copying teams to next gameweek.';
+        alert('Error copying teams to next gameweek.');
+    }
+}
+window.copyTodayToNextGameweek = copyTodayToNextGameweek;
+
 export async function refreshData() {
     const progressIndicator = document.getElementById('progressIndicator');
     if (!progressIndicator) {
