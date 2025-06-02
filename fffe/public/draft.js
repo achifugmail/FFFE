@@ -892,10 +892,16 @@ document.addEventListener('DOMContentLoaded', async function () {
             modal.querySelector('.close-modal-btn').addEventListener('click', () => overlay.remove());
             modal.querySelector('.cancel-transfer-btn').addEventListener('click', () => overlay.remove());
             modal.querySelector('.confirm-transfer-btn').addEventListener('click', async () => {
+                // Disable all buttons immediately
+                document.querySelectorAll('button').forEach(btn => btn.disabled = true);
+
                 overlay.remove();
                 const success = await addPlayerToSquad(playerId, squadId, position);
                 if (success) {
                     await advanceDraft();
+                }
+                else {
+                    document.querySelectorAll('button').forEach(btn => btn.disabled = false);
                 }
             });
 
