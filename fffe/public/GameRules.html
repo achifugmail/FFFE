@@ -9,28 +9,70 @@
 <body>
     <div id="nav-placeholder"></div>
     <main>
-        <table id="scoringRulesTable">
-            <thead>
-                <tr>
-                    <th>Rule</th>
-                    <th>Points</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Scoring rules will be populated here -->
-            </tbody>
-        </table>
+        <h1>Fantasy Football Game Rules</h1>
+
+        <section>
+            <h2>Squad Composition</h2>
+            <ul>
+                <li>Your squad is selected via a draft process. Each user picks players in turn.</li>
+                <li>Each squad consists of a fixed number of players per position:</li>
+                <ul>
+                    <li>Goalkeepers (GK): usually 2</li>
+                    <li>Defenders (DEF): e.g. 5</li>
+                    <li>Wing Backs (WB): e.g. 2</li>
+                    <li>Defensive Midfielders (DM): e.g. 2</li>
+                    <li>Attacking Midfielders (AM): e.g. 4</li>
+                    <li>Forwards (FW): e.g. 3</li>
+                </ul>
+                <li>Exact numbers may be set by your league admin.</li>
+                <li>No two squads can own the same player at the same time.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Draft Process</h2>
+            <ul>
+                <li>The draft is turn-based. When it is your turn, you may select any available player.</li>
+                <li>Once a player is drafted, they are unavailable to other squads.</li>
+                <li>The draft continues until all squads are full.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Transfers</h2>
+            <ul>
+                <li>Transfers may be allowed between gameweeks, depending on league settings.</li>
+                <li>Players can only be added if they are not already in another squad.</li>
+                <li>Squad composition rules must always be respected.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Scoring</h2>
+            <p>Players earn points for your squad based on their real-life performances. The scoring rules are as follows:</p>
+            <table id="scoringRulesTable">
+                <thead>
+                    <tr>
+                        <th>Rule</th>
+                        <th>Points</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Scoring rules will be populated here -->
+                </tbody>
+            </table>
+        </section>
     </main>
 
     <script type="module" src="gameRules.js"></script>
-<script type="module">
-    import { initializeNavigation } from './nav.js';
-    fetch('nav.html')
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById('nav-placeholder').innerHTML = data;
-            initializeNavigation();
-        });
-</script>
+    <script type="module">
+        import { initializeNavigation } from './nav.js';
+        fetch('nav.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('nav-placeholder').innerHTML = data;
+                initializeNavigation();
+            });
+    </script>
 </body>
 </html>
