@@ -52,7 +52,6 @@ export async function fetchDraftPeriods(draftPeriodDropdown) {
         const response = await fetch(`${config.backendUrl}/DraftPeriods`, addAuthHeader());
         if (response.status === 401) {
             console.error('Authentication error: Unauthorized access (401)');
-            // Redirect to the root site
             window.location.href = '/';
             return;
         }
@@ -61,10 +60,6 @@ export async function fetchDraftPeriods(draftPeriodDropdown) {
             return;
         }
         const draftPeriods = await response.json();
-
-        // Populate both dropdowns
-        //const draftPeriodDropdown = document.getElementById('draftPeriodDropdown');
-      
 
         [draftPeriodDropdown].forEach(dropdown => {
             if (!dropdown) return;
@@ -75,16 +70,33 @@ export async function fetchDraftPeriods(draftPeriodDropdown) {
                 option.value = period.id;
                 option.text = period.name || `Draft ${period.id}`;
                 option.setAttribute('data-start-date', period.startDate);
+                option.setAttribute('data-end-date', period.endDate);
                 dropdown.appendChild(option);
             });
         });
 
-        if (draftPeriods.length > 0) {
-            const lastDraftPeriod = draftPeriods[draftPeriods.length - 1];
+        if (draftPeriods.length > 0 && draftPeriodDropdown) {
+            const now = new Date();
+            let selectedPeriod = null;
 
-            if (draftPeriodDropdown) {
-                draftPeriodDropdown.value = lastDraftPeriod.id;
-            }            
+            // Find the period where startDate <= now <= endDate
+            for (const period of draftPeriods) {
+                const start = new Date(period.startDate);
+                const end = new Date(period.endDate);
+                if (start <= now && now <= end) {
+                    selectedPeriod = period;
+                    break;
+                }
+            }
+
+            // If none found, select the one with the latest endDate
+            if (!selectedPeriod) {
+                selectedPeriod = draftPeriods.reduce((latest, period) => {
+                    return new Date(period.endDate) > new Date(latest.endDate) ? period : latest;
+                }, draftPeriods[0]);
+            }
+
+            draftPeriodDropdown.value = selectedPeriod.id;
         }
     } catch (error) {
         console.error('Error fetching draft periods:', error);
