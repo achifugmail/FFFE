@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             const selectedOption = gameweekDropdown.options[gameweekDropdown.selectedIndex];
             const gwStartDate = new Date(selectedOption.dataset.startdate + 'Z');
             const now = new Date();
-
+            console.debug(gwStartDate);
             if (gwStartDate < now) {
                 // Switch to pitch view
                 setView('pitch');
@@ -95,7 +95,18 @@ document.addEventListener('DOMContentLoaded', async function () {
             gameweekDropdown.value = gameweeks[0].id;
             gameweekCaption.textContent = String(gameweeks[0].number);
         }
-        setView('pitch');
+        //setView('pitch');
+        const selectedOption = gameweekDropdown.options[gameweekDropdown.selectedIndex];
+        const gwStartDate = new Date(selectedOption.dataset.startdate + 'Z');
+        
+
+        if (gwStartDate < now) {
+            // Switch to pitch view
+            setView('pitch');
+        } else {
+            // Switch to list view
+            setView('list');
+        }
     }
 
     async function fetchAndDisplayFixtures(gameweekId) {
