@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     let allPlayers = [];
     let otherUsersSquadPlayers = [];
-    let viewMode = 'all'; // 'squad' or 'all'
+    let viewMode = 'squad'; // 'squad' or 'all'
 
     // Add this function to fetch all players (both available and from other users)
     async function fetchAllPlayers() {
