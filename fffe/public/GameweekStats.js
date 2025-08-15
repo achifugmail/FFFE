@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             playerStats.forEach(player => {
                 const playerRow = document.createElement('tr');
                 playerRow.innerHTML = `
-                    <td><img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo"></td>
+                    <td><img src="https://resources.premierleague.com/premierleague25/photos/players/40x40/${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo"></td>
                     <td class="web-name">${player.webName}</td>
                     <td>${player.position}</td>
                     <td class="score-column">${player.score}</td>

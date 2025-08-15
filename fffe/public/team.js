@@ -338,7 +338,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     <button class="captain-button" data-player-id="${player.id}"><i class="fas fa-crown"></i></button>
     <div class="player-photo-container">
         ${getCaptainIndicator(player.captainCount)}
-        <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
+        <img src="https://resources.premierleague.com/premierleague25/photos/players/40x40/${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
     </div>
     <span class="player-name-long">${player.webName}</span>
     ${getPlayerStatusIcon(player)}
@@ -482,7 +482,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         const playerInEl = document.createElement('div');
         playerInEl.className = 'pending-transfer-player';
         playerInEl.innerHTML = `
-        <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${transfer.playerIn.photo ? transfer.playerIn.photo.slice(0, -3) : '0'}png" 
+        <img src="https://resources.premierleague.com/premierleague25/photos/players/40x40/${transfer.playerIn.photo ? transfer.playerIn.photo.slice(0, -3) : '0'}png" 
              alt="${transfer.playerIn.webName}" class="player-photo">
         <div>
             <span class="player-name">${transfer.playerIn.webName}</span>
@@ -499,7 +499,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         const playerOutEl = document.createElement('div');
         playerOutEl.className = 'pending-transfer-player';
         playerOutEl.innerHTML = `
-        <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${transfer.playerOut.photo ? transfer.playerOut.photo.slice(0, -3) : '0'}png" 
+        <img src="https://resources.premierleague.com/premierleague25/photos/players/40x40/${transfer.playerOut.photo ? transfer.playerOut.photo.slice(0, -3) : '0'}png" 
              alt="${transfer.playerOut.webName}" class="player-photo">
         <div>
             <span class="player-name">${transfer.playerOut.webName}</span>
@@ -1078,7 +1078,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             // Create inner elements with correctly formatted photo URL
             playerElement.innerHTML = `
             <div class="pitch-player-inner">
-                <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photoId}png" 
+                <img src="https://resources.premierleague.com/premierleague25/photos/players/40x40/${player.photoId}png" 
                      alt="${player.name}" class="pitch-player-photo">
                 <div class="pitch-player-name">${player.name}</div>
             </div>

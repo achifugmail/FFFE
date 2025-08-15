@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             const row = document.createElement('tr');
 
             row.innerHTML = `
-                <td><img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo"></td>
+                <td><img src="https://resources.premierleague.com/premierleague25/photos/players/40x40/${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo"></td>
                 <td>${player.firstName}</td>
                 <td>${player.secondName}</td>
                 <td>
@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             const row = document.createElement('tr');
 
             row.innerHTML = `
-                <td><img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo"></td>
+                <td><img src="https://resources.premierleague.com/premierleague25/photos/players/40x40/${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo"></td>
                 <td>${player.firstName}</td>
                 <td>${player.secondName}</td>
                 <td>

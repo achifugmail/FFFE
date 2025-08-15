@@ -315,9 +315,9 @@ document.addEventListener('DOMContentLoaded', async function () {
                     photo.className = 'player-photo';
                     // Use a default image if photo is missing (this helps prevent broken images)
                     if (player.photo) {
-                        photo.src = `https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png`;
+                        photo.src = `https://resources.premierleague.com/premierleague25/photos/players/40x40/${player.photo.slice(0, -3)}png`;
                     } else {
-                        photo.src = 'https://resources.premierleague.com/premierleague/photos/players/40x40/p0.png';
+                        photo.src = 'https://resources.premierleague.com/premierleague25/photos/players/40x40/0.png';
                     }
                     photo.alt = player.webName || 'Player';
                     photoContainer.appendChild(photo);

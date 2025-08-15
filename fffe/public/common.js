@@ -137,8 +137,8 @@ export function createPlayerCard(player) {
     const photo = document.createElement('img');
     photo.className = 'player-card-photo';
     photo.src = player.photo
-        ? `https://resources.premierleague.com/premierleague/photos/players/110x140/p${player.photo.slice(0, -3)}png`
-        : 'https://resources.premierleague.com/premierleague/photos/players/110x140/p0.png';
+        ? `https://resources.premierleague.com/premierleague25/photos/players/40x40/${player.photo.slice(0, -3)}png`
+        : 'https://resources.premierleague.com/premierleague25/photos/players/40x40/0.png';
     photo.alt = player.webName || 'Player';
 
     const nameScoreContainer = document.createElement('div');
