@@ -1078,7 +1078,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             // Create inner elements with correctly formatted photo URL
             playerElement.innerHTML = `
             <div class="pitch-player-inner">
-                <img src="https://resources.premierleague.com/premierleague25/photos/players/40x40/${player.photoId}png" 
+                <img src="https://resources.premierleague.com/premierleague25/photos/players/40x40/${player.photo.slice(0, -3)}png" 
                      alt="${player.name}" class="pitch-player-photo">
                 <div class="pitch-player-name">${player.name}</div>
             </div>
