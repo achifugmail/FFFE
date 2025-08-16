@@ -975,9 +975,9 @@ document.addEventListener('DOMContentLoaded', async function () {
                 const filename = urlParts[urlParts.length - 1];
 
                 // Extract the ID part (remove the 'p' prefix and the 'png' suffix)
-                if (filename.startsWith('p') && filename.endsWith('png')) {
+                //if (filename.startsWith('p') && filename.endsWith('png')) {
                     photoIdPart = filename.slice(1, -3); // Remove 'p' and 'png'
-                }
+                //}
             }
 
             // Determine if player is captain
@@ -1002,7 +1002,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             playersByPosition[position].push({
                 id: playerId,
                 name: playerName,
-                photoId: photoIdPart,
+                protoSrc: photoImg.src,
+                //photoId: photoIdPart,
                 isCaptain: isCaptain,
                 position: position
             });
@@ -1078,8 +1079,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             // Create inner elements with correctly formatted photo URL
             playerElement.innerHTML = `
             <div class="pitch-player-inner">
-                <img src="https://resources.premierleague.com/premierleague25/photos/players/40x40/${player.photo.slice(0, -3)}png" 
-                     alt="${player.name}" class="pitch-player-photo">
+                <img src=${player.protoSrc} alt="${player.name}" class="pitch-player-photo">
+                     
                 <div class="pitch-player-name">${player.name}</div>
             </div>
         `;

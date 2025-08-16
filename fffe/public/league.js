@@ -13,6 +13,29 @@ document.addEventListener('DOMContentLoaded', async function () {
     const startColor = { r: 255, g: 255, b: 255 }; // #cfcfcf
     const endColor = { r: 32, g: 128, b: 128 }; // #008000
 
+    const transfersToggle = document.getElementById('transfersToggle');
+    const transfersContainer = document.getElementById('transfersContainer');
+
+
+
+
+    if (transfersToggle && transfersContainer) {
+        transfersToggle.addEventListener('click', function () {
+            transfersContainer.classList.toggle('transfers-open');
+
+            const icon = this.querySelector('i');
+            if (transfersContainer.classList.contains('transfers-open')) {
+                icon.className = 'fas fa-times'; // X icon
+                transfersContainer.style.display = 'block'
+            } else {
+                icon.className = 'fas fa-exchange-alt'; // Exchange icon
+                transfersContainer.style.display = 'none'
+            }
+        });
+        // Initialize hidden
+        transfersContainer.style.display = 'none';
+    }
+
     function getScoreColor(pointsPerMinute, maxPointsPerMinute) {
         if (maxPointsPerMinute === 0) return '#000000'; // Black if max points per minute is 0 (to avoid division by zero)
 
@@ -461,7 +484,85 @@ document.addEventListener('DOMContentLoaded', async function () {
         card.appendChild(footer);
 
         return card;
-    }    
+    }  
+
+    async function fetchAndDisplayLeagueTransfers(leagueId) {
+        try {
+            const response = await fetch(
+                `${config.backendUrl}/Transfers/completed/by-league/${leagueId}`,
+                addAuthHeader()
+            );
+
+            if (!response.ok) {
+                console.error('Failed to fetch league transfers:', response.status, response.statusText);
+                return;
+            }
+
+            const transfers = await response.json();            
+            const transfersList = document.getElementById('transfersList');
+
+
+            if (transfers.length === 0) {
+                transfersList.innerHTML = '<div class="no-transfers">No transfers made yet</div>';
+                return;
+            }
+
+            transfersList.innerHTML = transfers.map(transfer => {
+                const date = new Date(transfer.transferDate).toLocaleDateString('en-GB', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                const transferTypeClass = transfer.type ?
+                    `transfer-type-${transfer.type.toLowerCase()}` :
+                    'transfer-type-standard';
+
+                const transferTypeIcon = transfer.type === 'Swap' ?
+                    '<i class="fas fa-sync-alt transfer-type-icon" title="Swap Transfer"></i>' :
+                    '<i class="fas fa-arrow-right transfer-type-icon" title="Standard Transfer"></i>';
+
+                const statusBadge = transfer.status ?
+                    `<span class="transfer-status transfer-status-${transfer.status.toLowerCase()}">${transfer.status}</span>` :
+                    '';
+
+                // Add .pending class if transfer.pending === true
+                const pendingClass = transfer.pending ? 'pending' : '';
+
+                return `
+    <div class="transfer-item ${transferTypeClass} ${pendingClass}">
+        <div class="transfer-date">
+            ${date} 
+            ${transferTypeIcon}
+            ${statusBadge}
+        </div>
+        <div class="transfer-content">
+            <div class="transfer-player">
+                <img src="https://resources.premierleague.com/premierleague25/photos/players/40x40/${transfer.playerOut.photo.slice(0, -3)}png" 
+                     alt="${transfer.playerOut.webName}" 
+                     class="player-photo">
+                <span class="player-name">${transfer.playerOut.webName}</span>
+                <div class="transfer-squad-name">${transfer.fromUserSquad?.squadName || ''}</div>
+            </div>
+            <div class="transfer-arrow">→</div>
+            <div class="transfer-player">
+                <img src="https://resources.premierleague.com/premierleague25/photos/players/40x40/${transfer.playerIn.photo.slice(0, -3)}png" 
+                     alt="${transfer.playerIn.webName}" 
+                     class="player-photo">
+                <span class="player-name">${transfer.playerIn.webName}</span>
+                <div class="transfer-squad-name">${transfer.userSquad?.squadName || ''}</div>
+            </div>
+        </div>
+    </div>
+`;
+            }).join('');
+        } catch (error) {
+            console.error('Error fetching league transfers:', error);
+        }
+    }
+
 
     function setupHeaderClickInteractions() {
         // Get all team card headers
@@ -554,6 +655,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         setupCardsToggle();
 
         await fetchAndCreateUserTeamCards();
+
+        fetchAndDisplayLeagueTransfers(leagueId);
 
         leagueDropdown.addEventListener('change', async function () {
             leagueId = this.value;

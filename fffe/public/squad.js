@@ -513,11 +513,14 @@ document.addEventListener('DOMContentLoaded', async function () {
     document.getElementById('transfersToggle').addEventListener('click', function () {
         const teamLayout = document.querySelector('.team-layout');
         teamLayout.classList.toggle('transfers-open');
+        const transfersContainer = document.getElementById('transfersContainer');
+
 
         // Change the icon based on state
         const icon = this.querySelector('i');
         if (teamLayout.classList.contains('transfers-open')) {
             icon.className = 'fas fa-times'; // X icon when open
+            transfersContainer.style.display = 'block';
 
             // Load transfers only if they haven't been loaded yet
             if (!transfersLoaded && squadId) {
@@ -526,6 +529,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
         } else {
             icon.className = 'fas fa-exchange-alt'; // Exchange icon when closed
+            transfersContainer.style.display = 'none';
         }
     });
 
