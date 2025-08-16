@@ -2138,9 +2138,14 @@ th {
     right: 20px;
     bottom: 40px;
 }
-.view-toggle-button, .fixtures-toggle {
+.fixtures-toggle {
     right: 20px;
     bottom: 90px;
+}
+
+.view-toggle-button {
+    right: 20px;
+    bottom: 40px;
 }
 
     /* Transfers container styling */
