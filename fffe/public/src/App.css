@@ -4023,11 +4023,6 @@ nav {
 }
 
 
-.team-layout {
-    display: flex;
-    align-items: flex-start; /* transfers sticks to the top */
-    width: 100%;
-}
 
 .user-team-cards-container {
     flex: 1; /* take remaining width */
