@@ -238,8 +238,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             squad.prizePoints -= squad.lastPlaces * 75;
 
             // Calculate middle positions (non first, second, or last)
-            const gamesPerTeam = totalGameweeks / squads.length;
-            const middlePositionCount = gamesPerTeam - (squad.firstPlaces + squad.secondPlaces + squad.lastPlaces);
+            //const gamesPerTeam = totalGameweeks / squads.length;
+            const middlePositionCount = totalGameweeks - (squad.firstPlaces + squad.secondPlaces + squad.lastPlaces);
 
             // Each middle position costs 50 points
             squad.prizePoints -= middlePositionCount * 50;

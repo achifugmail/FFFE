@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         const now = new Date();
         const pastGws = gameweeks.filter(gw => new Date(gw.startDate + 'Z') <= now);
         if (pastGws.length > 0) {
-            const defaultGw = pastGws[pastGws.length - 1];
+            const defaultGw = gameweeks[pastGws.length];
             gameweekDropdown.value = defaultGw.id;
             gameweekCaption.textContent = String(defaultGw.number);
         } else if (gameweeks.length > 0) {
