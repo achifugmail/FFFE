@@ -860,7 +860,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
             currentView = 'pitch';
             document.body.classList.add('pitch-view-active');
-            //renderPitchView();
+            renderPitchView();
         } else {
             // Switch to list view
             listView.classList.remove('hidden');
