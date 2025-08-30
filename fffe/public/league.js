@@ -443,9 +443,9 @@ document.addEventListener('DOMContentLoaded', async function () {
                     photo.className = 'player-photo';
                     // Use a default image if photo is missing
                     if (player.photo) {
-                        photo.src = `https://resources.premierleague.com/premierleague25/photos/players/40x40/${player.photo.slice(0, -3)}png`;
+                        photo.src = `${config.premierLeagueImageUrl}${player.photo.slice(0, -3)}png`;
                     } else {
-                        photo.src = 'https://resources.premierleague.com/premierleague25/photos/players/40x40/0.png';
+                        photo.src = '${config.premierLeagueImageUrl}0.png';
                     }
                     photo.alt = player.webName || 'Player';
                     photoContainer.appendChild(photo);
@@ -540,7 +540,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         </div>
         <div class="transfer-content">
             <div class="transfer-player">
-                <img src="https://resources.premierleague.com/premierleague25/photos/players/40x40/${transfer.playerOut.photo.slice(0, -3)}png" 
+                <img src="${config.premierLeagueImageUrl}${transfer.playerOut.photo.slice(0, -3)}png" 
                      alt="${transfer.playerOut.webName}" 
                      class="player-photo">
                 <span class="player-name">${transfer.playerOut.webName}</span>
@@ -548,7 +548,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             </div>
             <div class="transfer-arrow">→</div>
             <div class="transfer-player">
-                <img src="https://resources.premierleague.com/premierleague25/photos/players/40x40/${transfer.playerIn.photo.slice(0, -3)}png" 
+                <img src="${config.premierLeagueImageUrl}${transfer.playerIn.photo.slice(0, -3)}png" 
                      alt="${transfer.playerIn.webName}" 
                      class="player-photo">
                 <span class="player-name">${transfer.playerIn.webName}</span>
