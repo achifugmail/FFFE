@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             const selectedOption = gameweekDropdown.options[gameweekDropdown.selectedIndex];
             const gwStartDate = new Date(selectedOption.dataset.startdate + 'Z');
             const now = new Date();
-
+            console.debug(gwStartDate);
             if (gwStartDate < now) {
                 // Switch to pitch view
                 setView('pitch');
@@ -88,14 +88,25 @@ document.addEventListener('DOMContentLoaded', async function () {
         const now = new Date();
         const pastGws = gameweeks.filter(gw => new Date(gw.startDate + 'Z') <= now);
         if (pastGws.length > 0) {
-            const defaultGw = pastGws[pastGws.length - 1];
+            const defaultGw = gameweeks[pastGws.length];
             gameweekDropdown.value = defaultGw.id;
             gameweekCaption.textContent = String(defaultGw.number);
         } else if (gameweeks.length > 0) {
             gameweekDropdown.value = gameweeks[0].id;
             gameweekCaption.textContent = String(gameweeks[0].number);
         }
-        setView('pitch');
+        //setView('pitch');
+        const selectedOption = gameweekDropdown.options[gameweekDropdown.selectedIndex];
+        const gwStartDate = new Date(selectedOption.dataset.startdate + 'Z');
+        
+
+        if (gwStartDate < now) {
+            // Switch to pitch view
+            setView('pitch');
+        } else {
+            // Switch to list view
+            setView('list');
+        }
     }
 
     async function fetchAndDisplayFixtures(gameweekId) {
@@ -327,7 +338,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     <button class="captain-button" data-player-id="${player.id}"><i class="fas fa-crown"></i></button>
     <div class="player-photo-container">
         ${getCaptainIndicator(player.captainCount)}
-        <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
+        <img src="${config.premierLeagueImageUrl}${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
     </div>
     <span class="player-name-long">${player.webName}</span>
     ${getPlayerStatusIcon(player)}
@@ -471,7 +482,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         const playerInEl = document.createElement('div');
         playerInEl.className = 'pending-transfer-player';
         playerInEl.innerHTML = `
-        <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${transfer.playerIn.photo ? transfer.playerIn.photo.slice(0, -3) : '0'}png" 
+        <img src="${config.premierLeagueImageUrl}${transfer.playerIn.photo ? transfer.playerIn.photo.slice(0, -3) : '0'}png" 
              alt="${transfer.playerIn.webName}" class="player-photo">
         <div>
             <span class="player-name">${transfer.playerIn.webName}</span>
@@ -488,7 +499,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         const playerOutEl = document.createElement('div');
         playerOutEl.className = 'pending-transfer-player';
         playerOutEl.innerHTML = `
-        <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${transfer.playerOut.photo ? transfer.playerOut.photo.slice(0, -3) : '0'}png" 
+        <img src="${config.premierLeagueImageUrl}${transfer.playerOut.photo ? transfer.playerOut.photo.slice(0, -3) : '0'}png" 
              alt="${transfer.playerOut.webName}" class="player-photo">
         <div>
             <span class="player-name">${transfer.playerOut.webName}</span>
@@ -849,7 +860,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
             currentView = 'pitch';
             document.body.classList.add('pitch-view-active');
-            //renderPitchView();
+            renderPitchView();
         } else {
             // Switch to list view
             listView.classList.remove('hidden');
@@ -964,9 +975,9 @@ document.addEventListener('DOMContentLoaded', async function () {
                 const filename = urlParts[urlParts.length - 1];
 
                 // Extract the ID part (remove the 'p' prefix and the 'png' suffix)
-                if (filename.startsWith('p') && filename.endsWith('png')) {
+                //if (filename.startsWith('p') && filename.endsWith('png')) {
                     photoIdPart = filename.slice(1, -3); // Remove 'p' and 'png'
-                }
+                //}
             }
 
             // Determine if player is captain
@@ -991,7 +1002,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             playersByPosition[position].push({
                 id: playerId,
                 name: playerName,
-                photoId: photoIdPart,
+                protoSrc: photoImg.src,
+                //photoId: photoIdPart,
                 isCaptain: isCaptain,
                 position: position
             });
@@ -1067,8 +1079,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             // Create inner elements with correctly formatted photo URL
             playerElement.innerHTML = `
             <div class="pitch-player-inner">
-                <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photoId}png" 
-                     alt="${player.name}" class="pitch-player-photo">
+                <img src=${player.protoSrc} alt="${player.name}" class="pitch-player-photo">
+                     
                 <div class="pitch-player-name">${player.name}</div>
             </div>
         `;

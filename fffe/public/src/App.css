@@ -2129,14 +2129,23 @@ th {
         font-size: 18px;
     }
 
+.transfers-toggle {
+    right: 20px;
+    bottom: 90px;
+}
 
-.transfers-toggle, .view-toggle-round-btn, .cards-toggle, .squads-toggle {
+.view-toggle-round-btn, .cards-toggle, .squads-toggle {
     right: 20px;
     bottom: 40px;
 }
-.view-toggle-button, .fixtures-toggle {
+.fixtures-toggle {
     right: 20px;
     bottom: 90px;
+}
+
+.view-toggle-button {
+    right: 20px;
+    bottom: 40px;
 }
 
     /* Transfers container styling */
@@ -2148,7 +2157,7 @@ th {
     padding: 15px;
     position: fixed;
     top: 13%;
-    right: -305px;
+    right: 0px;
     bottom: 0;
     height: 74%;
     overflow-y: auto;
@@ -2172,21 +2181,18 @@ th {
     #transfersContainer {
         position: sticky;
         top: 20px;
-        right: auto;
+        right: 0;
         height: 75%;
         max-height: 550px;
     }
 
-    .transfers-toggle {
-        display: none;
-    }
+
 }
 
 @media (max-width: 768px) {
     /* Full width drawer on mobile */
-    #transfersContainer {
-        right: -100%;
-    }
+
+
 
     .transfers-open #playerGrid {
         transform: translateX(-20px);
@@ -4001,3 +4007,38 @@ nav {
         font-size: 10px;
         color: #666;
     }
+
+
+.transfer-player {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.transfer-squad-name {
+    font-size: 0.95em;
+    color: #888;
+    margin-top: 2px;
+}
+
+/* Add this to your CSS file */
+.transfer-item.pending {
+    filter: grayscale(1);
+    opacity: 0.7;
+}
+
+
+
+.user-team-cards-container {
+    flex: 1; /* take remaining width */
+    display: flex; /* so cards line up horizontally */
+    overflow-x: auto; /* horizontal scroll */
+    overflow-y: hidden; /* no vertical scroll here */
+    gap: 1rem; /* spacing between cards */
+    padding-bottom: 1rem; /* avoids scrollbar overlap */
+}
+
+#transfersContainer {
+    flex: 0 0 320px; /* fixed width panel */
+    margin-left: 1rem; /* spacing from cards */
+}

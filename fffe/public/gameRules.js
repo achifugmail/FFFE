@@ -28,5 +28,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
+    // Populate scoring rules table
     await fetchAndDisplayScoringRules();
 });

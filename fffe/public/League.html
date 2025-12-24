@@ -13,7 +13,7 @@
 <body>
     <div id="nav-placeholder"></div>
     <div id="content" class="team-container">
-        <div >
+        <div>
             <!-- User team cards container -->
             <div class="dropdown-container">
                 <select id="leagueDropdown"></select>
@@ -23,9 +23,16 @@
                 </div>
             </div>
 
-            <div id="userTeamCardsContainer" class="user-team-cards-container"></div>
-
+            <div class="team-layout">
+                <div id="userTeamCardsContainer" class="user-team-cards-container"></div>
+                <div id="transfersContainer" class="container">
+                    <div id="transfersList"></div>
+                </div>
+            </div>
             <!-- Toggle button -->
+            <button class="transfers-toggle" id="transfersToggle">
+                <i class="fas fa-exchange-alt"></i>
+            </button>
             <button class="cards-toggle" id="cardsToggle">
                 <i class="fas fa-compress"></i>
             </button>
@@ -33,39 +40,7 @@
 
         <!-- Legend container (moved outside team-layout) -->
         <div id="iconLegendContainer" class="icon-legend-container"></div>
-        <!--div class="league-rankings">
-        <h2>League Rankings</h2>
-        <table id="rankingsTable" class="rankings-table">
-            <thead>
-                <tr>
-                    <th>Squad</th>
-                    <th>Total</th>
-                    <th>1st</th>
-                    <th>2nd</th>
-                    <th>Last</th>
-                    <th>$</th>
-                    <th aria-label="View"></th>
-                </tr>
-            </thead>
-            <tbody id="rankingsTableBody">
-            </tbody>
-        </table>
-    <div--!>
-    <!-- New UI for creating a squad -->
-        <!-- button type="button" class="collapsible">Create Squad</!--button>
-    <div class="content">
-        <h3>Create Squad</h3>
-        <label for="userDropdown">User:</label>
-        <select id="userDropdown"></select>
-
-        <label for="draftPeriodDropdown">Draft Period:</label>
-        <select id="draftPeriodDropdown"></select>
-
-        <label for="squadName">Squad Name:</label>
-        <input type="text" id="squadName" />
-
-        <button id="createSquadButton">Create Squad</button>
-    </div-->
+        
         <!-- Section to display existing squads -->
         <div class="inline-label">
 

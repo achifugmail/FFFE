@@ -244,7 +244,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         playerDiv.innerHTML = `
         ${addButton}
-        <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
+        <img src="${config.premierLeagueImageUrl}${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
         <span class="player-name-long">${player.webName}</span>
         ${squadInfo}
         ${getPlayerStatusIcon(player)}
@@ -280,7 +280,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         const header = document.createElement('div');
         header.className = 'transfer-modal-header';
         header.innerHTML = `
-        <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${targetPlayer.photo.slice(0, -3)}png" 
+        <img src="${config.premierLeagueImageUrl}${targetPlayer.photo.slice(0, -3)}png"
             alt="${targetPlayer.webName}" class="player-photo">
         <h3>${targetPlayer.webName}</h3>
         <span>${positionName}</span>
@@ -334,7 +334,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     playerOption.setAttribute('data-player-id', player.id);
 
                     playerOption.innerHTML = `
-                    <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" 
+                    <img src="${config.premierLeagueImageUrl}${player.photo.slice(0, -3)}png"
                          alt="${player.webName}" class="player-photo">
                     <span class="player-name">${player.webName}</span>
                     <span class="player-score">${player.points || 0}</span>
@@ -390,7 +390,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                             playerOption.setAttribute('data-player-id', player.id);
 
                             playerOption.innerHTML = `
-                            <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" 
+                            <img src="${config.premierLeagueImageUrl}${player.photo.slice(0, -3)}png"
                                  alt="${player.webName}" class="player-photo">
                             <span class="player-name">${player.webName}</span>
                             <span class="player-score">${player.points || 0}</span>
@@ -513,11 +513,14 @@ document.addEventListener('DOMContentLoaded', async function () {
     document.getElementById('transfersToggle').addEventListener('click', function () {
         const teamLayout = document.querySelector('.team-layout');
         teamLayout.classList.toggle('transfers-open');
+        const transfersContainer = document.getElementById('transfersContainer');
+
 
         // Change the icon based on state
         const icon = this.querySelector('i');
         if (teamLayout.classList.contains('transfers-open')) {
             icon.className = 'fas fa-times'; // X icon when open
+            transfersContainer.style.display = 'block';
 
             // Load transfers only if they haven't been loaded yet
             if (!transfersLoaded && squadId) {
@@ -526,6 +529,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
         } else {
             icon.className = 'fas fa-exchange-alt'; // Exchange icon when closed
+            transfersContainer.style.display = 'none';
         }
     });
 
@@ -695,7 +699,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         const playerInEl = document.createElement('div');
         playerInEl.className = 'pending-transfer-player';
         playerInEl.innerHTML = `
-        <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${transfer.playerIn.photo ? transfer.playerIn.photo.slice(0, -3) : '0'}png" 
+        <img src="${config.premierLeagueImageUrl}${transfer.playerIn.photo ? transfer.playerIn.photo.slice(0, -3) : '0'}png"
              alt="${transfer.playerIn.webName}" class="player-photo">
         <div>
             <span class="player-name">${transfer.playerIn.webName}</span>
@@ -712,7 +716,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         const playerOutEl = document.createElement('div');
         playerOutEl.className = 'pending-transfer-player';
         playerOutEl.innerHTML = `
-        <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${transfer.playerOut.photo ? transfer.playerOut.photo.slice(0, -3) : '0'}png" 
+        <img src="${config.premierLeagueImageUrl}${transfer.playerOut.photo ? transfer.playerOut.photo.slice(0, -3) : '0'}png" 
              alt="${transfer.playerOut.webName}" class="player-photo">
         <div>
             <span class="player-name">${transfer.playerOut.webName}</span>
@@ -1016,7 +1020,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
                     playerDiv.innerHTML = `
                     <button class="remove-player-button" data-player-id="${player.id}" data-position="${position.name}">-</button>
-                    <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
+                    <img src="${config.premierLeagueImageUrl}${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
                 <span class="player-name-long">${player.webName}</span>
                 ${getPlayerStatusIcon(player)}
                 <span class="${scoreClass}" style="color: ${scoreColor};">${formattedScore}</span>                                        
@@ -1083,7 +1087,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
                 playerDiv.innerHTML = `
                 <button class="${isPlayerInSquad ? 'remove-player-button' : 'add-player-button'}" data-player-id="${player.id}" data-position="${position.name}">${isPlayerInSquad ? '-' : '+'}</button>
-                <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
+                <img src="${config.premierLeagueImageUrl}${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
                 <span class="player-name">${player.webName}</span>
                 ${getPlayerStatusIcon(player)}
                 ${getPlayerFormIndicator(player)}
@@ -1316,14 +1320,14 @@ document.addEventListener('DOMContentLoaded', async function () {
                         </div>
                         <div class="transfer-content">
                             <div class="transfer-player">
-                                <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${transfer.playerOut.photo.slice(0, -3)}png" 
+                                <img src="${config.premierLeagueImageUrl}${transfer.playerOut.photo.slice(0, -3)}png" 
                                      alt="${transfer.playerOut.webName}" 
                                      class="player-photo">
                                 <span class="player-name">${transfer.playerOut.webName}</span>
                             </div>
                             <div class="transfer-arrow">→</div>
                             <div class="transfer-player">
-                                <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${transfer.playerIn.photo.slice(0, -3)}png" 
+                                <img src="${config.premierLeagueImageUrl}${transfer.playerIn.photo.slice(0, -3)}png" 
                                      alt="${transfer.playerIn.webName}" 
                                      class="player-photo">
                                 <span class="player-name">${transfer.playerIn.webName}</span>

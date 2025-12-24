@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         // Points display removed
 
         playerDiv.innerHTML = `
-            <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="${player.webName}" class="player-photo">
+            <img src="${config.premierLeagueImageUrl}${player.photo.slice(0, -3)}png" alt="${player.webName}" class="player-photo">
             <span class="player-name">${player.webName}</span>
             ${getPlayerStatusIcon(player)}
             <button class="add-player-button" data-player-id="${player.id}" data-position="${player.positionName}">+</button>
@@ -217,7 +217,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             const pickNumberDisplay = player.draftId || (sortedPlayers.length - index);
 
             playerDiv.innerHTML = `
-                <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" alt="${player.webName}" class="player-photo">
+                <img src="${config.premierLeagueImageUrl}${player.photo.slice(0, -3)}png" alt="${player.webName}" class="player-photo">
                 <span class="pick-number">${pickNumberDisplay}.</span>
                 <span class="player-name">${player.webName}</span>
                 <span class="drafting-team" title="${player.squadName}">${player.squadName}</span>
@@ -297,7 +297,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 playerRow.className = 'player-row';
                 playerRow.setAttribute('data-player', JSON.stringify(player));
                 playerRow.innerHTML = `
-                    <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" 
+                    <img src="${config.premierLeagueImageUrl}${player.photo.slice(0, -3)}png" 
                          alt="${player.webName}" class="player-photo">
                     <div class="player-name">${player.webName}</div>
                     ${getPlayerStatusIcon(player)}
@@ -510,7 +510,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             modal.className = 'transfer-modal';
             modal.innerHTML = `
                 <div class="transfer-modal-header">
-                    <img src="https://resources.premierleague.com/premierleague/photos/players/40x40/p${player.photo.slice(0, -3)}png" 
+                    <img src="${config.premierLeagueImageUrl}${player.photo.slice(0, -3)}png" 
                          alt="${player.webName}" class="player-photo">
                     <h3>${player.webName}</h3>
                     <span>${position}</span>
