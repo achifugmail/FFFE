@@ -4042,3 +4042,17 @@ nav {
     flex: 0 0 320px; /* fixed width panel */
     margin-left: 1rem; /* spacing from cards */
 }
+#selectionLine {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: #ff4444;
+    /* Or any visible color */
+    z-index: 9999;
+    display: none;
+    /* Hidden by default */
+    pointer-events: none;
+    /* Let clicks pass through */
+}
