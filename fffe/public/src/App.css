@@ -4042,17 +4042,32 @@ nav {
     flex: 0 0 320px; /* fixed width panel */
     margin-left: 1rem; /* spacing from cards */
 }
+@keyframes pulseColor {
+    0% {
+        background-color: #cf7575;
+    }
+
+    50% {
+        background-color: #fa4242;
+    }
+
+    100% {
+        background-color: #cf7575;
+    }
+}
+
 #selectionLine {
     position: fixed;
     left: 0;
     top: 0;
     bottom: 0;
     width: 2px;
-    background-color: #ff4444;
-    /* Or any visible color */
+    background-color: var(--navigation-color);
+;
     z-index: 9999;
     display: none;
     /* Hidden by default */
     pointer-events: none;
     /* Let clicks pass through */
+    animation: pulseColor 2s infinite ease-in-out;
 }
