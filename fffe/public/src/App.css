@@ -4027,7 +4027,42 @@ nav {
     opacity: 0.7;
 }
 
+/* Deleted transfer styling */
+.transfer-item.deleted {
+    background-color: #ffe0e6;
+}
 
+.transfer-deleted-badge {
+    display: inline-block;
+    background-color: #ff4d6d;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75em;
+    font-weight: 600;
+    margin-left: 8px;
+    text-transform: uppercase;
+}
+
+.transfer-delete-btn {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    padding: 4px 8px;
+    margin-left: 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.transfer-delete-btn:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+.transfer-delete-btn i {
+    font-size: 0.9em;
+}
 
 .user-team-cards-container {
     flex: 1; /* take remaining width */

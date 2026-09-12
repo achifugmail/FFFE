@@ -12,6 +12,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     let maxPointsPerMinuteByPosition = {};
     const startColor = { r: 255, g: 255, b: 255 }; // #cfcfcf
     const endColor = { r: 32, g: 128, b: 128 }; // #008000
+    let leaguesData = []; // Store all leagues data including adminUserId
+    const currentUserId = localStorage.getItem('userId');
 
     const transfersToggle = document.getElementById('transfersToggle');
     const transfersContainer = document.getElementById('transfersContainer');
@@ -484,7 +486,43 @@ document.addEventListener('DOMContentLoaded', async function () {
         card.appendChild(footer);
 
         return card;
-    }  
+    }
+
+    function isCurrentUserLeagueAdmin() {
+        if (!leaguesData || !Array.isArray(leaguesData)) return false;
+        const currentLeague = leaguesData.find(league => league.id === parseInt(leagueId));
+        return currentLeague && currentLeague.adminUserId === parseInt(currentUserId);
+    }
+
+    async function deleteTransfer(transferId) {
+        if (!confirm('Are you sure you want to delete this transfer?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(
+                `${config.backendUrl}/Transfers/${transferId}/delete`,
+                addAuthHeader({
+                    method: 'POST'
+                })
+            );
+
+            if (!response.ok) {
+                console.error('Failed to delete transfer:', response.status, response.statusText);
+                alert('Failed to delete transfer. Please try again.');
+                return;
+            }
+
+            // Refresh the transfer list
+            fetchAndDisplayLeagueTransfers(leagueId);
+        } catch (error) {
+            console.error('Error deleting transfer:', error);
+            alert('An error occurred while deleting the transfer.');
+        }
+    }
+
+    // Expose deleteTransfer to window for onclick handler
+    window.deleteTransferHandler = deleteTransfer;
 
     async function fetchAndDisplayLeagueTransfers(leagueId) {
         try {
@@ -498,9 +536,9 @@ document.addEventListener('DOMContentLoaded', async function () {
                 return;
             }
 
-            const transfers = await response.json();            
+            const transfers = await response.json();
             const transfersList = document.getElementById('transfersList');
-
+            const isAdmin = isCurrentUserLeagueAdmin();
 
             if (transfers.length === 0) {
                 transfersList.innerHTML = '<div class="no-transfers">No transfers made yet</div>';
@@ -531,25 +569,39 @@ document.addEventListener('DOMContentLoaded', async function () {
                 // Add .pending class if transfer.pending === true
                 const pendingClass = transfer.pending ? 'pending' : '';
 
+                // Add .deleted class if transfer.deleted === true
+                const deletedClass = transfer.deleted ? 'deleted' : '';
+
+                // Show "Deleted" badge if transfer is deleted
+                const deletedBadge = transfer.deleted ? '<span class="transfer-deleted-badge">Deleted</span>' : '';
+
+                // Show delete button only if user is admin and transfer is not already deleted
+                const deleteButton = (isAdmin && !transfer.deleted) ?
+                    `<button class="transfer-delete-btn" onclick="window.deleteTransferHandler(${transfer.id})" title="Delete transfer">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>` : '';
+
                 return `
-    <div class="transfer-item ${transferTypeClass} ${pendingClass}">
+    <div class="transfer-item ${transferTypeClass} ${pendingClass} ${deletedClass}">
         <div class="transfer-date">
-            ${date} 
+            ${date}
             ${transferTypeIcon}
             ${statusBadge}
+            ${deletedBadge}
+            ${deleteButton}
         </div>
         <div class="transfer-content">
             <div class="transfer-player">
-                <img src="${config.premierLeagueImageUrl}${transfer.playerOut.photo.slice(0, -3)}png" 
-                     alt="${transfer.playerOut.webName}" 
+                <img src="${config.premierLeagueImageUrl}${transfer.playerOut.photo.slice(0, -3)}png"
+                     alt="${transfer.playerOut.webName}"
                      class="player-photo">
                 <span class="player-name">${transfer.playerOut.webName}</span>
                 <div class="transfer-squad-name">${transfer.fromUserSquad?.squadName || ''}</div>
             </div>
             <div class="transfer-arrow">→</div>
             <div class="transfer-player">
-                <img src="${config.premierLeagueImageUrl}${transfer.playerIn.photo.slice(0, -3)}png" 
-                     alt="${transfer.playerIn.webName}" 
+                <img src="${config.premierLeagueImageUrl}${transfer.playerIn.photo.slice(0, -3)}png"
+                     alt="${transfer.playerIn.webName}"
                      class="player-photo">
                 <span class="player-name">${transfer.playerIn.webName}</span>
                 <div class="transfer-squad-name">${transfer.userSquad?.squadName || ''}</div>
@@ -646,10 +698,10 @@ document.addEventListener('DOMContentLoaded', async function () {
         const leagueDropdown = document.getElementById('leagueDropdown');
         if (!leagueId) {
             console.log('No leagueId found, waiting for league fetch');
-            await fetchLeagues(leagueDropdown);
+            leaguesData = await fetchLeagues(leagueDropdown);
         }
         else {
-            fetchLeagues(leagueDropdown);
+            leaguesData = await fetchLeagues(leagueDropdown);
         }
 
         setupCardsToggle();
@@ -662,6 +714,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             leagueId = this.value;
             localStorage.setItem('leagueId', leagueId);
             fetchAndCreateUserTeamCards();
+            fetchAndDisplayLeagueTransfers(leagueId);
         });
     }
 
