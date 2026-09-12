@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         // Remove squad info - players shown are always available
         playerDiv.innerHTML = `
-        <button class="add-player-button" data-player-id="${player.id}" data-position="${player.positionName}">+</button>
+        <button class="add-player-button disabled-during-draft" data-player-id="${player.id}" data-position="${player.positionName}" disabled>+</button>
         <img src="${config.premierLeagueImageUrl}${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
         <span class="player-name">${player.webName}</span>
         ${getPlayerStatusIcon(player)}
@@ -975,12 +975,14 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
 
         await updateSquadId();
-        await checkForActiveDraft();
 
         // Fetch all players and display the all players view
         await fetchAllPlayers();
 
         displayAllPlayersView();
+
+        // Check draft status AFTER buttons are created so enable/disable works correctly
+        await checkForActiveDraft();
 
         //await fetchAndCreateUserTeamCards();
 
@@ -990,15 +992,17 @@ document.addEventListener('DOMContentLoaded', async function () {
             localStorage.setItem('leagueId', leagueId);
 
             await updateSquadId();
-            await checkForActiveDraft();
 
             // Clear cached data first
             allPlayers = [];
             otherUsersSquadPlayers = [];
 
-            // Fetch new data before displaying 
+            // Fetch new data before displaying
             await fetchAllPlayers();
             displayAllPlayersView();
+
+            // Check draft status AFTER buttons are created so enable/disable works correctly
+            await checkForActiveDraft();
 
             await fetchAndCreateUserTeamCards();
         });
@@ -1009,7 +1013,6 @@ document.addEventListener('DOMContentLoaded', async function () {
             draftPeriodStartDate = new Date(selectedOption.getAttribute('data-start-date')).toUTCString();
 
             await updateSquadId();
-            await checkForActiveDraft();
 
             // Clear cached data first
             allPlayers = [];
@@ -1018,6 +1021,9 @@ document.addEventListener('DOMContentLoaded', async function () {
             // Fetch new data before displaying
             await fetchAllPlayers();
             displayAllPlayersView();
+
+            // Check draft status AFTER buttons are created so enable/disable works correctly
+            await checkForActiveDraft();
 
             await fetchAndCreateUserTeamCards();
         });
