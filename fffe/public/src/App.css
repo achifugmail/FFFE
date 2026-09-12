@@ -4027,7 +4027,42 @@ nav {
     opacity: 0.7;
 }
 
+/* Deleted transfer styling */
+.transfer-item.deleted {
+    background-color: #ffe0e6;
+}
 
+.transfer-deleted-badge {
+    display: inline-block;
+    background-color: #ff4d6d;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75em;
+    font-weight: 600;
+    margin-left: 8px;
+    text-transform: uppercase;
+}
+
+.transfer-delete-btn {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    padding: 4px 8px;
+    margin-left: 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.transfer-delete-btn:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+.transfer-delete-btn i {
+    font-size: 0.9em;
+}
 
 .user-team-cards-container {
     flex: 1; /* take remaining width */
@@ -4041,4 +4076,33 @@ nav {
 #transfersContainer {
     flex: 0 0 320px; /* fixed width panel */
     margin-left: 1rem; /* spacing from cards */
+}
+@keyframes pulseColor {
+    0% {
+        background-color: #cf7575;
+    }
+
+    50% {
+        background-color: #fa4242;
+    }
+
+    100% {
+        background-color: #cf7575;
+    }
+}
+
+#selectionLine {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: var(--navigation-color);
+;
+    z-index: 9999;
+    display: none;
+    /* Hidden by default */
+    pointer-events: none;
+    /* Let clicks pass through */
+    animation: pulseColor 2s infinite ease-in-out;
 }

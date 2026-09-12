@@ -13,7 +13,7 @@ let currentLeague = null;
 let positions = null;
 
 document.addEventListener('DOMContentLoaded', async function () {
-   
+
     let draftPeriodId;
     let squadId;  // Remove the URL parameter assignment
     let squadPlayers = [];
@@ -1269,8 +1269,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             const transfers = await response.json();
             const transfersList = document.getElementById('transfersList');
 
-            // Count standard transfers
-            const standardTransfersUsed = transfers.filter(t => t.type !== 'Swap').length;
+            // Count standard transfers (excluding deleted transfers)
+            const standardTransfersUsed = transfers.filter(t => t.type !== 'Swap' && !t.deleted).length;
             const remainingTransfers = 20 - standardTransfersUsed;
 
             // Add transfer count display at the top
@@ -1310,13 +1310,20 @@ document.addEventListener('DOMContentLoaded', async function () {
                     `<span class="transfer-status transfer-status-${transfer.status.toLowerCase()}">${transfer.status}</span>` :
                     '';
 
+                // Add .deleted class if transfer.deleted === true
+                const deletedClass = transfer.deleted ? 'deleted' : '';
+
+                // Show "Deleted" badge if transfer is deleted
+                const deletedBadge = transfer.deleted ? '<span class="transfer-deleted-badge">Deleted</span>' : '';
+
                 // Rest of your existing transfer item HTML...
                 return `
-                    <div class="transfer-item ${transferTypeClass}">
+                    <div class="transfer-item ${transferTypeClass} ${deletedClass}">
                         <div class="transfer-date">
-                            ${date} 
+                            ${date}
                             ${transferTypeIcon}
                             ${statusBadge}
+                            ${deletedBadge}
                         </div>
                         <div class="transfer-content">
                             <div class="transfer-player">

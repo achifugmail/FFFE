@@ -247,39 +247,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 select.addEventListener('change', async (e) => {
                     const newOrder = parseInt(e.target.value);
                     const squadId = e.target.closest('tr').dataset.squadId;
-                    const originalValue = e.target.dataset.originalValue;
 
-                    // Get all current selections
-                    const currentSelections = new Map();
-                    draftOrderSelects.forEach(s => {
-                        if (s.value && s !== e.target) {
-                            currentSelections.set(parseInt(s.value), s);
-                        }
-                    });
-
-                    // Check if the new order is already selected
-                    if (currentSelections.has(newOrder)) {
-                        // Find the next available order
-                        const takenOrders = Array.from(currentSelections.keys());
-                        const allOrders = Array.from({ length: members.length }, (_, i) => i + 1);
-                        const availableOrders = allOrders.filter(order =>
-                            !takenOrders.includes(order) || order === parseInt(originalValue)
-                        );
-
-                        // Update the conflicting select to the next available order
-                        const conflictingSelect = currentSelections.get(newOrder);
-                        const nextAvailableOrder = availableOrders.find(order => order !== newOrder);
-                        if (nextAvailableOrder) {
-                            conflictingSelect.value = nextAvailableOrder;
-                            // Update the backend for the changed squad
-                            await updateDraftOrder(
-                                conflictingSelect.closest('tr').dataset.squadId,
-                                nextAvailableOrder
-                            );
-                        }
-                    }
-
-                    // Update the backend for the current squad
+                    // Update the backend for the current squad only.
+                    // Each dropdown is independent - no cross-dropdown adjustment.
                     await updateDraftOrder(squadId, newOrder);
                     e.target.dataset.originalValue = newOrder;
                 });

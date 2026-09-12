@@ -10,19 +10,19 @@ export async function fetchLeagues(leagueDropdown) {
             console.error('Authentication error: Unauthorized access (401)');
             // Redirect to the root site
             window.location.href = '/';
-            return;
+            return null;
         }
         if (response.status === 404) {
             // Redirect to LeagueAdmin.html if no leagues are found
             window.location.href = 'LeagueAdmin.html';
-            return;
+            return null;
         }
         if (!response.ok) {
             console.error('Failed to fetch leagues:', response.status, response.statusText);
-            return;
+            return null;
         }
         const leagues = await response.json();
-                
+
         leagueDropdown.innerHTML = '';
         leagues.forEach(league => {
             const option = document.createElement('option');
@@ -41,9 +41,12 @@ export async function fetchLeagues(leagueDropdown) {
                 // If leagueId exists, set the dropdown to that value
                 leagueDropdown.value = leagueId;
             }
-        }        
+        }
+
+        return leagues;
     } catch (error) {
         console.error('Error fetching leagues:', error);
+        return null;
     }
 }
 

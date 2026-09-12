@@ -8,11 +8,11 @@ import config from './config.js';
 document.addEventListener('DOMContentLoaded', async function () {
     // Fetch draft periods for dropdown
     let leagueId = localStorage.getItem('leagueId');
-    let currentView = 'list';    
+    let currentView = 'list';
     const squadPlayersCache = new Map();
-       
+
     let draftPeriodId;
-    let draftPeriodDropdown = document.getElementById('filterDraftPeriodDropdown');    
+    let draftPeriodDropdown = document.getElementById('filterDraftPeriodDropdown');
     let squadId;  // Remove the URL parameter assignment
 
     const filterDraftPeriodDropdown = document.getElementById('filterDraftPeriodDropdown');
@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         //setView('pitch');
         const selectedOption = gameweekDropdown.options[gameweekDropdown.selectedIndex];
         const gwStartDate = new Date(selectedOption.dataset.startdate + 'Z');
-        
+
 
         if (gwStartDate < now) {
             // Switch to pitch view
@@ -314,7 +314,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
 
             let positions = await fetchPositions();
-            
+
             const playerGrid = document.getElementById('playerGrid');
             playerGrid.innerHTML = ''; // Clear existing sections
 
@@ -362,6 +362,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                             markCaptainVisually(player.playerId);
                         }
                     });
+                    updateSelectionLine();
                 } else {
                     console.error('Failed to fetch gameweek players:', gameweekPlayersResponse.status, gameweekPlayersResponse.statusText);
                 }
@@ -628,7 +629,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         const gameweekId = document.getElementById('gameweekDropdown').value;
         try {
 
-            disableAllControls(); 
+            disableAllControls();
             const response = await fetch(`${config.backendUrl}/UserTeamPlayers/updateCaptainByGameweekAndSquad`, addAuthHeader({
                 method: 'POST',
                 headers: {
@@ -764,6 +765,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 if (checkbox) {
                     checkbox.checked = true;
                     playerDiv?.classList.add('selected');
+                    updateSelectionLine();
                 }
             } catch (error) {
                 console.error('Error adding player to team:', error);
@@ -780,6 +782,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             if (checkbox) {
                 checkbox.checked = true;
                 playerDiv?.classList.add('selected');
+                updateSelectionLine();
             }
         }
     }
@@ -791,7 +794,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         const gameweekId = document.getElementById('gameweekDropdown').value;
         try {
-            disableAllControls(); 
+            disableAllControls();
             const response = await fetch(`${config.backendUrl}/UserTeamPlayers/DeleteByGameweekAndSquad`, addAuthHeader({
                 method: 'DELETE',
                 headers: {
@@ -832,6 +835,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             if (checkbox) {
                 checkbox.checked = false;
                 playerDiv?.classList.remove('selected');
+                updateSelectionLine();
             }
         } catch (error) {
             console.error('Error removing player from team:', error);
@@ -976,7 +980,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
                 // Extract the ID part (remove the 'p' prefix and the 'png' suffix)
                 //if (filename.startsWith('p') && filename.endsWith('png')) {
-                    photoIdPart = filename.slice(1, -3); // Remove 'p' and 'png'
+                photoIdPart = filename.slice(1, -3); // Remove 'p' and 'png'
                 //}
             }
 
@@ -1133,7 +1137,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         draftPeriodId = draftPeriodDropdown.value;
         fetchAndDisplayPendingTransfers();
         await fetchAndPopulateGameweeks(draftPeriodId);
-        fetchAndDisplayFixtures(gameweekDropdown.value);        
+        fetchAndDisplayFixtures(gameweekDropdown.value);
         squadId = await fetchSquadId();
         await fetchAndDisplaySquadPlayers(squadId);
         setupViewToggle();
@@ -1184,4 +1188,16 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Re-check when window is resized
     //window.addEventListener('resize', checkScreenWidth);
+
+    function updateSelectionLine() {
+        const selectionCount = document.querySelectorAll('.player-checkbox:checked').length;
+        const selectionLine = document.getElementById('selectionLine');
+        if (selectionLine) {
+            if (selectionCount < 11) {
+                selectionLine.style.display = 'block';
+            } else {
+                selectionLine.style.display = 'none';
+            }
+        }
+    }
 });
