@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game Rules</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="src/App.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
     <div id="nav-placeholder"></div>
@@ -15,15 +16,17 @@
             <h2>Squad Composition</h2>
             <ul>
                 <li>Your squad is selected via a draft process. Each user picks players in turn.</li>
-                <li>Each squad consists of a fixed number of players per position:</li>
-                <ul>
-                    <li>Goalkeepers (GK): usually 2</li>
-                    <li>Defenders (DEF): e.g. 5</li>
-                    <li>Wing Backs (WB): e.g. 2</li>
-                    <li>Defensive Midfielders (DM): e.g. 2</li>
-                    <li>Attacking Midfielders (AM): e.g. 4</li>
-                    <li>Forwards (FW): e.g. 3</li>
-                </ul>
+                <li>
+                    Each squad consists of a fixed number of players per position:
+                    <ul>
+                        <li>Goalkeepers (GK): usually 2</li>
+                        <li>Defenders (DEF): e.g. 5</li>
+                        <li>Wing Backs (WB): e.g. 2</li>
+                        <li>Defensive Midfielders (DM): e.g. 2</li>
+                        <li>Attacking Midfielders (AM): e.g. 4</li>
+                        <li>Forwards (FW): e.g. 3</li>
+                    </ul>
+                </li>
                 <li>Exact numbers may be set by your league admin.</li>
                 <li>No two squads can own the same player at the same time.</li>
             </ul>
@@ -39,11 +42,99 @@
         </section>
 
         <section>
-            <h2>Transfers</h2>
+            <h2>Team Selection & Starting XI</h2>
+            <p><strong>You must select your team every gameweek</strong> – teams do not automatically carry over from the previous week.</p>
+            <p>All players in your selected team play each gameweek. There is no separate bench or starting lineup selection.</p>
+
+            <h3>Position Constraints</h3>
+            <p>When building your gameweek team, you must respect these limits:</p>
             <ul>
-                <li>Transfers may be allowed between gameweeks, depending on league settings.</li>
-                <li>Players can only be added if they are not already in another squad.</li>
-                <li>Squad composition rules must always be respected.</li>
+                <li><strong>Goalkeeper (GK):</strong> Maximum 1</li>
+                <li><strong>Defense (DEF + WB + DM combined):</strong> Maximum 5 total</li>
+                <li><strong>Attack (AM + FW combined):</strong> Maximum 5 total</li>
+                <li><strong>Forwards (FW) alone:</strong> Maximum 3</li>
+                <li><strong>Same Real-World Team Limit:</strong> Maximum 2 players from the same club in defensive positions (GK, DEF, WB, DM)</li>
+            </ul>
+
+            <h3>Team Management</h3>
+            <ul>
+                <li>You can add/remove players before the gameweek deadline</li>
+                <li>Changes are locked once the first game of the gameweek starts</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Captain Selection</h2>
+            <p><strong>Each gameweek you must select one captain from your team.</strong></p>
+            <ul>
+                <li><strong>Captain Multiplier:</strong> 1.5× points (all points your captain earns are multiplied by 1.5)</li>
+                <li>You can change your captain before the gameweek deadline</li>
+                <li>Only one player can be captain at a time; changing captain removes the status from your previous selection</li>
+                <li><strong>Captain Limit:</strong> A player may be selected as captain no more than 5 times each half season</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Substitutions</h2>
+            <p><strong>There are no automatic substitutions.</strong></p>
+            <p>All players in your selected team play. If a player in your team doesn't play in real life, they score 0 points – no replacement occurs.</p>
+            <p>You can manually remove and replace players before the gameweek deadline.</p>
+        </section>
+
+        <section>
+            <h2>Transfers</h2>
+
+            <h3>Transfer Limits</h3>
+            <ul>
+                <li><strong>20 standard transfers</strong> allowed per squad per draft period</li>
+                <li>Draft periods: gameweeks 1-19 OR gameweeks 20-38</li>
+            </ul>
+
+            <h3>Transfer Rules</h3>
+            <ul>
+                <li><strong>Position matching required:</strong> The player you bring in must play the same position as the player going out</li>
+                <li><strong>No duplicates:</strong> You cannot transfer in a player who is already owned by another squad in your league</li>
+                <li><strong>Future team protection:</strong> You cannot transfer out a player who is selected in a future gameweek's team</li>
+                <li><strong>Immediate processing:</strong> Transfers take effect instantly – no waiver period or claims system</li>
+            </ul>
+            <p>All transfer activity is timestamped and tracked.</p>
+        </section>
+
+        <section>
+            <h2>Competition Format & Winning</h2>
+            <p><strong>This is a head-to-head league with weekly placements and season-long points.</strong></p>
+
+            <h3>Each Gameweek</h3>
+            <ul>
+                <li>Teams compete for <strong>1st place, 2nd place, and Last place</strong> within the league</li>
+                <li>Rankings are based on total points scored that gameweek</li>
+                <li>
+                    <strong>Ties are handled with fractional placement sharing</strong>
+                    <ul>
+                        <li>Example: If 3 teams tie for 1st place, each receives ⅓ of a 1st place credit</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h3>Season-Long Tracking</h3>
+            <p>Your squad accumulates:</p>
+            <ul>
+                <li><code>FirstPlaces</code> count (can be fractional if tied)</li>
+                <li><code>SecondPlaces</code> count (can be fractional if tied)</li>
+                <li><code>LastPlaces</code> count (can be fractional if tied)</li>
+                <li><code>TotalPoints</code> (sum of all gameweek scores)</li>
+            </ul>
+
+            <h3>Winner Determination</h3>
+            <ul>
+                <li><strong>Gameweek winner:</strong> Highest points that week</li>
+                <li><strong>Season winner:</strong> Highest <code>TotalPoints</code> across all gameweeks</li>
+            </ul>
+
+            <h3>Special Rules</h3>
+            <ul>
+                <li>In 2-team leagues, <code>SecondPlaces</code> is always set to 0</li>
+                <li>Gameweeks where all teams score ≤0 points are skipped in placement calculations</li>
             </ul>
         </section>
 
@@ -61,6 +152,83 @@
                     <!-- Scoring rules will be populated here -->
                 </tbody>
             </table>
+
+            <h3>Clean Sheet Requirements</h3>
+            <p>A player earns clean sheet points if:</p>
+            <ul>
+                <li>They play <strong>at least 30 minutes</strong>, AND</li>
+                <li>Their opponent scores <strong>0 goals</strong></li>
+            </ul>
+
+            <h3>Admin Adjustments</h3>
+            <ul>
+                <li>Admins can manually add or subtract points from any player's gameweek score</li>
+                <li>Adjustments include a comment field explaining the reason</li>
+                <li>All scores and placements are automatically recalculated after adjustments</li>
+                <li>Changes are logged in audit trails</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Gameweek Deadlines</h2>
+
+            <h3>Deadline Time</h3>
+            <p>Lineups lock when the first game of the gameweek starts.</p>
+
+            <h3>After Deadline</h3>
+            <ul>
+                <li>No player changes allowed (add/remove/transfer)</li>
+                <li>No captain changes allowed</li>
+            </ul>
+
+            <h3>Before Deadline</h3>
+            <ul>
+                <li>Freely add/remove players (within position constraints)</li>
+                <li>Change your captain</li>
+                <li>Make transfers (within transfer limits)</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Player Status Changes</h2>
+
+            <h3>Real-Life Transfers/Loans</h3>
+            <ul>
+                <li>Player data is synced with the Fantasy Premier League API</li>
+                <li>If a player transfers to a different club in real life, their stats continue to update</li>
+                <li>No automatic removal from squads required</li>
+            </ul>
+
+            <h3>Injured/Suspended Players</h3>
+            <ul>
+                <li>Players remain in your squad even if injured or suspended in real life</li>
+                <li>If they don't play, they score 0 points</li>
+                <li>You can transfer them out (subject to transfer limits) or keep them</li>
+            </ul>
+
+            <h3>Players Leaving the League</h3>
+            <ul>
+                <li>If a player leaves the Premier League entirely, they will likely stop accumulating stats</li>
+                <li>You may transfer them out (subject to transfer limits)</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Tiebreakers</h2>
+
+            <h3>Gameweek Ties</h3>
+            <ul>
+                <li>Teams with identical gameweek scores share placements fractionally</li>
+                <li>Example: 3-way tie for 1st = each team gets 0.33 first places</li>
+            </ul>
+
+            <h3>Season Ties</h3>
+            <p>If teams finish level on <code>TotalPoints</code>, the winner is determined by:</p>
+            <ol>
+                <li>Most <code>FirstPlaces</code></li>
+                <li>Most <code>SecondPlaces</code></li>
+                <li>Fewest <code>LastPlaces</code></li>
+            </ol>
         </section>
     </main>
 
