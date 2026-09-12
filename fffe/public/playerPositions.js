@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             return (
                 player.firstName.toLowerCase().includes(searchFirstName) &&
                 player.secondName.toLowerCase().includes(searchSecondName) &&
-                (player.positionName ? player.positionName.toLowerCase().includes(searchPosition) : false)
+                (player.positionName ? player.positionName.toLowerCase().includes(searchPosition) : searchPosition === '')
             );
         });
 
