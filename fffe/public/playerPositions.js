@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             return (
                 player.firstName.toLowerCase().includes(searchFirstName) &&
                 player.secondName.toLowerCase().includes(searchSecondName) &&
-                (player.positionName ? player.positionName.toLowerCase().includes(searchPosition) : false)
+                (searchPosition === '' || (player.positionName && player.positionName.toLowerCase().includes(searchPosition)))
             );
         });
 
@@ -100,6 +100,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 <td>${player.secondName}</td>
                 <td>
                     <select class="position-select" data-player-id="${player.id}">
+                        <option value="" ${!player.positionName ? 'selected' : ''}></option>
                         ${positions.map(position => `<option value="${position.name}" ${position.name === player.positionName ? 'selected' : ''}>${position.name}</option>`).join('')}
                     </select>
                 </td>
