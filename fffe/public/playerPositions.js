@@ -82,11 +82,15 @@ document.addEventListener('DOMContentLoaded', async function () {
         const searchPosition = document.getElementById('searchPosition').value.toLowerCase();
 
         const filteredPlayers = players.filter(player => {
-            return (
-                player.firstName.toLowerCase().includes(searchFirstName) &&
-                player.secondName.toLowerCase().includes(searchSecondName) &&
-                (player.positionName ? player.positionName.toLowerCase().includes(searchPosition) : searchPosition === '')
-            );
+            const firstName = (player.firstName || '').toLowerCase();
+            const secondName = (player.secondName || '').toLowerCase();
+            const positionName = (player.positionName || '').toLowerCase();
+
+            const firstNameMatch = firstName.includes(searchFirstName);
+            const secondNameMatch = secondName.includes(searchSecondName);
+            const positionMatch = searchPosition === '' || positionName.includes(searchPosition);
+
+            return firstNameMatch && secondNameMatch && positionMatch;
         });
 
         playerTableBody.innerHTML = ''; // Clear existing rows
@@ -100,6 +104,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 <td>${player.secondName}</td>
                 <td>
                     <select class="position-select" data-player-id="${player.id}">
+                        <option value="" ${!player.positionName ? 'selected' : ''}></option>
                         ${positions.map(position => `<option value="${position.name}" ${position.name === player.positionName ? 'selected' : ''}>${position.name}</option>`).join('')}
                     </select>
                 </td>
