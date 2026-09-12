@@ -233,6 +233,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     tableHeaders.forEach(header => {
         header.addEventListener('click', () => {
+
+
             const column = header.getAttribute('data-sort');
             sortTable(column);
         });
