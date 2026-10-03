@@ -111,9 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     draftType: e.target.querySelector('#draftType').value,
                                     nextDraftPeriodId: parseInt(e.target.querySelector('#draftPeriodSelect').value) || 0,
                                     draftStartDate: e.target.querySelector('#draftStartDate').value,
-                                    draftEndDate: e.target.querySelector('#draftEndDate').value,
-                                    currentDraftRound: 1,
-                                    currentDraftUserId: 0
+                                    draftEndDate: e.target.querySelector('#draftEndDate').value
                                 };
 
                                 try {

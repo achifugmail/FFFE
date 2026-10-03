@@ -2,6 +2,7 @@ import config from './config.js';
 import { addAuthHeader } from './config.js';
 
 export async function fetchLeagues(leagueDropdown) {
+    console.log('🚀 TEST DEPLOYMENT - common.js updated at 2026-09-11 - DELETE TRANSFERS FEATURE 🚀');
     try {
         let leagueId = localStorage.getItem('leagueId');
 

@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             return (
                 player.firstName.toLowerCase().includes(searchFirstName) &&
                 player.secondName.toLowerCase().includes(searchSecondName) &&
-                (searchPosition === '' || (player.positionName && player.positionName.toLowerCase().includes(searchPosition)))
+                (player.positionName ? player.positionName.toLowerCase().includes(searchPosition) : false)
             );
         });
 
@@ -229,6 +229,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     tableHeaders.forEach(header => {
         header.addEventListener('click', () => {
+
+
             const column = header.getAttribute('data-sort');
             sortTable(column);
         });
