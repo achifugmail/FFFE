@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         // Remove squad info - players shown are always available
         playerDiv.innerHTML = `
-        <button class="add-player-button" data-player-id="${player.id}" data-position="${player.positionName}">+</button>
+        <button class="add-player-button disabled-during-draft" data-player-id="${player.id}" data-position="${player.positionName}" disabled>+</button>
         <img src="${config.premierLeagueImageUrl}${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
         <span class="player-name">${player.webName}</span>
         ${getPlayerStatusIcon(player)}
@@ -472,7 +472,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 </div>
             `;
 
-            // enableAllButtons(); // Buttons stay disabled outside draft dates
+            // enableAllButtons(); ? // Buttons stay disabled outside draft dates
             if (draftCheckInterval) {
                 clearInterval(draftCheckInterval);
                 draftCheckInterval = null;
@@ -815,7 +815,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 playerDiv.setAttribute('data-player', JSON.stringify(player));
 
                 playerDiv.innerHTML = `
-                <button class="${isPlayerInSquad ? 'remove-player-button' : 'add-player-button'}" data-player-id="${player.id}" data-position="${position.name}">${isPlayerInSquad ? '-' : '+'}</button>
+                <button class="${isPlayerInSquad ? 'remove-player-button' : 'add-player-button disabled-during-draft'}" data-player-id="${player.id}" data-position="${position.name}" disabled>${isPlayerInSquad ? '-' : '+'}</button>
                 <img src="${config.premierLeagueImageUrl}${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
                 <span class="player-name">${player.webName}</span>
                 ${getPlayerStatusIcon(player)}
