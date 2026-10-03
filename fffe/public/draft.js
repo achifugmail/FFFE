@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         // Remove squad info - players shown are always available
         playerDiv.innerHTML = `
-        <button class="add-player-button" data-player-id="${player.id}" data-position="${player.positionName}" disabled>+</button>
+        <button class="add-player-button" data-player-id="${player.id}" data-position="${player.positionName}">+</button>
         <img src="${config.premierLeagueImageUrl}${player.photo.slice(0, -3)}png" alt="Player Photo" class="player-photo">
         <span class="player-name">${player.webName}</span>
         ${getPlayerStatusIcon(player)}
