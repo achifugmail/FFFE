@@ -240,6 +240,10 @@
             .then(data => {
                 document.getElementById('nav-placeholder').innerHTML = data;
                 initializeNavigation();
+            })
+            .catch(error => {
+                console.error('Failed to load navigation:', error);
+                document.getElementById('nav-placeholder').textContent = 'Navigation failed to load.';
             });
     </script>
 </body>

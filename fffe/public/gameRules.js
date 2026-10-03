@@ -17,14 +17,27 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             scoringRules.forEach(rule => {
                 const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${rule.longDescription}</td>
-                    <td>${rule.points}</td>
-                `;
+
+                const descCell = document.createElement('td');
+                descCell.textContent = rule.longDescription;
+
+                const pointsCell = document.createElement('td');
+                pointsCell.textContent = rule.points;
+
+                row.appendChild(descCell);
+                row.appendChild(pointsCell);
                 scoringRulesTable.appendChild(row);
             });
         } catch (error) {
             console.error('Error fetching scoring rules:', error);
+            const scoringRulesTable = document.getElementById('scoringRulesTable').getElementsByTagName('tbody')[0];
+            const errorRow = document.createElement('tr');
+            const errorCell = document.createElement('td');
+            errorCell.colSpan = 2;
+            errorCell.textContent = 'Failed to load scoring rules. Please try refreshing the page.';
+            errorCell.style.color = 'red';
+            errorRow.appendChild(errorCell);
+            scoringRulesTable.appendChild(errorRow);
         }
     }
 

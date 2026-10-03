@@ -88,18 +88,10 @@ function attachNavLinkHandlers() {
     });
 
     // Add fresh click handlers
+    const excludedPages = ['settings.html', 'team.html', 'leaguescore.html', 'squad.html'];
     document.querySelectorAll('.nav-link').forEach(link => {
-        // Skip settings link
-        if (link.getAttribute('href').toLowerCase() === 'settings.html') {
-            return;
-        }
-        if (link.getAttribute('href').toLowerCase() === 'team.html') {
-            return;
-        }
-        if (link.getAttribute('href').toLowerCase() === 'leaguescore.html') {
-            return;
-        }
-        if (link.getAttribute('href').toLowerCase() === 'squad.html') {
+        const href = link.getAttribute('href').toLowerCase();
+        if (excludedPages.includes(href)) {
             return;
         }
 
