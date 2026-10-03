@@ -472,7 +472,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 </div>
             `;
 
-            // enableAllButtons(); // Buttons stay disabled outside draft dates
+            // enableAllButtons(); ? // Buttons stay disabled outside draft dates
             if (draftCheckInterval) {
                 clearInterval(draftCheckInterval);
                 draftCheckInterval = null;
